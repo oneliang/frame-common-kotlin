@@ -12,6 +12,7 @@
 
 # Package Files #
 *.jar
+!gradle-wrapper.jar
 *.war
 *.nar
 *.ear
@@ -26,3 +27,6 @@ bin
 build
 .gradle
 .settings
+local.properties
+*.iml
+.idea
