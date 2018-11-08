@@ -75,7 +75,7 @@ object CollectUtil {
         } else {
             byteArrayOutputStream = collectFromHttp(httpUrl, httpHeaderList)
             val byteArray = byteArrayOutputStream.toByteArray()
-            if (byteArray.size > 0) {
+            if (byteArray.isNotEmpty()) {
                 FileUtil.writeFile(fullFilename, byteArray)
             }
         }
@@ -116,8 +116,8 @@ object CollectUtil {
     }
 
     class CollectUtilException : RuntimeException {
-        constructor(message: String) : super(message) {}
-        constructor(cause: Throwable) : super(cause) {}
-        constructor(message: String, cause: Throwable) : super(message, cause) {}
+        constructor(message: String) : super(message)
+        constructor(cause: Throwable) : super(cause)
+        constructor(message: String, cause: Throwable) : super(message, cause)
     }
 }

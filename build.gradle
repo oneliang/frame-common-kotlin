@@ -13,21 +13,6 @@ buildscript {
     }
     repositories {
         mavenLocal()
-        maven {
-            url "http://maven.oa.com/nexus/content/repositories/android"
-        }
-        maven {
-            url "http://maven.oa.com/nexus/content/repositories/thirdparty"
-        }
-        maven {
-            url "http://maven.oa.com/nexus/content/repositories/thirdparty-snapshots"
-        }
-        maven {
-            url "http://maven.oa.com/nexus/content/repositories/jcenter"
-        }
-        maven {
-            url "http://maven.oa.com/nexus/content/repositories/google-maven/"
-        }
         google()
         jcenter()
     }
@@ -63,6 +48,7 @@ repositories {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation "com.oneliang.ktx:common-util-kotlin:1.0"
 }
 
 task sourceJar(type: Jar) {
