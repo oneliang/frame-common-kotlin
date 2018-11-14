@@ -42,12 +42,12 @@ object ConfigurationFactory {
      *
      * @return List<Interceptor>
     </Interceptor> */
-    val beforeGlobalInterceptorList: List<Interceptor>?
+    val beforeGlobalInterceptorList: List<Interceptor>
         get() {
-            var beforeGlobalInterceptorList: List<Interceptor>? = null
-            val interceptorContext = singletonConfigurationContext.findContext(InterceptorContext::class.java)
+            var beforeGlobalInterceptorList: List<Interceptor> = emptyList()
+            val interceptorContext = singletonConfigurationContext.findContext(InterceptorContext::class)
             if (interceptorContext != null) {
-                beforeGlobalInterceptorList = interceptorContext!!.getBeforeGlobalInterceptorList()
+                beforeGlobalInterceptorList = interceptorContext.getBeforeGlobalInterceptorList()
             }
             return beforeGlobalInterceptorList
         }
@@ -57,10 +57,10 @@ object ConfigurationFactory {
      *
      * @return List<Interceptor>
     </Interceptor> */
-    val afterGlobalInterceptorList: List<Interceptor>?
+    val afterGlobalInterceptorList: List<Interceptor>
         get() {
-            var afterGlobalInterceptorList: List<Interceptor>? = null
-            val interceptorContext = singletonConfigurationContext.findContext(InterceptorContext::class.java)
+            var afterGlobalInterceptorList: List<Interceptor> = emptyList()
+            val interceptorContext = singletonConfigurationContext.findContext(InterceptorContext::class)
             if (interceptorContext != null) {
                 afterGlobalInterceptorList = interceptorContext!!.getAfterGlobalInterceptorList()
             }
@@ -75,7 +75,7 @@ object ConfigurationFactory {
     val globalExceptionForwardPath: String?
         get() {
             var path: String? = null
-            val actionContext = singletonConfigurationContext.findContext(ActionContext::class.java)
+            val actionContext = singletonConfigurationContext.findContext(ActionContext::class)
             if (actionContext != null) {
                 path = actionContext!!.getGlobalExceptionForwardPath()
             }

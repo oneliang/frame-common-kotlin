@@ -1,15 +1,24 @@
 package com.oneliang.ktx.frame.servlet.action
 
+import com.oneliang.ktx.Constants
+
 
 class GlobalInterceptorBean {
 
+    companion object {
+
+        const val TAG_GLOBAL_INTERCEPTOR = "global-interceptor"
+
+        const val INTERCEPTOR_MODE_BEFORE = "before"
+        const val INTERCEPTOR_MODE_AFTER = "after"
+    }
     /**
      * @return the id
      */
     /**
      * @param id the id to set
      */
-    var id: String? = null
+    var id: String = Constants.String.BLANK
     /**
      * @return the type
      */
@@ -31,12 +40,4 @@ class GlobalInterceptorBean {
      * @param interceptorInstance the interceptorInstance to set
      */
     var interceptorInstance: Interceptor? = null
-
-    companion object {
-
-        val TAG_GLOBAL_INTERCEPTOR = "global-interceptor"
-
-        val INTERCEPTOR_MODE_BEFORE = "before"
-        val INTERCEPTOR_MODE_AFTER = "after"
-    }
 }

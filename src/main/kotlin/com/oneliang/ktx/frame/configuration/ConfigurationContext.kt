@@ -8,10 +8,11 @@ import com.oneliang.ktx.util.common.JavaXmlUtil
 import com.oneliang.ktx.util.common.ObjectUtil
 import com.oneliang.ktx.util.logging.LoggerManager
 import kotlin.collections.Map.Entry
+import kotlin.reflect.KClass
 
 class ConfigurationContext : AbstractContext() {
     companion object {
-        private val logger = LoggerManager.getLogger(ConfigurationContext::class.java)
+        private val logger = LoggerManager.getLogger(ConfigurationContext::class)
         internal val configurationBeanMap = mutableMapOf<String, ConfigurationBean>()
     }
 
@@ -108,16 +109,15 @@ class ConfigurationContext : AbstractContext() {
      * @return T
     </T> */
     @Suppress("UNCHECKED_CAST")
-    fun <T : Context> findContext(clazz: Class<T>): T? {
+    fun <T : Context> findContext(clazz: KClass<T>): T? {
         var instance: T? = null
-        val iterator = configurationBeanMap.entries.iterator()
-        while (iterator.hasNext()) {
-            val entry = iterator.next()
-            val configurationBean = entry.value
-            val context = configurationBean.contextInstance
-            if (ObjectUtil.isEntity(context as Any, clazz)) {
-                instance = context as T
-                break
+        run loop@{
+            configurationBeanMap.forEach { (_, value) ->
+                val context = value.contextInstance
+                if (ObjectUtil.isEntity(context as Any, clazz.java)) {
+                    instance = context as T
+                    return@loop
+                }
             }
         }
         return instance

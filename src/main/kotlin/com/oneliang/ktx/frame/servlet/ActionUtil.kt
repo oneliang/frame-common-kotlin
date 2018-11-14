@@ -11,10 +11,10 @@ import javax.servlet.http.HttpServletResponseWrapper
 
 object ActionUtil {
 
-    private val logger = LoggerManager.getLogger(ActionUtil::class.java)
+    private val logger = LoggerManager.getLogger(ActionUtil::class)
 
-    private val REGEX = "\\{[\\w]*\\}"
-    private val FIRST_REGEX = "\\{"
+    private const val REGEX = "\\{[\\w]*\\}"
+    private const val FIRST_REGEX = "\\{"
 
     private val servletBeanThreadLocal = ThreadLocal<ServletBean>()
 
@@ -34,22 +34,22 @@ object ActionUtil {
      * get servlet context
      * @return ServletContext
      */
-    val servletContext: ServletContext?
-        get() = servletBeanThreadLocal.get().servletContext
+    val servletContext: ServletContext
+        get() = servletBeanThreadLocal.get().servletContext!!
 
     /**
      * get servlet request
      * @return ServletRequest
      */
-    val servletRequest: ServletRequest?
-        get() = servletBeanThreadLocal.get().servletRequest
+    val servletRequest: ServletRequest
+        get() = servletBeanThreadLocal.get().servletRequest!!
 
     /**
      * get servlet response
      * @return ServletResponse
      */
-    val servletResponse: ServletResponse?
-        get() = servletBeanThreadLocal.get().servletResponse
+    val servletResponse: ServletResponse
+        get() = servletBeanThreadLocal.get().servletResponse!!
 
     /**
      * parse forward path and replace the parameter value
@@ -62,7 +62,7 @@ object ActionUtil {
         val request = servletRequest
         val attributeList = StringUtil.parseStringGroup(resultPath, REGEX, FIRST_REGEX, Constants.String.BLANK, 1)
         for (attribute in attributeList) {
-            val attributeValue = request!!.getAttribute(attribute)
+            val attributeValue = request.getAttribute(attribute)
             resultPath = resultPath.replaceFirst(REGEX.toRegex(), if (attributeValue == null) Constants.String.BLANK else attributeValue!!.toString())
         }
         return resultPath
@@ -79,7 +79,7 @@ object ActionUtil {
     fun includeJsp(jspUriPath: String): ByteArrayOutputStream {
         val request = servletRequest
         val response = servletResponse
-        return includeJsp(jspUriPath, request!!, response)
+        return includeJsp(jspUriPath, request, response)
     }
 
     /**
@@ -92,7 +92,7 @@ object ActionUtil {
      * @throws ServletException
      */
     @Throws(ServletException::class, IOException::class)
-    fun includeJsp(jspUriPath: String, servletRequest: ServletRequest, servletResponse: ServletResponse?): ByteArrayOutputStream {
+    fun includeJsp(jspUriPath: String, servletRequest: ServletRequest, servletResponse: ServletResponse): ByteArrayOutputStream {
         val requestDispatcher = servletRequest.getRequestDispatcher(jspUriPath)
         val byteArrayOutputStream = ByteArrayOutputStream()
         val servletOuputStream = object : ServletOutputStream() {
@@ -150,10 +150,10 @@ object ActionUtil {
      * @param servletResponse
      * @return boolean
      */
-    fun includeJspAndSave(jspUriPath: String, saveFullFilename: String, servletRequest: ServletRequest?, servletResponse: ServletResponse?): Boolean {
+    fun includeJspAndSave(jspUriPath: String, saveFullFilename: String, servletRequest: ServletRequest, servletResponse: ServletResponse): Boolean {
         var result = false
         try {
-            val byteArrayOutputStream = includeJsp(jspUriPath, servletRequest!!, servletResponse)
+            val byteArrayOutputStream = includeJsp(jspUriPath, servletRequest, servletResponse)
             FileUtil.createFile(saveFullFilename)
             val fileOutputStream = FileOutputStream(saveFullFilename)
             val bufferedWriter = BufferedWriter(OutputStreamWriter(fileOutputStream, Constants.Encoding.UTF8))
@@ -191,12 +191,5 @@ object ActionUtil {
          * @param servletResponse the servletResponse to set
          */
         var servletResponse: ServletResponse? = null
-
-        companion object {
-            /**
-             * serialVersionUID
-             */
-            private const val serialVersionUID = -1505174208109390941L
-        }
     }
 }

@@ -19,23 +19,8 @@ interface ActionInterface {
     /**
      * @author oneliang
      */
-    enum class HttpRequestMethod
-    /**
-     * emnu constructor
-     * @param code
-     */
-    private constructor(code: Int) {
+    enum class HttpRequestMethod(val code: Int) {
         PUT(0x01), DELETE(0x02), GET(0x04), POST(0x08), HEAD(0x10), OPTIONS(0x20), TRACE(0x40);
-
-        /**
-         * get code
-         * @return int
-         */
-        val code = 0
-
-        init {
-            this.code = code
-        }
     }
 
     companion object {

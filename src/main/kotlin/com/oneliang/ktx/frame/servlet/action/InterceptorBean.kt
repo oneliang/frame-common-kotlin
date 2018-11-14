@@ -1,15 +1,21 @@
 package com.oneliang.ktx.frame.servlet.action
 
+import com.oneliang.ktx.Constants
+
 
 class InterceptorBean {
 
+    companion object {
+
+        const val TAG_INTERCEPTOR = "interceptor"
+    }
     /**
      * @return the id
      */
     /**
      * @param id the id to set
      */
-    var id: String? = null
+    var id: String = Constants.String.BLANK
     /**
      * @return the type
      */
@@ -24,9 +30,4 @@ class InterceptorBean {
      * @param interceptorInstance the interceptorInstance to set
      */
     var interceptorInstance: Interceptor? = null
-
-    companion object {
-
-        val TAG_INTERCEPTOR = "interceptor"
-    }
 }

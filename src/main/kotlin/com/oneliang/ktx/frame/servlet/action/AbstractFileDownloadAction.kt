@@ -1,17 +1,15 @@
 package com.oneliang.ktx.frame.servlet.action
 
+import com.oneliang.ktx.Constants
+import com.oneliang.ktx.StaticVar
+import com.oneliang.ktx.frame.servlet.ActionUtil
 import java.io.FileInputStream
 import java.io.InputStream
 import java.io.OutputStream
-
 import javax.servlet.ServletRequest
 import javax.servlet.ServletResponse
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
-
-import com.oneliang.Constants
-import com.oneliang.StaticVar
-import com.oneliang.frame.servlet.ActionUtil
 
 abstract class AbstractFileDownloadAction : CommonAction() {
 
@@ -23,8 +21,8 @@ abstract class AbstractFileDownloadAction : CommonAction() {
      */
     @Throws(ActionExecuteException::class)
     protected fun download(filename: String): Boolean {
-        val request = ActionUtil.getServletRequest() as HttpServletRequest
-        val response = ActionUtil.getServletResponse() as HttpServletResponse
+        val request = ActionUtil.servletRequest as HttpServletRequest
+        val response = ActionUtil.servletResponse as HttpServletResponse
         return this.download(request, response, filename)
     }
 
@@ -44,29 +42,24 @@ abstract class AbstractFileDownloadAction : CommonAction() {
         var outputStream: OutputStream? = null
         try {
 
-            val newFilename = String(filename.getBytes(Constants.Encoding.GB2312), Constants.Encoding.ISO88591)
+            val newFilename = String(filename.toByteArray(Charsets.UTF_8), Charsets.ISO_8859_1)
             (response as HttpServletResponse).addHeader(Constants.Http.HeaderKey.CONTENT_DISPOSITION, "attachment;filename=$newFilename")
             outputStream = response.getOutputStream()
             inputStream = FileInputStream(filePath)
             val buffer = ByteArray(Constants.Capacity.BYTES_PER_KB)
-            var length = -1
-            while ((length = inputStream!!.read(buffer, 0, buffer.size)) != -1) {
-                outputStream!!.write(buffer, 0, length)
+            var length = inputStream.read(buffer, 0, buffer.size)
+            while (length != -1) {
+                outputStream.write(buffer, 0, length)
+                length = inputStream.read(buffer, 0, buffer.size)
             }
-            outputStream!!.flush()
+            outputStream.flush()
             result = true
         } catch (e: Exception) {
             throw ActionExecuteException(e)
         } finally {
             try {
-                if (inputStream != null) {
-                    inputStream.close()
-                    inputStream = null
-                }
-                if (outputStream != null) {
-                    outputStream.close()
-                    outputStream = null
-                }
+                inputStream?.close()
+                outputStream?.close()
             } catch (e: Exception) {
                 throw ActionExecuteException(e)
             }
