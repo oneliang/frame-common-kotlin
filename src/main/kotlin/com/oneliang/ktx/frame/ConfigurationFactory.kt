@@ -101,9 +101,7 @@ object ConfigurationFactory {
     @Throws(Exception::class)
     fun iocInject() {
         val iocContext = singletonConfigurationContext.findContext(IocContext::class)
-        if (iocContext != null) {
-            iocContext.inject()
-        }
+        iocContext?.inject()
     }
 
     /**
@@ -114,9 +112,7 @@ object ConfigurationFactory {
     @Throws(Exception::class)
     fun afterInject() {
         val iocContext = singletonConfigurationContext.findContext(IocContext::class)
-        if (iocContext != null) {
-            iocContext!!.afterInject()
-        }
+        iocContext?.afterInject()
     }
 
     /**

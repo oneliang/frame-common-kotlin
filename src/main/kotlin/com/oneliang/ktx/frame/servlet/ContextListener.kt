@@ -10,10 +10,6 @@ import javax.servlet.ServletContextListener
 
 class ContextListener : ServletContextListener {
     companion object {
-
-        /**
-         * ContextListener constant
-         */
         private val logger = LoggerManager.getLogger(ContextListener::class)
 
         //	private static final String CONTEXT_PARAMETER_DBCONFIG="dbConfig";
@@ -38,16 +34,16 @@ class ContextListener : ServletContextListener {
         //		String dbConfig=servletContextEvent.getServletContext().getInitParameter(CONTEXT_PARAMETER_DBCONFIG);
         val configFile = servletContextEvent.servletContext.getInitParameter(CONTEXT_PARAMETER_CONFIGFILE)
         //real path
-        val realPath = servletContextEvent.servletContext.getRealPath(Constants.String.BLANK)
+        val projectRealPath = servletContextEvent.servletContext.getRealPath(Constants.String.BLANK)
 
         //config file
         if (configFile.isNotBlank()) {
             val configurationContext = ConfigurationFactory.singletonConfigurationContext
             try {
-                var classRealPath = Thread.currentThread().contextClassLoader.getResource(Constants.String.BLANK).path
-                classRealPath = File(classRealPath).absolutePath
-                configurationContext.classesRealPath = classRealPath
-                configurationContext.projectRealPath = realPath
+                var classesRealPath = Thread.currentThread().contextClassLoader.getResource(Constants.String.BLANK).path
+                classesRealPath = File(classesRealPath).absolutePath
+                configurationContext.classesRealPath = classesRealPath
+                configurationContext.projectRealPath = projectRealPath
                 configurationContext.initialize(configFile)
                 ConfigurationFactory.inject()
                 ConfigurationFactory.afterInject()
