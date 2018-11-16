@@ -3,19 +3,17 @@ package com.oneliang.ktx.frame.servlet
 import com.oneliang.ktx.Constants
 import com.oneliang.ktx.frame.ConfigurationFactory
 import com.oneliang.ktx.frame.servlet.action.*
+import com.oneliang.ktx.util.common.KotlinClassUtil
+import com.oneliang.ktx.util.common.ObjectUtil
+import com.oneliang.ktx.util.common.toObject
+import com.oneliang.ktx.util.common.toObjectList
+import com.oneliang.ktx.util.logging.LoggerManager
 import java.io.IOException
-import java.lang.reflect.Array
 import java.lang.reflect.InvocationTargetException
 import javax.servlet.ServletException
 import javax.servlet.http.HttpServlet
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
-
-import com.oneliang.ktx.util.common.KotlinClassUtil
-import com.oneliang.ktx.util.common.ObjectUtil
-import com.oneliang.ktx.util.common.RequestUtil
-import com.oneliang.ktx.util.common.StringUtil
-import com.oneliang.ktx.util.logging.LoggerManager
 
 /**
  * com.lwx.frame.servlet.Listener.java
@@ -24,6 +22,11 @@ import com.oneliang.ktx.util.logging.LoggerManager
  * @since 2008-07-31
  */
 class ActionListener : HttpServlet() {
+    companion object {
+        private val logger = LoggerManager.getLogger(ActionListener::class)
+
+        private const val INIT_PARAMETER_CLASS_PROCESSOR = "classProcessor"
+    }
 
     private var classProcessor = KotlinClassUtil.DEFAULT_KOTLIN_CLASS_PROCESSOR
 
@@ -34,7 +37,7 @@ class ActionListener : HttpServlet() {
      * @return String information about this servlet
      */
     override fun getServletInfo(): String {
-        this.javaClass.toString()
+        return this.javaClass.toString()
     }
 
     @Throws(ServletException::class, IOException::class)
@@ -145,7 +148,7 @@ class ActionListener : HttpServlet() {
     @Throws(ServletException::class, IOException::class)
     private fun dispatch(request: HttpServletRequest, response: HttpServletResponse, httpRequestMethod: ActionInterface.HttpRequestMethod) {
         //uri
-        var uri = request.getRequestURI()
+        var uri = request.requestURI
 
         logger.info("System is requesting uri--:$uri")
 
@@ -226,19 +229,18 @@ class ActionListener : HttpServlet() {
      * @throws ServletException if an error occurs
      */
     @Throws(ServletException::class)
-    fun init() {
+    override fun init() {
         logger.info("System is starting up,listener is initial")
         val classProcessorClassName = getInitParameter(INIT_PARAMETER_CLASS_PROCESSOR)
-        if (StringUtil.isNotBlank(classProcessorClassName)) {
+        if (classProcessorClassName != null && classProcessorClassName.isNotBlank()) {
             try {
                 val clazz = Thread.currentThread().contextClassLoader.loadClass(classProcessorClassName)
-                if (ObjectUtil.isInterfaceImplement(clazz, ClassProcessor::class.java)) {
-                    this.classProcessor = clazz.newInstance() as ClassProcessor
+                if (ObjectUtil.isInterfaceImplement(clazz, KotlinClassUtil.KotlinClassProcessor::class.java)) {
+                    this.classProcessor = clazz.newInstance() as KotlinClassUtil.KotlinClassProcessor
                 }
             } catch (e: Exception) {
                 logger.error(Constants.Base.EXCEPTION, e)
             }
-
         }
     }
 
@@ -253,21 +255,20 @@ class ActionListener : HttpServlet() {
      * @throws ActionExecuteException
      */
     @Throws(ActionExecuteException::class, ServletException::class, IOException::class)
-    private fun doAction(actionBean: ActionBean, request: HttpServletRequest, response: HttpServletResponse, httpRequestMethod: HttpRequestMethod): Boolean {
+    private fun doAction(actionBean: ActionBean, request: HttpServletRequest, response: HttpServletResponse, httpRequestMethod: ActionInterface.HttpRequestMethod): Boolean {
         var result = false
-        val actionInstance = actionBean.getActionInstance()
+        val actionInstance = actionBean.actionInstance
         if (actionInstance is ActionInterface) {
-            val actionInterface = actionInstance as ActionInterface
-            var forward: String? = null
+            val forward: String
             logger.info("Action implements ($actionInstance) is executing")
             //judge is it contain static file page
-            val parameterMap = request.getParameterMap() as Map<String, Array<String>>
+            val parameterMap = request.parameterMap as Map<String, Array<String>>
             val actionForwardBean = actionBean.findActionForwardBeanByStaticParameter(parameterMap)
             var normalExecute = true//default normal execute
             var needToStaticExecute = false
             if (actionForwardBean != null) {//static file page
                 normalExecute = false
-                val staticFilePathKey = actionForwardBean!!.getStaticFilePath()
+                val staticFilePathKey = actionForwardBean.staticFilePath
                 if (!StaticFilePathUtil.isContainsStaticFilePath(staticFilePathKey)) {
                     needToStaticExecute = true
                 }
@@ -278,23 +279,23 @@ class ActionListener : HttpServlet() {
                 } else if (needToStaticExecute) {
                     logger.info("Need to static execute,first time executing original action")
                 }
-                forward = actionInterface.execute(request, response)
+                forward = actionInstance.execute(request, response)
             } else {
                 logger.info("Static execute,not the first time execute")
-                forward = actionForwardBean!!.getName()
+                forward = actionForwardBean!!.name
             }
-            val afterActionBeanInterceptorList = actionBean.getAfterActionInterceptorBeanList()
+            val afterActionBeanInterceptorList = actionBean.afterActionInterceptorBeanList
             val afterActionInterceptorSign = doActionInterceptorBeanList(afterActionBeanInterceptorList, request, response)
             if (afterActionInterceptorSign) {
                 logger.info("Through the after action interceptors!")
-                val afterGlobalInterceptorList = ConfigurationFactory.getAfterGlobalInterceptorList()
+                val afterGlobalInterceptorList = ConfigurationFactory.afterGlobalInterceptorList
                 val afterGlobalInterceptorSign = doGlobalInterceptorList(afterGlobalInterceptorList, request, response)
                 if (afterGlobalInterceptorSign) {
                     logger.info("Through the after global interceptors!")
-                    if (forward != null) {
+                    if (forward.isNotBlank()) {
                         var path = actionBean.findForwardPath(forward)
-                        if (path != null) {
-                            logger.info("The forward name in configFile is--:actionPath:" + actionBean.getPath() + "--forward:" + forward + "--path:" + path)
+                        if (path.isNotBlank()) {
+                            logger.info("The forward name in configFile is--:actionPath:" + actionBean.path + "--forward:" + forward + "--path:" + path)
                         } else {
                             path = ConfigurationFactory.findGlobalForwardPath(forward)
                             logger.info("The forward name in global forward configFile is--:forward:$forward--path:$path")
@@ -325,34 +326,33 @@ class ActionListener : HttpServlet() {
      * @throws IllegalArgumentException
      */
     @Throws(IllegalArgumentException::class, InstantiationException::class, IllegalAccessException::class, InvocationTargetException::class)
-    private fun annotationActionMethodParameterValues(annotationActionBean: AnnotationActionBean, request: HttpServletRequest, response: HttpServletResponse): Array<Any> {
-        val annotationActionBeanMethod = annotationActionBean.getMethod()
-        val classes = annotationActionBeanMethod.getParameterTypes()
+    private fun annotationActionMethodParameterValues(annotationActionBean: AnnotationActionBean, request: HttpServletRequest, response: HttpServletResponse): Array<Any?> {
+        val annotationActionBeanMethod = annotationActionBean.method!!
+        val classes = annotationActionBeanMethod.parameterTypes
         val parameterValues = arrayOfNulls<Any>(classes.size)
-        val annotations = annotationActionBean.getMethod().getParameterAnnotations()
+        val annotations = annotationActionBeanMethod.parameterAnnotations
         for (i in annotations.indices) {
-            if (annotations[i].size > 0 && annotations[i][0] is RequestParameter) {
-                val requestParameterAnnotation = annotations[i][0] as RequestParameter
-                parameterValues[i] = KotlinClassUtil.changeType(classes[i], request.getParameterValues(requestParameterAnnotation.value()), this.classProcessor)
+            if (annotations[i].isNotEmpty() && annotations[i][0] is Action.RequestMapping.RequestParameter) {
+                val requestParameterAnnotation = annotations[i][0] as Action.RequestMapping.RequestParameter
+                parameterValues[i] = KotlinClassUtil.changeType(classes[i].kotlin, request.getParameterValues(requestParameterAnnotation.value), Constants.String.BLANK, this.classProcessor)
             } else if (ObjectUtil.isEntity(request, classes[i])) {
                 parameterValues[i] = request
             } else if (ObjectUtil.isEntity(response, classes[i])) {
                 parameterValues[i] = response
             } else {
-                if (KotlinClassUtil.isBaseClass(classes[i]) || KotlinClassUtil.isBaseArray(classes[i]) || KotlinClassUtil.isSimpleClass(classes[i]) || KotlinClassUtil.isSimpleArray(classes[i])) {
-                    parameterValues[i] = KotlinClassUtil.changeType(classes[i], null, this.classProcessor)
-                } else if (classes[i].isArray()) {
-                    val clazz = classes[i].getComponentType()
-                    val objectList = RequestUtil.requestMapToObjectList(request.getParameterMap(), clazz, this.classProcessor)
-                    if (objectList != null && !objectList!!.isEmpty()) {
-                        var objectArray = Array.newInstance(clazz, objectList!!.size) as Array<Any>
-                        objectArray = objectList!!.toTypedArray()
+                if (KotlinClassUtil.isBaseClass(classes[i].kotlin) || KotlinClassUtil.isBaseArray(classes[i].kotlin) || KotlinClassUtil.isSimpleClass(classes[i].kotlin) || KotlinClassUtil.isSimpleArray(classes[i].kotlin)) {
+                    parameterValues[i] = KotlinClassUtil.changeType(classes[i].kotlin, emptyArray(), Constants.String.BLANK, this.classProcessor)
+                } else if (classes[i].isArray) {
+                    val clazz = classes[i].componentType
+                    val objectList = request.parameterMap.toObjectList(clazz, this.classProcessor)
+                    if (objectList.isNotEmpty()) {
+                        val objectArray = objectList.toTypedArray()
                         parameterValues[i] = objectArray
                     }
                 } else {
-                    val `object` = classes[i].newInstance()
-                    RequestUtil.requestMapToObject(request.getParameterMap(), `object`, this.classProcessor)
-                    parameterValues[i] = `object`
+                    val instance = classes[i].newInstance()
+                    request.parameterMap.toObject(instance, this.classProcessor)
+                    parameterValues[i] = instance
                 }
             }
         }
@@ -372,19 +372,18 @@ class ActionListener : HttpServlet() {
      * @throws ServletException
      */
     @Throws(IllegalArgumentException::class, InstantiationException::class, IllegalAccessException::class, InvocationTargetException::class, ServletException::class, IOException::class)
-    private fun doAnnotationAction(actionBean: ActionBean, request: HttpServletRequest, response: HttpServletResponse, httpRequestMethod: HttpRequestMethod): Boolean {
+    private fun doAnnotationAction(actionBean: ActionBean, request: HttpServletRequest, response: HttpServletResponse, httpRequestMethod: ActionInterface.HttpRequestMethod): Boolean {
         var result = false
         if (actionBean is AnnotationActionBean) {
-            val actionInstance = actionBean.getActionInstance()
-            val annotationActionBean = actionBean as AnnotationActionBean
-            val parameterMap = request.getParameterMap() as Map<String, Array<String>>
+            val actionInstance = actionBean.actionInstance
+            val parameterMap = request.parameterMap as Map<String, Array<String>>
             val actionForwardBean = actionBean.findActionForwardBeanByStaticParameter(parameterMap)
             var normalExecute = true//default normal execute
             var needToStaticExecute = false
-            var path: String? = null
+            var path: String = Constants.String.BLANK
             if (actionForwardBean != null) {//static file page
                 normalExecute = false
-                val staticFilePathKey = actionForwardBean!!.getStaticFilePath()
+                val staticFilePathKey = actionForwardBean.staticFilePath
                 if (!StaticFilePathUtil.isContainsStaticFilePath(staticFilePathKey)) {
                     needToStaticExecute = true
                 }
@@ -395,19 +394,21 @@ class ActionListener : HttpServlet() {
                 } else if (needToStaticExecute) {
                     logger.info("Need to static execute,first time executing original action")
                 }
-                val parameterValues = this.annotationActionMethodParameterValues(annotationActionBean, request, response)
-                val methodInvokeValue = annotationActionBean.getMethod().invoke(actionInstance, parameterValues)
+                val parameterValues = this.annotationActionMethodParameterValues(actionBean, request, response)
+                val methodInvokeValue = actionBean.method?.invoke(actionInstance, parameterValues)
                 if (methodInvokeValue != null && methodInvokeValue is String) {
-                    path = methodInvokeValue!!.toString()
+                    path = methodInvokeValue.toString()
+                } else {
+                    logger.error("Common bean action $actionInstance is execute error, method is null or method return value is not String")
                 }
             } else {
                 logger.info("Static execute,not the first time execute")
             }
-            val afterActionBeanInterceptorList = actionBean.getAfterActionInterceptorBeanList()
+            val afterActionBeanInterceptorList = actionBean.afterActionInterceptorBeanList
             val afterActionInterceptorSign = doActionInterceptorBeanList(afterActionBeanInterceptorList, request, response)
             if (afterActionInterceptorSign) {
                 logger.info("Through the after action interceptors!")
-                val afterGlobalInterceptorList = ConfigurationFactory.getAfterGlobalInterceptorList()
+                val afterGlobalInterceptorList = ConfigurationFactory.afterGlobalInterceptorList
                 val afterGlobalInterceptorSign = doGlobalInterceptorList(afterGlobalInterceptorList, request, response)
                 if (afterGlobalInterceptorSign) {
                     logger.info("Through the after global interceptors!")
@@ -432,28 +433,28 @@ class ActionListener : HttpServlet() {
      * @throws ServletException
      */
     @Throws(ServletException::class, IOException::class)
-    private fun doForward(normalExecute: Boolean, needToStaticExecute: Boolean, actionForwardBean: ActionForwardBean?, path: String?, request: HttpServletRequest, response: HttpServletResponse, annotationBeanExecute: Boolean) {
-        var path = path
+    private fun doForward(normalExecute: Boolean, needToStaticExecute: Boolean, actionForwardBean: ActionForwardBean?, path: String, request: HttpServletRequest, response: HttpServletResponse, annotationBeanExecute: Boolean) {
+        var realPath = path
         if (!normalExecute && !needToStaticExecute) {
-            val staticFilePath = actionForwardBean!!.getStaticFilePath()
+            val staticFilePath = actionForwardBean!!.staticFilePath
             logger.info("Send redirect to static file path:$staticFilePath")
             val requestDispatcher = request.getRequestDispatcher(staticFilePath)
             requestDispatcher.forward(request, response)
         } else {
-            if (StringUtil.isNotBlank(path)) {
-                path = ActionUtil.parsePath(path)
+            if (realPath.isNotBlank()) {
+                realPath = ActionUtil.parsePath(realPath)
                 if (normalExecute) {
                     if (annotationBeanExecute) {
-                        logger.info("Annotation bean action executed forward path:" + path!!)
+                        logger.info("Annotation bean action executed forward path:$realPath")
                     } else {
-                        logger.info("Normal executed forward path:" + path!!)
+                        logger.info("Normal executed forward path:$realPath")
                     }
-                    val requestDispatcher = request.getRequestDispatcher(path)
+                    val requestDispatcher = request.getRequestDispatcher(realPath)
                     requestDispatcher.forward(request, response)
                 } else if (needToStaticExecute) {
-                    val staticFilePath = actionForwardBean!!.getStaticFilePath()
-                    val configurationContext = ConfigurationFactory.getSingletonConfigurationContext()
-                    if (StaticFilePathUtil.staticize(path, configurationContext.getProjectRealPath() + staticFilePath, request, response)) {
+                    val staticFilePath = actionForwardBean!!.staticFilePath
+                    val configurationContext = ConfigurationFactory.singletonConfigurationContext
+                    if (StaticFilePathUtil.staticize(realPath, configurationContext.projectRealPath + staticFilePath, request, response)) {
                         logger.info("Static executed success,redirect static file:$staticFilePath")
                         val requestDispatcher = request.getRequestDispatcher(staticFilePath)
                         requestDispatcher.forward(request, response)
@@ -466,7 +467,7 @@ class ActionListener : HttpServlet() {
                 if (annotationBeanExecute) {
                     logger.info("May be ajax use if not please config the entity page with String type.")
                 } else {
-                    logger.info("System can not find the path:" + path!!)
+                    logger.info("System can not find the path:$realPath")
                 }
             }
         }
@@ -495,7 +496,6 @@ class ActionListener : HttpServlet() {
                 logger.error(Constants.Base.EXCEPTION, e)
                 interceptorSign = false
             }
-
         }
         return interceptorSign
     }
@@ -512,9 +512,9 @@ class ActionListener : HttpServlet() {
         if (actionInterceptorBeanList != null) {
             try {
                 for (actionInterceptorBean in actionInterceptorBeanList) {
-                    val actionInterceptor = actionInterceptorBean.getInterceptorInstance()
+                    val actionInterceptor = actionInterceptorBean.interceptorInstance
                     if (actionInterceptor != null) {
-                        val sign = actionInterceptor!!.doIntercept(request, response)
+                        val sign = actionInterceptor.doIntercept(request, response)
                         logger.info("Action intercept:$sign,interceptor:$actionInterceptor")
                         if (!sign) {
                             actionInterceptorBeanSign = false
@@ -529,19 +529,5 @@ class ActionListener : HttpServlet() {
 
         }
         return actionInterceptorBeanSign
-    }
-
-    companion object {
-
-        /**
-         *
-         * Property: serialVersionUID
-         * serialVersionUID
-         */
-        private val serialVersionUID = 8982018678465106212L
-
-        private val logger = LoggerManager.getLogger(ActionListener::class.java)
-
-        private val INIT_PARAMETER_CLASS_PROCESSOR = "classProcessor"
     }
 }

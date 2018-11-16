@@ -5,25 +5,30 @@ import java.util.concurrent.ConcurrentHashMap
 
 class DataCacheInvokeProcessor : InvokeProcessor {
 
+    companion object {
+        private val threadMethodMap = ConcurrentHashMap<Thread, Method>()
+        private val methodUpdateInvokeMap = ConcurrentHashMap<Method, MethodUpdateInvoke>()
+    }
+
     @Throws(Throwable::class)
-    override fun invoke(`object`: Any, method: Method, args: Array<Any>?): Any? {
+    override fun invoke(instance: Any, method: Method, args: Array<Any>?): Any? {
         var returnValue: Any? = null
-        val objectMethod = `object`.javaClass.getMethod(method.name, *method.parameterTypes)
-        if (objectMethod.isAnnotationPresent(DataCache::class.java) && (args == null || args.size == 0)) {
+        val objectMethod = instance.javaClass.getMethod(method.name, *method.parameterTypes)
+        if (objectMethod.isAnnotationPresent(DataCache::class.java) && (args == null || args.isEmpty())) {
             if (methodUpdateInvokeMap.containsKey(objectMethod)) {
-                returnValue = methodUpdateInvokeMap[objectMethod].dataCache
+                returnValue = methodUpdateInvokeMap[objectMethod]?.dataCache
             } else {
                 synchronized(method) {
                     if (methodUpdateInvokeMap.containsKey(objectMethod)) {
-                        returnValue = methodUpdateInvokeMap[objectMethod].dataCache
+                        returnValue = methodUpdateInvokeMap[objectMethod]?.dataCache
                     } else {
                         val dataCache = objectMethod.getAnnotation(DataCache::class.java)
-                        returnValue = method.invoke(`object`, *args)
+                        returnValue = method.invoke(instance, *(args ?: emptyArray()))
                         val methodUpdateInvoke = MethodUpdateInvoke()
                         methodUpdateInvoke.method = method
-                        methodUpdateInvoke.interfaceImpl = `object`
+                        methodUpdateInvoke.interfaceImpl = instance
                         methodUpdateInvoke.dataCache = returnValue
-                        methodUpdateInvoke.updateTime = dataCache.updateTime()
+                        methodUpdateInvoke.updateTime = dataCache.updateTime
                         methodUpdateInvokeMap[objectMethod] = methodUpdateInvoke
                         val thread = Thread(methodUpdateInvoke)
                         threadMethodMap[thread] = objectMethod
@@ -33,17 +38,17 @@ class DataCacheInvokeProcessor : InvokeProcessor {
             }
         } else if (objectMethod.isAnnotationPresent(DataCacheUpdate::class.java)) {
             val dataCacheUpdate = objectMethod.getAnnotation(DataCacheUpdate::class.java)
-            val dataCacheMethodName = dataCacheUpdate.dataCacheMethod()
-            val dataCacheMethod = `object`.javaClass.getMethod(dataCacheMethodName)
+            val dataCacheMethodName = dataCacheUpdate.dataCacheMethod
+            val dataCacheMethod = instance.javaClass.getMethod(dataCacheMethodName)
             if (methodUpdateInvokeMap.containsKey(dataCacheMethod)) {
-                val dataCache = methodUpdateInvokeMap[dataCacheMethod].dataCache
-                if (args != null && args.size > 0) {
+                val dataCache = methodUpdateInvokeMap[dataCacheMethod]?.dataCache!!
+                if (args != null && args.isNotEmpty()) {
                     args[args.size - 1] = dataCache
                 }
             }
-            returnValue = method.invoke(`object`, *args)
+            returnValue = method.invoke(instance, *(args ?: emptyArray()))
         } else {
-            returnValue = method.invoke(`object`, *args)
+            returnValue = method.invoke(instance, *(args ?: emptyArray()))
         }
         return returnValue
     }
@@ -63,14 +68,7 @@ class DataCacheInvokeProcessor : InvokeProcessor {
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
-
             }
         }
-    }
-
-    companion object {
-
-        private val threadMethodMap = ConcurrentHashMap<Thread, Method>()
-        private val methodUpdateInvokeMap = ConcurrentHashMap<Method, MethodUpdateInvoke>()
     }
 }

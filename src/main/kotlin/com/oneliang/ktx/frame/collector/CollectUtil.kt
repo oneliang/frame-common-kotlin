@@ -13,7 +13,7 @@ import java.io.InputStream
 import java.util.zip.GZIPInputStream
 
 object CollectUtil {
-    private val logger = LoggerManager.getLogger(CollectUtil::class.java)
+    private val logger = LoggerManager.getLogger(CollectUtil::class)
     /**
      * collect from http
      *

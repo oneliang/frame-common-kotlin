@@ -1,15 +1,8 @@
 package com.oneliang.ktx.frame.servlet.filter
 
+import com.oneliang.ktx.Constants
 import java.io.IOException
-
-import javax.servlet.Filter
-import javax.servlet.FilterChain
-import javax.servlet.FilterConfig
-import javax.servlet.ServletException
-import javax.servlet.ServletRequest
-import javax.servlet.ServletResponse
-
-import com.oneliang.Constants
+import javax.servlet.*
 
 /**
  *
@@ -23,8 +16,13 @@ import com.oneliang.Constants
  * @since 2008-07-31
  */
 class EncodingFilter : Filter {
+    companion object {
+        private const val DEFAULT_ENCODING = Constants.Encoding.UTF8
+        private const val ENCODING = "encoding"
+        private const val IGNORE = "ignore"
+    }
 
-    private var encoding: String? = null
+    private var encoding: String = DEFAULT_ENCODING
     private var filterConfig: FilterConfig? = null
     private var ignore = false
 
@@ -33,8 +31,8 @@ class EncodingFilter : Filter {
      * Method: public void destory()
      * This method will be reset the encoding=null and filterconfig=null
      */
-    fun destroy() {
-        this.encoding = null
+    override fun destroy() {
+        this.encoding = DEFAULT_ENCODING
         this.filterConfig = null
     }
 
@@ -48,17 +46,17 @@ class EncodingFilter : Filter {
      * This method will be doFilter in request scope and response scope
      */
     @Throws(IOException::class, ServletException::class)
-    fun doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain) {
+    override fun doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain) {
         if (!this.ignore) {
-            servletRequest.setCharacterEncoding(this.encoding)
-            servletResponse.setCharacterEncoding(this.encoding)
+            servletRequest.characterEncoding = this.encoding
+            servletResponse.characterEncoding = this.encoding
         }
         try {
             filterChain.doFilter(servletRequest, servletResponse)
         } catch (sx: ServletException) {
-            this.filterConfig!!.getServletContext().log(sx.getMessage())
+            this.filterConfig!!.servletContext.log(sx.message)
         } catch (iox: IOException) {
-            this.filterConfig!!.getServletContext().log(iox.message)
+            this.filterConfig!!.servletContext.log(iox.message)
         }
 
     }
@@ -71,7 +69,7 @@ class EncodingFilter : Filter {
      * This method will be initial the key 'encoding' and 'ignore' in web.xml
      */
     @Throws(ServletException::class)
-    fun init(filterConfig: FilterConfig) {
+    override fun init(filterConfig: FilterConfig) {
         this.filterConfig = filterConfig
         // read from web.xml to initial the key 'encoding' and 'ignore'
         val encoding = filterConfig.getInitParameter(ENCODING)
@@ -81,20 +79,11 @@ class EncodingFilter : Filter {
         } else {
             this.encoding = encoding
         }
-        if (ignore == null)
-            this.ignore = false
-        else if (ignore!!.equals("true", ignoreCase = true))
-            this.ignore = true
-        else if (ignore!!.equals("yes", ignoreCase = true))
-            this.ignore = true
-        else
-            this.ignore = false
-    }
-
-    companion object {
-
-        private val DEFAULT_ENCODING = Constants.Encoding.UTF8
-        private val ENCODING = "encoding"
-        private val IGNORE = "ignore"
+        when {
+            ignore == null -> this.ignore = false
+            ignore.equals("true", ignoreCase = true) -> this.ignore = true
+            ignore.equals("yes", ignoreCase = true) -> this.ignore = true
+            else -> this.ignore = false
+        }
     }
 }

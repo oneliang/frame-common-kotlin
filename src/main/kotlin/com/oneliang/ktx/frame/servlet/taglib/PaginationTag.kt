@@ -1,37 +1,40 @@
 package com.oneliang.ktx.frame.servlet.taglib
 
+import com.oneliang.ktx.Constants
+import com.oneliang.ktx.frame.bean.Page
+import com.oneliang.ktx.util.logging.LoggerManager
 import javax.servlet.jsp.JspException
 import javax.servlet.jsp.tagext.BodyTagSupport
 
-import com.oneliang.Constants
-import com.oneliang.frame.bean.Page
-import com.oneliang.util.common.StringUtil
-import com.oneliang.util.logging.Logger
-import com.oneliang.util.logging.LoggerManager
-
 class PaginationTag : BodyTagSupport() {
-
+    companion object {
+        private val logger = LoggerManager.getLogger(PaginationTag::class)
+        private const val BLANK_2 = "&nbsp;&nbsp;"
+        private const val BLANK_8 = BLANK_2 + BLANK_2 + BLANK_2 + BLANK_2
+        private const val TIPS_PAGE = "Page:"
+        private const val TIPS_ROWS = "Rows:"
+    }
     /**
      * @return the action
      */
     /**
      * @param action the action to set
      */
-    var action: String? = null
+    var action: String = Constants.String.BLANK
     /**
      * @return the value
      */
     /**
      * @param value the value to set
      */
-    var value: String? = null
+    var value: String = Constants.String.BLANK
     /**
      * @return the scope
      */
     /**
      * @param scope the scope to set
      */
-    var scope: String? = null
+    var scope: String = Constants.String.BLANK
     /**
      * @return the size
      */
@@ -73,46 +76,36 @@ class PaginationTag : BodyTagSupport() {
     /**
      * @param linkString the linkString to set
      */
-    var linkString: String? = null
+    var linkString: String = Constants.String.BLANK
 
     @Throws(JspException::class)
-    fun doStartTag(): Int {
-        this.action = StringUtil.nullToBlank(this.action)
-        this.scope = StringUtil.nullToBlank(this.value)
-        this.value = StringUtil.nullToBlank(this.scope)
-        this.firstIcon = StringUtil.nullToBlank(this.firstIcon)
-        this.lastIcon = StringUtil.nullToBlank(this.lastIcon)
-        this.previousIcon = StringUtil.nullToBlank(this.previousIcon)
-        this.nextIcon = StringUtil.nullToBlank(this.nextIcon)
-        this.linkString = StringUtil.nullToBlank(this.linkString)
+    override fun doStartTag(): Int {
         return SKIP_BODY
     }
 
     @Throws(JspException::class)
-    fun doEndTag(): Int {
-        var `object`: Any? = null
-        if (this.scope == Constants.RequestScope.SESSION) {
-            `object` = this.pageContext.getSession().getAttribute(value)
+    override fun doEndTag(): Int {
+        val instance = if (this.scope == Constants.RequestScope.SESSION) {
+            this.pageContext.session.getAttribute(value)
         } else {
-            `object` = this.pageContext.getRequest().getAttribute(value)
+            this.pageContext.request.getAttribute(value)
         }
-        if (`object` is Page) {
-            val page = `object` as Page?
+        if (instance is Page) {
+            val page = instance
             val paginationHtml = StringBuilder()
-            var action: String? = null
-            if (this.action!!.indexOf("?") > -1) {
-                action = this.action!! + "&page="
+            val action = if (this.action.indexOf("?") > -1) {
+                this.action + "&page="
             } else {
-                action = this.action!! + "?page="
+                this.action + "?page="
             }
             //first and previous
-            val first = "<a href=\"" + action + page!!.getFirstPage() + "\" " + linkString + ">" + this.firstIcon + "</a>" + BLANK_2
-            val previous = "<a href=\"" + action + (page!!.getPage() - 1) + "\" " + linkString + ">" + this.previousIcon + "</a>" + BLANK_2
+            val first = "<a href=\"" + action + page.firstPage + "\" " + linkString + ">" + this.firstIcon + "</a>" + BLANK_2
+            val previous = "<a href=\"" + action + (page.page - 1) + "\" " + linkString + ">" + this.previousIcon + "</a>" + BLANK_2
             paginationHtml.append(first)
             paginationHtml.append(previous)
             //middle
-            if (this.size > page!!.getTotalPages()) {
-                this.size = page!!.getTotalPages()
+            if (this.size > page.totalPages) {
+                this.size = page.totalPages
             }
             var middlePosition = 0
             if (this.size % 2 == 0) {//even
@@ -121,55 +114,39 @@ class PaginationTag : BodyTagSupport() {
                 middlePosition = this.size / 2 + 1
             }
             var startPage = 0
-            if (page!!.getPage() <= middlePosition) {
+            if (page.page <= middlePosition) {
                 startPage = 1
-            } else if (page!!.getPage() > middlePosition) {
-                if (page!!.getPage() > page!!.getTotalPages() - middlePosition) {
-                    startPage = page!!.getTotalPages() - this.size + 1
+            } else if (page.page > middlePosition) {
+                if (page.page > page.totalPages - middlePosition) {
+                    startPage = page.totalPages - this.size + 1
                 } else {
-                    startPage = page!!.getPage() - middlePosition + 1
+                    startPage = page.page - middlePosition + 1
                 }
             }
             for (i in 0 until this.size) {
                 val showPage = startPage + i
-                var middle: String? = null
-                if (showPage == page!!.getPage()) {
-                    middle = "<a href=\"$action$showPage\" $linkString><font color=\"red\">[$BLANK_2$showPage$BLANK_2]</font></a>$BLANK_2"
+                val middle = if (showPage == page.page) {
+                    "<a href=\"$action$showPage\" $linkString><font color=\"red\">[$BLANK_2$showPage$BLANK_2]</font></a>$BLANK_2"
                 } else {
-                    middle = "<a href=\"$action$showPage\" $linkString>[$BLANK_2$showPage$BLANK_2]</a>$BLANK_2"
+                    "<a href=\"$action$showPage\" $linkString>[$BLANK_2$showPage$BLANK_2]</a>$BLANK_2"
                 }
                 paginationHtml.append(middle)
             }
             //next and last(total)
-            val next = "<a href=\"" + action + (page!!.getPage() + 1) + "\" " + linkString + ">" + this.nextIcon + "</a>" + BLANK_2
-            val last = "<a href=\"" + action + page!!.getTotalPages() + "\" " + linkString + ">" + this.lastIcon + "</a>"
+            val next = "<a href=\"" + action + (page.page + 1) + "\" " + linkString + ">" + this.nextIcon + "</a>" + BLANK_2
+            val last = "<a href=\"" + action + page.totalPages + "\" " + linkString + ">" + this.lastIcon + "</a>"
             paginationHtml.append(next)
             paginationHtml.append(last)
-            val other = BLANK_8 + TIPS_PAGE + page!!.getPage() + "/" + page!!.getTotalPages() + BLANK_8 + TIPS_ROWS + (page!!.getPageFirstRow() + 1) + "~" + (if (page!!.getPage() * page!!.getRowsPerPage() < page!!.getTotalRows()) page!!.getPage() * page!!.getRowsPerPage() else page!!.getTotalRows()) + "/" + page!!.getTotalRows()
+            val other = BLANK_8 + TIPS_PAGE + page.page + "/" + page.totalPages + BLANK_8 + TIPS_ROWS + (page.pageFirstRow + 1) + "~" + (if (page.page * page.rowsPerPage < page.totalRows) page.page * page.rowsPerPage else page.totalRows) + "/" + page.totalRows
             paginationHtml.append(other)
             //goto page
             try {
-                this.pageContext.getOut().println(paginationHtml.toString())
+                this.pageContext.out.println(paginationHtml.toString())
             } catch (e: Exception) {
                 logger.error(Constants.Base.EXCEPTION, e)
             }
 
         }
         return EVAL_PAGE
-    }
-
-    companion object {
-
-        /**
-         * serialVersiionUID
-         */
-        private val serialVersionUID = -7387028073417293099L
-
-        private val logger = LoggerManager.getLogger(PaginationTag::class.java)
-
-        private val BLANK_2 = "&nbsp;&nbsp;"
-        private val BLANK_8 = BLANK_2 + BLANK_2 + BLANK_2 + BLANK_2
-        private val TIPS_PAGE = "Page:"
-        private val TIPS_ROWS = "Rows:"
     }
 }

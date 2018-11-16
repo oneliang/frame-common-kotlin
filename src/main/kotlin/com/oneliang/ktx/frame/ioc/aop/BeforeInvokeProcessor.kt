@@ -6,11 +6,11 @@ interface BeforeInvokeProcessor {
 
     /**
      * before invoke
-     * @param object
+     * @param instance
      * @param method
      * @param args
      * @throws Throwable
      */
     @Throws(Throwable::class)
-    fun beforeInvoke(`object`: Any, method: Method, args: Array<Any>)
+    fun beforeInvoke(instance: Any, method: Method, args: Array<Any>?)
 }

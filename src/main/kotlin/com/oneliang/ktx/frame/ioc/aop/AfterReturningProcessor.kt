@@ -6,12 +6,12 @@ interface AfterReturningProcessor {
 
     /**
      * after returning
-     * @param object
+     * @param instance
      * @param method
      * @param args
      * @param returnValue
      * @throws Throwable
      */
     @Throws(Throwable::class)
-    fun afterReturning(`object`: Any, method: Method, args: Array<Any>, returnValue: Any)
+    fun afterReturning(instance: Any, method: Method, args: Array<Any>?, returnValue: Any?)
 }

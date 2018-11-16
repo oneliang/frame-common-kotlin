@@ -80,11 +80,11 @@ open class ActionBean {
      * @param forward
      * @return forward path
      */
-    fun findForwardPath(forward: String): String? {
-        var forwardPath: String? = null
+    fun findForwardPath(forward: String): String {
+        var forwardPath = Constants.String.BLANK
         for (actionForwardBean in actionForwardBeanList) {
             val forwardName = actionForwardBean.name
-            if (forwardName != null && forwardName == forward) {
+            if (forwardName == forward) {
                 forwardPath = actionForwardBean.path
                 break
             }

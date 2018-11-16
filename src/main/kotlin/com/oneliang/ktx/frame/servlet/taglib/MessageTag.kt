@@ -1,76 +1,62 @@
 package com.oneliang.ktx.frame.servlet.taglib
 
-import java.util.Locale
-import java.util.Properties
-
+import com.oneliang.ktx.Constants
+import com.oneliang.ktx.frame.i18n.MessageContext
+import com.oneliang.ktx.util.logging.LoggerManager
+import java.util.*
 import javax.servlet.jsp.JspException
 import javax.servlet.jsp.tagext.BodyTagSupport
 
-import com.oneliang.Constants
-import com.oneliang.frame.i18n.MessageContext
-import com.oneliang.util.common.StringUtil
-import com.oneliang.util.logging.Logger
-import com.oneliang.util.logging.LoggerManager
-
 class MessageTag : BodyTagSupport() {
-
+    companion object {
+        private val logger = LoggerManager.getLogger(MessageTag::class)
+        private const val LOCALE = "locale"
+    }
     /**
      * @return the key
      */
     /**
      * @param key the key to set
      */
-    var key: String? = null
+    var key: String = Constants.String.BLANK
     /**
      * @return the locale
      */
     /**
      * @param locale the locale to set
      */
-    var locale: String? = null
+    var locale: String = Constants.String.BLANK
 
     @Throws(JspException::class)
-    fun doStartTag(): Int {
+    override fun doStartTag(): Int {
         return SKIP_BODY
     }
 
     @Throws(JspException::class)
-    fun doEndTag(): Int {
+    override fun doEndTag(): Int {
         try {
-            var locale: String? = null
-            val localeParameter = this.pageContext.getRequest().getParameter(LOCALE)
+            val locale: String
+            val localeParameter = this.pageContext.request.getParameter(LOCALE)
             val localeKey = Locale.getDefault().toString()
-            if (StringUtil.isBlank(this.locale)) {
-                if (StringUtil.isBlank(localeParameter)) {
-                    locale = localeKey
+            locale = if (this.locale.isBlank()) {
+                if (localeParameter.isBlank()) {
+                    localeKey
                 } else {
-                    locale = localeParameter
+                    localeParameter
                 }
             } else {
-                locale = this.locale
+                this.locale
             }
             val properties = MessageContext.getMessageProperties(locale)
             var value = this.key
             if (properties != null) {
-                value = properties!!.getProperty(this.key!!)
+                value = properties.getProperty(this.key)
             }
-            this.pageContext.getOut().print(value)
+            this.pageContext.out.print(value)
         } catch (e: Exception) {
             logger.error(Constants.Base.EXCEPTION, e)
         }
 
         return EVAL_PAGE
-    }
-
-    companion object {
-
-        /**
-         * serialVersionUID
-         */
-        private val serialVersionUID = -4127533235059676726L
-
-        private val logger = LoggerManager.getLogger(MessageTag::class.java)
-
-        private val LOCALE = "locale"
     }
 }

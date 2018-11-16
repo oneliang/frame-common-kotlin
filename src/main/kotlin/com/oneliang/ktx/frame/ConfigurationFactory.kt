@@ -1,7 +1,6 @@
 package com.oneliang.ktx.frame
 
 import com.oneliang.ktx.Constants
-
 import com.oneliang.ktx.frame.configuration.ConfigurationContext
 import com.oneliang.ktx.frame.ioc.IocBean
 import com.oneliang.ktx.frame.ioc.IocContext
@@ -91,7 +90,7 @@ object ConfigurationFactory {
     fun inject() {
         iocInject()
         interceptorInject()
-        processorInject()
+//        processorInject()
     }
 
     /**
@@ -114,7 +113,7 @@ object ConfigurationFactory {
      */
     @Throws(Exception::class)
     fun afterInject() {
-        val iocContext = singletonConfigurationContext.findContext(IocContext::class.java)
+        val iocContext = singletonConfigurationContext.findContext(IocContext::class)
         if (iocContext != null) {
             iocContext!!.afterInject()
         }
@@ -124,10 +123,8 @@ object ConfigurationFactory {
      * interceptor inject
      */
     fun interceptorInject() {
-        val actionContext = singletonConfigurationContext.findContext(ActionContext::class.java)
-        if (actionContext != null) {
-            actionContext!!.interceptorInject()
-        }
+        val actionContext = singletonConfigurationContext.findContext(ActionContext::class)
+        actionContext?.interceptorInject()
     }
 
     /**
@@ -135,19 +132,19 @@ object ConfigurationFactory {
      *
      * @throws Exception
      */
-    @Throws(Exception::class)
-    fun processorInject() {
-        val iterator = singletonConfigurationContext.getConfigurationBeanEntrySet().iterator()
-        while (iterator.hasNext()) {
-            val entry = iterator.next()
-            val configurationBean = entry.value
-            val context = configurationBean.getContextInstance()
-            if (context is TaskContext) {
-                val taskContext = context as TaskContext
-                taskContext.processorInject()
-            }
-        }
-    }
+//    @Throws(Exception::class)
+//    fun processorInject() {
+//        val iterator = singletonConfigurationContext.getConfigurationBeanEntrySet().iterator()
+//        while (iterator.hasNext()) {
+//            val entry = iterator.next()
+//            val configurationBean = entry.value
+//            val context = configurationBean.getContextInstance()
+//            if (context is TaskContext) {
+//                val taskContext = context as TaskContext
+//                taskContext.processorInject()
+//            }
+//        }
+//    }
 
     /**
      * ioc auto inject object by id
@@ -157,20 +154,18 @@ object ConfigurationFactory {
      * @throws Exception
      */
     @Throws(Exception::class)
-    fun iocAutoInjectObjectById(id: String, instance: Any?) {
-        if (instance != null) {
-            val iocContext = singletonConfigurationContext.findContext(IocContext::class.java)
-            if (iocContext != null) {
-                val iocBean = IocBean()
-                iocBean.setId(id)
-                iocBean.setInjectType(IocBean.INJECT_TYPE_AUTO_BY_ID)
-                iocBean.setProxy(false)
-                iocBean.setProxyInstance(instance)
-                iocBean.setBeanInstance(instance)
-                iocBean.setType(instance.javaClass.name)
-                iocContext!!.putToIocBeanMap(id, iocBean)
-                iocContext!!.autoInjectObjectById(instance)
-            }
+    fun iocAutoInjectObjectById(id: String, instance: Any) {
+        val iocContext = singletonConfigurationContext.findContext(IocContext::class)
+        if (iocContext != null) {
+            val iocBean = IocBean()
+            iocBean.id = id
+            iocBean.injectType = IocBean.INJECT_TYPE_AUTO_BY_ID
+            iocBean.proxy = false
+            iocBean.proxyInstance = instance
+            iocBean.beanInstance = instance
+            iocBean.type = instance.javaClass.name
+            iocContext.putToIocBeanMap(id, iocBean)
+            iocContext.autoInjectObjectById(instance)
         }
     }
 
@@ -199,14 +194,14 @@ object ConfigurationFactory {
      *
      * @throws Exception
      */
-    @Deprecated("")
-    @Throws(Exception::class)
-    fun initialConnectionPools() {
-        val dataBaseContext = singletonConfigurationContext.findContext(DatabaseContext::class.java)
-        if (dataBaseContext != null) {
-            dataBaseContext!!.initialConnectionPools()
-        }
-    }
+//    @Deprecated("")
+//    @Throws(Exception::class)
+//    fun initialConnectionPools() {
+//        val dataBaseContext = singletonConfigurationContext.findContext(DatabaseContext::class.java)
+//        if (dataBaseContext != null) {
+//            dataBaseContext!!.initialConnectionPools()
+//        }
+//    }
 
     /**
      * find global forward path with name
@@ -214,15 +209,9 @@ object ConfigurationFactory {
      * @param name
      * @return String
      */
-    fun findGlobalForwardPath(name: String?): String? {
-        var path: String? = null
-        if (name != null) {
-            val actionContext = singletonConfigurationContext.findContext(ActionContext::class.java)
-            if (actionContext != null) {
-                path = actionContext!!.findGlobalForwardPath(name)
-            }
-        }
-        return path
+    fun findGlobalForwardPath(name: String): String {
+        val actionContext = singletonConfigurationContext.findContext(ActionContext::class)
+        return actionContext?.findGlobalForwardPath(name) ?: Constants.String.BLANK
     }
 
     /**
@@ -231,7 +220,7 @@ object ConfigurationFactory {
      * @param id
      * @return T
      */
-    fun <T : Any> findBean(id: String): T {
+    fun <T : Any> findBean(id: String): T? {
         return singletonConfigurationContext.findBean(id)
     }
 
@@ -257,16 +246,16 @@ object ConfigurationFactory {
      * @param clazz
      * @return MappingBean
     </T> */
-    fun <T : Any> findMappingBean(clazz: Class<T>?): MappingBean? {
-        var mappingBean: MappingBean? = null
-        if (clazz != null) {
-            val mappingContext = singletonConfigurationContext.findContext(MappingContext::class.java)
-            if (mappingContext != null) {
-                mappingBean = mappingContext!!.findMappingBean(clazz)
-            }
-        }
-        return mappingBean
-    }
+//    fun <T : Any> findMappingBean(clazz: Class<T>?): MappingBean? {
+//        var mappingBean: MappingBean? = null
+//        if (clazz != null) {
+//            val mappingContext = singletonConfigurationContext.findContext(MappingContext::class.java)
+//            if (mappingContext != null) {
+//                mappingBean = mappingContext!!.findMappingBean(clazz)
+//            }
+//        }
+//        return mappingBean
+//    }
 
     /**
      * find mappingBean
@@ -274,15 +263,15 @@ object ConfigurationFactory {
      * @param name
      * @return MappingBean
      */
-    fun findMappingBean(name: String?): MappingBean? {
-        var mappingBean: MappingBean? = null
-        if (name != null) {
-            val mappingContext = singletonConfigurationContext.findContext(MappingContext::class.java)
-            if (mappingContext != null) {
-                mappingBean = mappingContext!!.findMappingBean(name)
-            }
-        }
-        return mappingBean
-    }
+//    fun findMappingBean(name: String?): MappingBean? {
+//        var mappingBean: MappingBean? = null
+//        if (name != null) {
+//            val mappingContext = singletonConfigurationContext.findContext(MappingContext::class.java)
+//            if (mappingContext != null) {
+//                mappingBean = mappingContext!!.findMappingBean(name)
+//            }
+//        }
+//        return mappingBean
+//    }
 
 }

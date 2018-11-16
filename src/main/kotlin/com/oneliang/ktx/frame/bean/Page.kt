@@ -5,6 +5,10 @@ package com.oneliang.ktx.frame.bean
  * @since 2008-11-10
  */
 class Page {
+
+    companion object {
+        const val DEFAULT_ROWS = 20
+    }
     /**
      * @return the page
      */
@@ -71,10 +75,4 @@ class Page {
         }
 
     }
-
-    companion object {
-
-        val DEFAULT_ROWS = 20
-    }
-
 }

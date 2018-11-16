@@ -1,58 +1,46 @@
 package com.oneliang.ktx.frame.servlet.taglib
 
+import com.oneliang.ktx.Constants
+import com.oneliang.ktx.util.common.toFormatString
+import com.oneliang.ktx.util.logging.LoggerManager
+import java.util.*
 import javax.servlet.jsp.JspException
 import javax.servlet.jsp.tagext.BodyTagSupport
 
-import com.oneliang.Constants
-import com.oneliang.util.common.StringUtil
-import com.oneliang.util.common.TimeUtil
-import com.oneliang.util.logging.Logger
-import com.oneliang.util.logging.LoggerManager
-
 class TimeMillisToDateTag : BodyTagSupport() {
-
+    companion object {
+        private val logger = LoggerManager.getLogger(TimeMillisToDateTag::class)
+    }
     /**
      * @return the value
      */
     /**
      * @param value the value to set
      */
-    var value: String? = null
+    var value: String = Constants.String.BLANK
     /**
      * @return the format
      */
     /**
      * @param format the format to set
      */
-    var format = TimeUtil.YEAR_MONTH_DAY_HOUR_MINUTE_SECOND
+    var format = Constants.Time.YEAR_MONTH_DAY_HOUR_MINUTE_SECOND
 
     @Throws(JspException::class)
-    fun doStartTag(): Int {
-        if (StringUtil.isNotBlank(this.value)) {
+    override fun doStartTag(): Int {
+        if (this.value.isNotBlank()) {
             try {
-                val dateString = TimeUtil.dateToString(TimeUtil.timeMillisToDate(java.lang.Long.parseLong(value!!)), this.format)
-                this.pageContext.getOut().print(dateString)
+                val dateString = Date(this.value.toLong()).toFormatString(this.format)
+                this.pageContext.out.print(dateString)
             } catch (e: Exception) {
                 logger.error(Constants.Base.EXCEPTION, e)
             }
-
         }
         return EVAL_PAGE
     }
 
     @Throws(JspException::class)
-    fun doEndTag(): Int {
+    override fun doEndTag(): Int {
         return EVAL_PAGE
     }
-
-    companion object {
-
-        /**
-         * serialVersionUID
-         */
-        private val serialVersionUID = -4155763064911316797L
-
-        private val logger = LoggerManager.getLogger(TimeMillisToDateTag::class.java)
-    }
-
 }

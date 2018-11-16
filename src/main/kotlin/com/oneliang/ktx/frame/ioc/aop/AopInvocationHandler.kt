@@ -10,9 +10,9 @@ class AopInvocationHandler<T : Any>(private val interfaceImpl: T) : InvocationHa
      * proxy method invoke
      */
     @Throws(Throwable::class)
-    override fun invoke(proxy: Any, method: Method, args: Array<Any>): Any? {
+    override fun invoke(proxy: Any, method: Method, args: Array<Any>?): Any? {
         //		logger.log("proxy invocation:"+interfaceImpl.getClass().getName()+"--"+method.getName());
-        var instance: Any? = null
+        val instance: Any?
         for (beforeInvokeProcessor in beforeInvokeProcessorList) {
             beforeInvokeProcessor.beforeInvoke(this.interfaceImpl, method, args)
         }
@@ -34,13 +34,12 @@ class AopInvocationHandler<T : Any>(private val interfaceImpl: T) : InvocationHa
     private class DefaultInvokeProcessor : InvokeProcessor {
 
         @Throws(Throwable::class)
-        override fun invoke(instance: Any, method: Method, args: Array<Any>): Any {
-            return method.invoke(instance, *args)
+        override fun invoke(instance: Any, method: Method, args: Array<Any>?): Any? {
+            return method.invoke(instance, *(args ?: emptyArray()))
         }
     }
 
     companion object {
-
         private val beforeInvokeProcessorList = CopyOnWriteArrayList<BeforeInvokeProcessor>()
         private val afterReturningProcessorList = CopyOnWriteArrayList<AfterReturningProcessor>()
         private val afterThrowingProcessorList = CopyOnWriteArrayList<AfterThrowingProcessor>()

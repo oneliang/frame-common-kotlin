@@ -17,7 +17,7 @@ class ContextListener : ServletContextListener {
         private val logger = LoggerManager.getLogger(ContextListener::class)
 
         //	private static final String CONTEXT_PARAMETER_DBCONFIG="dbConfig";
-        private val CONTEXT_PARAMETER_CONFIGFILE = "configFile"
+        private const val CONTEXT_PARAMETER_CONFIGFILE = "configFile"
     }
 
     /**
@@ -57,7 +57,7 @@ class ContextListener : ServletContextListener {
             }
 
         } else {
-            //			log.log("config file is not found,please initial the config file");
+            logger.error("config file is not found,please initial the config file")
         }
     }
 }
