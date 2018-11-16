@@ -1,36 +1,21 @@
 package com.oneliang.ktx.frame.servlet
 
+import com.oneliang.ktx.Constants
+import com.oneliang.ktx.frame.ConfigurationFactory
+import com.oneliang.ktx.frame.servlet.action.*
 import java.io.IOException
 import java.lang.reflect.Array
 import java.lang.reflect.InvocationTargetException
-import java.lang.reflect.Method
-
-import javax.servlet.RequestDispatcher
 import javax.servlet.ServletException
 import javax.servlet.http.HttpServlet
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
-import com.oneliang.Constants
-import com.oneliang.frame.ConfigurationFactory
-import com.oneliang.frame.configuration.ConfigurationContext
-import com.oneliang.frame.servlet.action.Action.RequestMapping.RequestParameter
-import com.oneliang.frame.servlet.action.ActionBean
-import com.oneliang.frame.servlet.action.ActionExecuteException
-import com.oneliang.frame.servlet.action.ActionForwardBean
-import com.oneliang.frame.servlet.action.ActionInterceptorBean
-import com.oneliang.frame.servlet.action.ActionInterface
-import com.oneliang.frame.servlet.action.ActionInterface.HttpRequestMethod
-import com.oneliang.frame.servlet.action.AnnotationActionBean
-import com.oneliang.frame.servlet.action.Interceptor
-import com.oneliang.ktx.frame.servlet.action.ActionInterface
-import com.oneliang.util.common.ClassUtil
-import com.oneliang.util.common.ClassUtil.ClassProcessor
-import com.oneliang.util.common.ObjectUtil
-import com.oneliang.util.common.RequestUtil
-import com.oneliang.util.common.StringUtil
-import com.oneliang.util.logging.Logger
-import com.oneliang.util.logging.LoggerManager
+import com.oneliang.ktx.util.common.KotlinClassUtil
+import com.oneliang.ktx.util.common.ObjectUtil
+import com.oneliang.ktx.util.common.RequestUtil
+import com.oneliang.ktx.util.common.StringUtil
+import com.oneliang.ktx.util.logging.LoggerManager
 
 /**
  * com.lwx.frame.servlet.Listener.java
@@ -40,7 +25,7 @@ import com.oneliang.util.logging.LoggerManager
  */
 class ActionListener : HttpServlet() {
 
-    private var classProcessor = ClassUtil.DEFAULT_CLASS_PROCESSOR
+    private var classProcessor = KotlinClassUtil.DEFAULT_KOTLIN_CLASS_PROCESSOR
 
     /**
      * Returns information about the servlet, such as
@@ -48,18 +33,19 @@ class ActionListener : HttpServlet() {
      *
      * @return String information about this servlet
      */
-    val servletInfo: String
-        get() = this.getClass().toString()
+    override fun getServletInfo(): String {
+        this.javaClass.toString()
+    }
 
     @Throws(ServletException::class, IOException::class)
-    protected fun service(request: HttpServletRequest, response: HttpServletResponse) {
+    override fun service(request: HttpServletRequest, response: HttpServletResponse) {
         //servlet bean
         var servletBean: ActionUtil.ServletBean? = ActionUtil.servletBean
         if (servletBean == null) {
             servletBean = ActionUtil.ServletBean()
             ActionUtil.servletBean = servletBean
         }
-        servletBean.servletContext = this.getServletContext()
+        servletBean.servletContext = this.servletContext
         servletBean.servletRequest = request
         servletBean.servletResponse = response
         //execute default service method,distribute doGet or doPost or other http method
@@ -69,7 +55,7 @@ class ActionListener : HttpServlet() {
         servletBean.servletResponse = null
     }
 
-    protected fun getLastModified(request: HttpServletRequest): Long {
+    override fun getLastModified(request: HttpServletRequest): Long {
         //uri
         //		String uri=request.getRequestURI();
         //		int front=request.getContextPath().length();
@@ -81,7 +67,7 @@ class ActionListener : HttpServlet() {
     /**
      * Destruction of the servlet. <br></br>
      */
-    fun destroy() {
+    override fun destroy() {
         super.destroy() // Just puts "destroy" string in log
         // Put your code here
         logger.info("System is shutting down,listener is deleting,please wait")
@@ -98,7 +84,7 @@ class ActionListener : HttpServlet() {
      * @throws IOException if an error occurred
      */
     @Throws(ServletException::class, IOException::class)
-    fun doDelete(request: HttpServletRequest, response: HttpServletResponse) {
+    override fun doDelete(request: HttpServletRequest, response: HttpServletResponse) {
         dispatch(request, response, ActionInterface.HttpRequestMethod.DELETE)
     }
 
@@ -113,7 +99,7 @@ class ActionListener : HttpServlet() {
      * @throws IOException if an error occurred
      */
     @Throws(ServletException::class, IOException::class)
-    fun doGet(request: HttpServletRequest, response: HttpServletResponse) {
+    override fun doGet(request: HttpServletRequest, response: HttpServletResponse) {
         dispatch(request, response, ActionInterface.HttpRequestMethod.GET)
     }
 
@@ -128,7 +114,7 @@ class ActionListener : HttpServlet() {
      * @throws IOException if an error occurred
      */
     @Throws(ServletException::class, IOException::class)
-    fun doPost(request: HttpServletRequest, response: HttpServletResponse) {
+    override fun doPost(request: HttpServletRequest, response: HttpServletResponse) {
         dispatch(request, response, ActionInterface.HttpRequestMethod.POST)
     }
 
@@ -144,7 +130,7 @@ class ActionListener : HttpServlet() {
      * @throws IOException if an error occurred
      */
     @Throws(ServletException::class, IOException::class)
-    fun doPut(request: HttpServletRequest, response: HttpServletResponse) {
+    override fun doPut(request: HttpServletRequest, response: HttpServletResponse) {
         dispatch(request, response, ActionInterface.HttpRequestMethod.PUT)
     }
 
@@ -157,13 +143,13 @@ class ActionListener : HttpServlet() {
      * @throws IOException
      */
     @Throws(ServletException::class, IOException::class)
-    private fun dispatch(request: HttpServletRequest, response: HttpServletResponse, httpRequestMethod: HttpRequestMethod) {
+    private fun dispatch(request: HttpServletRequest, response: HttpServletResponse, httpRequestMethod: ActionInterface.HttpRequestMethod) {
         //uri
         var uri = request.getRequestURI()
 
         logger.info("System is requesting uri--:$uri")
 
-        val front = request.getContextPath().length()
+        val front = request.contextPath.length
         //		int rear=uri.lastIndexOf(StaticVar.DOT);
         //		if(rear>front){
         uri = uri.substring(front, uri.length)
@@ -172,7 +158,7 @@ class ActionListener : HttpServlet() {
         logger.info("The request name is--:$uri")
 
         //global interceptor doIntercept
-        val beforeGlobalInterceptorList = ConfigurationFactory.getBeforeGlobalInterceptorList()
+        val beforeGlobalInterceptorList = ConfigurationFactory.beforeGlobalInterceptorList
         val beforeGlobalInterceptorSign = doGlobalInterceptorList(beforeGlobalInterceptorList, request, response)
 
         //through the interceptor
@@ -180,9 +166,9 @@ class ActionListener : HttpServlet() {
             logger.info("Through the before global interceptors!")
             try {
                 val actionBeanList = ConfigurationFactory.findActionBeanList(uri)
-                if (actionBeanList != null && !actionBeanList!!.isEmpty()) {
+                if (actionBeanList != null && actionBeanList.isNotEmpty()) {
                     var actionBean: ActionBean? = null
-                    for (eachActionBean in actionBeanList!!) {
+                    for (eachActionBean in actionBeanList) {
                         if (eachActionBean.isContainHttpRequestMethod(httpRequestMethod)) {
                             actionBean = eachActionBean
                             break
@@ -190,13 +176,13 @@ class ActionListener : HttpServlet() {
                     }
                     if (actionBean != null) {
                         //action interceptor doIntercept
-                        val beforeActionBeanInterceptorList = actionBean!!.getBeforeActionInterceptorBeanList()
+                        val beforeActionBeanInterceptorList = actionBean.beforeActionInterceptorBeanList
                         val beforeActionInterceptorSign = doActionInterceptorBeanList(beforeActionBeanInterceptorList, request, response)
                         if (beforeActionInterceptorSign) {
                             logger.info("Through the before action interceptors!")
-                            val actionInstance = actionBean!!.getActionInstance()
+                            val actionInstance = actionBean.actionInstance
                             if (actionInstance is ActionInterface) {
-                                doAction(actionBean!!, request, response, httpRequestMethod)
+                                doAction(actionBean, request, response, httpRequestMethod)
                             } else {
                                 doAnnotationAction(actionBean, request, response, httpRequestMethod)
                             }
@@ -216,12 +202,12 @@ class ActionListener : HttpServlet() {
                 e.printStackTrace()
                 logger.error(Constants.Base.EXCEPTION, e)
                 logger.info("Action or page is not exist")
-                val exceptionPath = ConfigurationFactory.getGlobalExceptionForwardPath()
+                val exceptionPath = ConfigurationFactory.globalExceptionForwardPath
                 if (exceptionPath != null) {
                     request.setAttribute(Constants.Base.EXCEPTION, e)
                     val requestDispatcher = request.getRequestDispatcher(exceptionPath)
                     requestDispatcher.forward(request, response)
-                    logger.info("Forward to exception path:" + exceptionPath!!)
+                    logger.info("Forward to exception path:$exceptionPath")
                 } else {
                     logger.info("System can not find the exception path.Please config the global exception forward path.")
                     response.sendError(Constants.Http.StatusCode.INTERNAL_SERVER_ERROR)
@@ -347,14 +333,14 @@ class ActionListener : HttpServlet() {
         for (i in annotations.indices) {
             if (annotations[i].size > 0 && annotations[i][0] is RequestParameter) {
                 val requestParameterAnnotation = annotations[i][0] as RequestParameter
-                parameterValues[i] = ClassUtil.changeType(classes[i], request.getParameterValues(requestParameterAnnotation.value()), this.classProcessor)
+                parameterValues[i] = KotlinClassUtil.changeType(classes[i], request.getParameterValues(requestParameterAnnotation.value()), this.classProcessor)
             } else if (ObjectUtil.isEntity(request, classes[i])) {
                 parameterValues[i] = request
             } else if (ObjectUtil.isEntity(response, classes[i])) {
                 parameterValues[i] = response
             } else {
-                if (ClassUtil.isBaseClass(classes[i]) || ClassUtil.isBaseArray(classes[i]) || ClassUtil.isSimpleClass(classes[i]) || ClassUtil.isSimpleArray(classes[i])) {
-                    parameterValues[i] = ClassUtil.changeType(classes[i], null, this.classProcessor)
+                if (KotlinClassUtil.isBaseClass(classes[i]) || KotlinClassUtil.isBaseArray(classes[i]) || KotlinClassUtil.isSimpleClass(classes[i]) || KotlinClassUtil.isSimpleArray(classes[i])) {
+                    parameterValues[i] = KotlinClassUtil.changeType(classes[i], null, this.classProcessor)
                 } else if (classes[i].isArray()) {
                     val clazz = classes[i].getComponentType()
                     val objectList = RequestUtil.requestMapToObjectList(request.getParameterMap(), clazz, this.classProcessor)

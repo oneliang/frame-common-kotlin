@@ -8,7 +8,7 @@ annotation class Action {
     @MustBeDocumented
     @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER)
     @Retention(AnnotationRetention.RUNTIME)
-    annotation class RequestMapping(val value: String, val interceptors: Array<Interceptor> = [], val statics: Array<Static> = arrayOf(), val httpRequestMethods: Array<String> = []) {
+    annotation class RequestMapping(val value: String, val interceptors: Array<Interceptor> = [], val statics: Array<Static> = [], val httpRequestMethods: Array<String> = []) {
 
         @MustBeDocumented
         @Target(AnnotationTarget.ANNOTATION_CLASS)

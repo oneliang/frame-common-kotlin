@@ -1,21 +1,24 @@
 package com.oneliang.ktx.frame.servlet.action
 
-import java.util.concurrent.CopyOnWriteArrayList
-
-import com.oneliang.Constants
-import com.oneliang.frame.servlet.action.ActionInterface.HttpRequestMethod
+import com.oneliang.ktx.Constants
 import com.oneliang.ktx.util.common.StringUtil
-import com.oneliang.util.common.StringUtil
 
 open class ActionBean {
 
+    companion object {
+
+        private const val REGEX = "\\{[\\w]*\\}"
+        private const val FIRST_REGEX = "\\{"
+
+        const val TAG_ACTION = "action"
+    }
     /**
      * @return the id
      */
     /**
      * @param id the id to set
      */
-    var id: String? = null
+    var id: String = Constants.String.BLANK
     /**
      * @return the type
      */
@@ -29,34 +32,28 @@ open class ActionBean {
     /**
      * @param path the path to set
      */
-    var path: String? = null
+    var path: String = Constants.String.BLANK
     /**
      * @return the httpRequestMethods
      */
     /**
      * @param httpRequestMethods the httpRequestMethods to set
      */
-    var httpRequestMethods: String? = null
+    var httpRequestMethods: String = Constants.String.BLANK
         set(httpRequestMethods) {
             field = httpRequestMethods
-            if (StringUtil.isNotBlank(this.httpRequestMethods)) {
+            if (this.httpRequestMethods.isNotBlank()) {
                 this.httpRequestMethodsCode = 0
-                val httpRequestMethodArray = this.httpRequestMethods!!.split(Constants.Symbol.COMMA.toRegex()).dropLastWhile({ it.isEmpty() }).toTypedArray()
+                val httpRequestMethodArray = this.httpRequestMethods.split(Constants.Symbol.COMMA)
                 for (httpRequestMethod in httpRequestMethodArray) {
-                    if (httpRequestMethod.equals(Constants.Http.RequestMethod.PUT, ignoreCase = true)) {
-                        this.httpRequestMethodsCode = this.httpRequestMethodsCode or ActionInterface.HttpRequestMethod.PUT.getCode()
-                    } else if (httpRequestMethod.equals(Constants.Http.RequestMethod.DELETE, ignoreCase = true)) {
-                        this.httpRequestMethodsCode = this.httpRequestMethodsCode or ActionInterface.HttpRequestMethod.DELETE.getCode()
-                    } else if (httpRequestMethod.equals(Constants.Http.RequestMethod.GET, ignoreCase = true)) {
-                        this.httpRequestMethodsCode = this.httpRequestMethodsCode or ActionInterface.HttpRequestMethod.GET.getCode()
-                    } else if (httpRequestMethod.equals(Constants.Http.RequestMethod.POST, ignoreCase = true)) {
-                        this.httpRequestMethodsCode = this.httpRequestMethodsCode or ActionInterface.HttpRequestMethod.POST.getCode()
-                    } else if (httpRequestMethod.equals(Constants.Http.RequestMethod.HEAD, ignoreCase = true)) {
-                        this.httpRequestMethodsCode = this.httpRequestMethodsCode or HttpRequestMethod.HEAD.getCode()
-                    } else if (httpRequestMethod.equals(Constants.Http.RequestMethod.OPTIONS, ignoreCase = true)) {
-                        this.httpRequestMethodsCode = this.httpRequestMethodsCode or HttpRequestMethod.OPTIONS.getCode()
-                    } else if (httpRequestMethod.equals(Constants.Http.RequestMethod.TRACE, ignoreCase = true)) {
-                        this.httpRequestMethodsCode = this.httpRequestMethodsCode or HttpRequestMethod.TRACE.getCode()
+                    when {
+                        httpRequestMethod.equals(Constants.Http.RequestMethod.PUT, ignoreCase = true) -> this.httpRequestMethodsCode = this.httpRequestMethodsCode or ActionInterface.HttpRequestMethod.PUT.code
+                        httpRequestMethod.equals(Constants.Http.RequestMethod.DELETE, ignoreCase = true) -> this.httpRequestMethodsCode = this.httpRequestMethodsCode or ActionInterface.HttpRequestMethod.DELETE.code
+                        httpRequestMethod.equals(Constants.Http.RequestMethod.GET, ignoreCase = true) -> this.httpRequestMethodsCode = this.httpRequestMethodsCode or ActionInterface.HttpRequestMethod.GET.code
+                        httpRequestMethod.equals(Constants.Http.RequestMethod.POST, ignoreCase = true) -> this.httpRequestMethodsCode = this.httpRequestMethodsCode or ActionInterface.HttpRequestMethod.POST.code
+                        httpRequestMethod.equals(Constants.Http.RequestMethod.HEAD, ignoreCase = true) -> this.httpRequestMethodsCode = this.httpRequestMethodsCode or ActionInterface.HttpRequestMethod.HEAD.code
+                        httpRequestMethod.equals(Constants.Http.RequestMethod.OPTIONS, ignoreCase = true) -> this.httpRequestMethodsCode = this.httpRequestMethodsCode or ActionInterface.HttpRequestMethod.OPTIONS.code
+                        httpRequestMethod.equals(Constants.Http.RequestMethod.TRACE, ignoreCase = true) -> this.httpRequestMethodsCode = this.httpRequestMethodsCode or ActionInterface.HttpRequestMethod.TRACE.code
                     }
                 }
             }
@@ -64,7 +61,7 @@ open class ActionBean {
     /**
      * @return the httpRequestMethodsCode
      */
-    var httpRequestMethodsCode = ActionInterface.HttpRequestMethod.GET.getCode() or ActionInterface.HttpRequestMethod.POST.getCode()
+    var httpRequestMethodsCode = ActionInterface.HttpRequestMethod.GET.code or ActionInterface.HttpRequestMethod.POST.code
         private set
     /**
      * @return the actionInstance
@@ -73,10 +70,10 @@ open class ActionBean {
      * @param actionInstance the actionInstance to set
      */
     var actionInstance: Any? = null
-    private val actionInterceptorBeanList = CopyOnWriteArrayList<ActionInterceptorBean>()
-    private val beforeActionInterceptorBeanList = CopyOnWriteArrayList<ActionInterceptorBean>()
-    private val afterActionInterceptorBeanList = CopyOnWriteArrayList<ActionInterceptorBean>()
-    private val actionForwardBeanList = CopyOnWriteArrayList<ActionForwardBean>()
+    val actionInterceptorBeanList = mutableListOf<ActionInterceptorBean>()
+    val beforeActionInterceptorBeanList = mutableListOf<ActionInterceptorBean>()
+    val afterActionInterceptorBeanList = mutableListOf<ActionInterceptorBean>()
+    val actionForwardBeanList = mutableListOf<ActionForwardBean>()
 
     /**
      * find forward path
@@ -117,17 +114,15 @@ open class ActionBean {
      * @param actionForwardBean
      * @param parameterMap
      */
-    private fun replaceActionForwardBeanStaticFilePath(actionForwardBean: ActionForwardBean?, parameterMap: Map<String, Array<String>>?) {
-        if (actionForwardBean != null && parameterMap != null) {
-            val staticFilePath = actionForwardBean.staticFilePath
+    private fun replaceActionForwardBeanStaticFilePath(actionForwardBean: ActionForwardBean, parameterMap: Map<String, Array<String>>) {
+        val staticFilePath = actionForwardBean.staticFilePath
+        if (staticFilePath.isNotBlank()) {
             var staticFilePathResult = staticFilePath
-            val groupList = StringUtil.parseStringGroup(staticFilePath, REGEX, FIRST_REGEX, StringUtil.BLANK, 1)
-            if (groupList != null) {
-                for (group in groupList!!) {
-                    val parameterValues = parameterMap[group]
-                    if (parameterValues != null && parameterValues.size > 0) {
-                        staticFilePathResult = staticFilePathResult!!.replaceFirst(REGEX.toRegex(), parameterValues[0])
-                    }
+            val groupList = StringUtil.parseStringGroup(staticFilePath, REGEX, FIRST_REGEX, Constants.String.BLANK, 1)
+            for (group in groupList) {
+                val parameterValues = parameterMap[group]
+                if (parameterValues != null && parameterValues.isNotEmpty()) {
+                    staticFilePathResult = staticFilePathResult.replaceFirst(REGEX.toRegex(), parameterValues[0])
                 }
             }
             actionForwardBean.staticFilePath = staticFilePathResult
@@ -153,13 +148,6 @@ open class ActionBean {
     }
 
     /**
-     * @return the action interceptor bean list
-     */
-    fun getActionInterceptorBeanList(): List<ActionInterceptorBean> {
-        return this.actionInterceptorBeanList
-    }
-
-    /**
      * add action forward bean
      * @param actionForwardBean
      * @return boolean
@@ -169,44 +157,11 @@ open class ActionBean {
     }
 
     /**
-     * @return the forwardList
-     */
-    fun getActionForwardBeanList(): List<ActionForwardBean> {
-        return actionForwardBeanList
-    }
-
-    /**
-     * @return the beforeInterceptorBeanList
-     */
-    fun getBeforeActionInterceptorBeanList(): List<ActionInterceptorBean> {
-        return beforeActionInterceptorBeanList
-    }
-
-    /**
-     * @return the afterInterceptorBeanList
-     */
-    fun getAfterActionInterceptorBeanList(): List<ActionInterceptorBean> {
-        return afterActionInterceptorBeanList
-    }
-
-    /**
      * is contain http request method
      * @param httpRequestMethod
      * @return boolean
      */
-    fun isContainHttpRequestMethod(httpRequestMethod: HttpRequestMethod?): Boolean {
-        var result = false
-        if (httpRequestMethod != null) {
-            result = if (httpRequestMethod!!.getCode() === this.httpRequestMethodsCode and httpRequestMethod!!.getCode()) true else false
-        }
-        return result
-    }
-
-    companion object {
-
-        private val REGEX = "\\{[\\w]*\\}"
-        private val FIRST_REGEX = "\\{"
-
-        val TAG_ACTION = "action"
+    fun isContainHttpRequestMethod(httpRequestMethod: ActionInterface.HttpRequestMethod): Boolean {
+        return httpRequestMethod.code == this.httpRequestMethodsCode and httpRequestMethod.code
     }
 }

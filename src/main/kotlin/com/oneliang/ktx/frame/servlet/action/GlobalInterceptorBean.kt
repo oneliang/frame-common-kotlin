@@ -32,7 +32,7 @@ class GlobalInterceptorBean {
     /**
      * @param mode the mode to set
      */
-    var mode: String? = null
+    var mode: String = INTERCEPTOR_MODE_BEFORE
     /**
      * @return the interceptorInstance
      */

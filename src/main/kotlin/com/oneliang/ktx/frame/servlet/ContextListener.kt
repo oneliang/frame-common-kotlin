@@ -9,6 +9,16 @@ import javax.servlet.ServletContextEvent
 import javax.servlet.ServletContextListener
 
 class ContextListener : ServletContextListener {
+    companion object {
+
+        /**
+         * ContextListener constant
+         */
+        private val logger = LoggerManager.getLogger(ContextListener::class)
+
+        //	private static final String CONTEXT_PARAMETER_DBCONFIG="dbConfig";
+        private val CONTEXT_PARAMETER_CONFIGFILE = "configFile"
+    }
 
     /**
      * when the server is shut down,close the connection pool
@@ -49,16 +59,5 @@ class ContextListener : ServletContextListener {
         } else {
             //			log.log("config file is not found,please initial the config file");
         }
-    }
-
-    companion object {
-
-        /**
-         * ContextListener constant
-         */
-        private val logger = LoggerManager.getLogger(ContextListener::class.java)
-
-        //	private static final String CONTEXT_PARAMETER_DBCONFIG="dbConfig";
-        private val CONTEXT_PARAMETER_CONFIGFILE = "configFile"
     }
 }

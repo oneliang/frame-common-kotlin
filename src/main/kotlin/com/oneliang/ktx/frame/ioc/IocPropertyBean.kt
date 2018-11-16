@@ -1,11 +1,11 @@
-package com.oneliang.ktx.frame.servlet.action
+package com.oneliang.ktx.frame.ioc
 
 import com.oneliang.ktx.Constants
 
-class GlobalForwardBean {
+class IocPropertyBean {
 
     companion object {
-        const val TAG_GLOBAL_FORWARD = "global-forward"
+        const val TAG_PROPERTY = "property"
     }
 
     /**
@@ -16,10 +16,10 @@ class GlobalForwardBean {
      */
     var name: String = Constants.String.BLANK
     /**
-     * @return the path
+     * @return the reference
      */
     /**
-     * @param path the path to set
+     * @param reference the reference to set
      */
-    var path: String = Constants.String.BLANK
+    var reference: String = Constants.String.BLANK
 }

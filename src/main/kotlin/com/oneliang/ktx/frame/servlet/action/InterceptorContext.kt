@@ -4,17 +4,14 @@ import com.oneliang.ktx.Constants
 import com.oneliang.ktx.exception.InitializeException
 import com.oneliang.ktx.frame.AbstractContext
 import com.oneliang.ktx.util.common.JavaXmlUtil
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.CopyOnWriteArrayList
 
 open class InterceptorContext : AbstractContext() {
 
     companion object {
-
-        internal val globalInterceptorBeanMap: MutableMap<String, GlobalInterceptorBean> = ConcurrentHashMap()
-        internal val interceptorBeanMap: MutableMap<String, InterceptorBean> = ConcurrentHashMap()
-        internal val beforeGlobalInterceptorList: MutableList<Interceptor> = CopyOnWriteArrayList()
-        internal val afterGlobalInterceptorList: MutableList<Interceptor> = CopyOnWriteArrayList()
+        internal val globalInterceptorBeanMap = mutableMapOf<String, GlobalInterceptorBean>()
+        internal val interceptorBeanMap = mutableMapOf<String, InterceptorBean>()
+        internal val beforeGlobalInterceptorList = mutableListOf<Interceptor>()
+        internal val afterGlobalInterceptorList = mutableListOf<Interceptor>()
     }
 
     /**
@@ -23,11 +20,12 @@ open class InterceptorContext : AbstractContext() {
     override fun initialize(parameters: String) {
         try {
             var path = parameters
-            var tempClassesRealPath = classesRealPath
-            if (tempClassesRealPath == null) {
-                tempClassesRealPath = this.classLoader.getResource(Constants.String.BLANK).getPath()
+            val tempClassesRealPath = if (classesRealPath.isBlank()) {
+                this.classLoader.getResource(Constants.String.BLANK).path
+            } else {
+                classesRealPath
             }
-            path = tempClassesRealPath!! + path
+            path = tempClassesRealPath + path
             val document = JavaXmlUtil.parse(path)
             val root = document.documentElement
             //global interceptor list
@@ -44,12 +42,10 @@ open class InterceptorContext : AbstractContext() {
                     globalInterceptorBeanMap[globalInterceptorBean.id] = globalInterceptorBean
                     objectMap.put(globalInterceptorBean.id, interceptorInstance)
                     val mode = globalInterceptorBean.mode
-                    if (mode != null) {
-                        if (mode == GlobalInterceptorBean.INTERCEPTOR_MODE_BEFORE) {
-                            beforeGlobalInterceptorList.add(interceptorInstance)
-                        } else if (mode == GlobalInterceptorBean.INTERCEPTOR_MODE_AFTER) {
-                            afterGlobalInterceptorList.add(interceptorInstance)
-                        }
+                    if (mode == GlobalInterceptorBean.INTERCEPTOR_MODE_BEFORE) {
+                        beforeGlobalInterceptorList.add(interceptorInstance)
+                    } else if (mode == GlobalInterceptorBean.INTERCEPTOR_MODE_AFTER) {
+                        afterGlobalInterceptorList.add(interceptorInstance)
                     }
                 }
             }
@@ -65,7 +61,7 @@ open class InterceptorContext : AbstractContext() {
                     val interceptorInstance = this.classLoader.loadClass(interceptor.type).newInstance() as Interceptor
                     interceptor.interceptorInstance = interceptorInstance
                     interceptorBeanMap[interceptor.id] = interceptor
-                    objectMap.put(interceptor.id, interceptorInstance)
+                    objectMap[interceptor.id] = interceptorInstance
                 }
             }
         } catch (e: Exception) {

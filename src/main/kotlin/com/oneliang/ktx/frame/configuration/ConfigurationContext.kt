@@ -54,9 +54,8 @@ class ConfigurationContext : AbstractContext() {
                     val context = this.classLoader.loadClass(configurationBean.contextClass).newInstance() as Context
                     logger.info("Context:" + context.javaClass.name + ",id:" + configurationBean.id + " is initializing.")
                     if (context is AbstractContext) {
-                        val abstractContext = context as AbstractContext
-                        abstractContext.projectRealPath = this.projectRealPath
-                        abstractContext.projectRealPath = this.classesRealPath
+                        context.projectRealPath = this.projectRealPath
+                        context.classesRealPath = this.classesRealPath
                     }
                     context.initialize(configurationBean.parameters)
                     configurationBean.contextInstance = context

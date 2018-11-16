@@ -1,15 +1,11 @@
 package com.oneliang.ktx.frame.servlet.action
 
-import java.lang.annotation.Documented
-import java.lang.annotation.Retention
-import java.lang.annotation.RetentionPolicy
+import com.oneliang.ktx.Constants
 
-import com.oneliang.util.common.StringUtil
-
-@Documented
+@MustBeDocumented
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FILE)
-@Retention(RetentionPolicy.RUNTIME)
-annotation class ActionInterceptor(val id: String = StringUtil.BLANK, val mode: Mode = Mode.SINGLE_ACTION) {
+@kotlin.annotation.Retention(AnnotationRetention.RUNTIME)
+annotation class ActionInterceptor(val id: String = Constants.String.BLANK, val mode: Mode = Mode.SINGLE_ACTION) {
 
     enum class Mode {
         GLOBAL_ACTION_BEFORE, GLOBAL_ACTION_AFTER, SINGLE_ACTION

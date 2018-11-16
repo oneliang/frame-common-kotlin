@@ -1,26 +1,14 @@
 package com.oneliang.ktx.frame
 
-import kotlin.collections.Map.Entry
+import com.oneliang.ktx.Constants
 
-import com.oneliang.frame.configuration.ConfigurationBean
-import com.oneliang.frame.configuration.ConfigurationContext
-import com.oneliang.frame.ioc.IocBean
-import com.oneliang.frame.ioc.IocContext
-import com.oneliang.frame.jdbc.DatabaseContext
-import com.oneliang.frame.jdbc.MappingBean
-import com.oneliang.frame.jdbc.MappingContext
-import com.oneliang.frame.jxl.JxlMappingContext
-import com.oneliang.frame.servlet.action.ActionBean
-import com.oneliang.frame.servlet.action.ActionContext
-import com.oneliang.frame.servlet.action.Interceptor
-import com.oneliang.frame.servlet.action.InterceptorContext
-import com.oneliang.frame.workflow.TaskContext
 import com.oneliang.ktx.frame.configuration.ConfigurationContext
+import com.oneliang.ktx.frame.ioc.IocBean
+import com.oneliang.ktx.frame.ioc.IocContext
 import com.oneliang.ktx.frame.servlet.action.ActionBean
 import com.oneliang.ktx.frame.servlet.action.ActionContext
 import com.oneliang.ktx.frame.servlet.action.Interceptor
 import com.oneliang.ktx.frame.servlet.action.InterceptorContext
-import com.oneliang.util.jxl.JxlMappingBean
 
 /**
  * ConfigurationFactory
@@ -74,12 +62,8 @@ object ConfigurationFactory {
      */
     val globalExceptionForwardPath: String?
         get() {
-            var path: String? = null
             val actionContext = singletonConfigurationContext.findContext(ActionContext::class)
-            if (actionContext != null) {
-                path = actionContext!!.getGlobalExceptionForwardPath()
-            }
-            return path
+            return actionContext?.globalExceptionForwardPath ?: Constants.String.BLANK
         }
 
     /**
@@ -88,15 +72,15 @@ object ConfigurationFactory {
      * @return Set<Entry></Entry><String></String>,MappingBean>>
      * @throws Exception
      */
-    val mappingBeanEntrySet: Set<Entry<String, MappingBean>>?
-        get() {
-            var mappingBeanEntrySet: Set<Entry<String, MappingBean>>? = null
-            val mappingContext = singletonConfigurationContext.findContext(MappingContext::class.java)
-            if (mappingContext != null) {
-                mappingBeanEntrySet = mappingContext!!.getMappingBeanEntrySet()
-            }
-            return mappingBeanEntrySet
-        }
+//    val mappingBeanEntrySet: Set<Entry<String, MappingBean>>?
+//        get() {
+//            var mappingBeanEntrySet: Set<Entry<String, MappingBean>>? = null
+//            val mappingContext = singletonConfigurationContext.findContext(MappingContext::class.java)
+//            if (mappingContext != null) {
+//                mappingBeanEntrySet = mappingContext!!.getMappingBeanEntrySet()
+//            }
+//            return mappingBeanEntrySet
+//        }
 
     /**
      * injection,include ioc injection and interceptor injection
@@ -117,9 +101,9 @@ object ConfigurationFactory {
      */
     @Throws(Exception::class)
     fun iocInject() {
-        val iocContext = singletonConfigurationContext.findContext(IocContext::class.java)
+        val iocContext = singletonConfigurationContext.findContext(IocContext::class)
         if (iocContext != null) {
-            iocContext!!.inject()
+            iocContext.inject()
         }
     }
 
@@ -173,19 +157,19 @@ object ConfigurationFactory {
      * @throws Exception
      */
     @Throws(Exception::class)
-    fun iocAutoInjectObjectById(id: String, `object`: Any?) {
-        if (`object` != null) {
+    fun iocAutoInjectObjectById(id: String, instance: Any?) {
+        if (instance != null) {
             val iocContext = singletonConfigurationContext.findContext(IocContext::class.java)
             if (iocContext != null) {
                 val iocBean = IocBean()
                 iocBean.setId(id)
                 iocBean.setInjectType(IocBean.INJECT_TYPE_AUTO_BY_ID)
                 iocBean.setProxy(false)
-                iocBean.setProxyInstance(`object`)
-                iocBean.setBeanInstance(`object`)
-                iocBean.setType(`object`.javaClass.name)
+                iocBean.setProxyInstance(instance)
+                iocBean.setBeanInstance(instance)
+                iocBean.setType(instance.javaClass.name)
                 iocContext!!.putToIocBeanMap(id, iocBean)
-                iocContext!!.autoInjectObjectById(`object`)
+                iocContext!!.autoInjectObjectById(instance)
             }
         }
     }
@@ -196,19 +180,17 @@ object ConfigurationFactory {
      * @param id
      * @param object
      */
-    fun putObjectToIocBeanMap(id: String, `object`: Any?) {
-        if (`object` != null) {
-            val iocContext = singletonConfigurationContext.findContext(IocContext::class.java)
-            if (iocContext != null) {
-                val iocBean = IocBean()
-                iocBean.setId(id)
-                iocBean.setInjectType(IocBean.INJECT_TYPE_AUTO_BY_ID)
-                iocBean.setProxy(false)
-                iocBean.setProxyInstance(`object`)
-                iocBean.setBeanInstance(`object`)
-                iocBean.setType(`object`.javaClass.name)
-                iocContext!!.putToIocBeanMap(id, iocBean)
-            }
+    fun putObjectToIocBeanMap(id: String, instance: Any) {
+        val iocContext = singletonConfigurationContext.findContext(IocContext::class)
+        if (iocContext != null) {
+            val iocBean = IocBean()
+            iocBean.id = id
+            iocBean.injectType = IocBean.INJECT_TYPE_AUTO_BY_ID
+            iocBean.proxy = false
+            iocBean.proxyInstance = instance
+            iocBean.beanInstance = instance
+            iocBean.type = instance.javaClass.name
+            iocContext.putToIocBeanMap(id, iocBean)
         }
     }
 
@@ -259,13 +241,11 @@ object ConfigurationFactory {
      * @param uri
      * @return List<ActionBean>
     </ActionBean> */
-    fun findActionBeanList(uri: String?): List<ActionBean>? {
+    fun findActionBeanList(uri: String): List<ActionBean>? {
         var actionBeanList: List<ActionBean>? = null
-        if (uri != null) {
-            val actionContext = singletonConfigurationContext.findContext(ActionContext::class.java)
-            if (actionContext != null) {
-                actionBeanList = actionContext!!.findActionBeanList(uri)
-            }
+        val actionContext = singletonConfigurationContext.findContext(ActionContext::class)
+        if (actionContext != null) {
+            actionBeanList = actionContext.findActionBeanList(uri)
         }
         return actionBeanList
     }

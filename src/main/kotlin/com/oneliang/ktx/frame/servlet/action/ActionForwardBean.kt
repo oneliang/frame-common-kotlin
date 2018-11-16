@@ -1,12 +1,13 @@
 package com.oneliang.ktx.frame.servlet.action
 
-import kotlin.collections.Map.Entry
-import java.util.concurrent.ConcurrentHashMap
-
-import com.oneliang.util.common.RequestUtil
-import com.oneliang.util.common.StringUtil
+import com.oneliang.ktx.Constants
+import com.oneliang.ktx.util.common.RequestUtil
+import com.oneliang.ktx.util.common.matchPattern
 
 class ActionForwardBean : Cloneable {
+    companion object {
+        const val TAG_FORWARD = "forward"
+    }
 
     /**
      * @return the name
@@ -14,27 +15,25 @@ class ActionForwardBean : Cloneable {
     /**
      * @param name the name to set
      */
-    var name: String? = null
+    var name: String = Constants.String.BLANK
     /**
      * @return the path
      */
     /**
      * @param path the path to set
      */
-    var path: String? = null
+    var path: String = Constants.String.BLANK
     /**
      * @return the staticParameters
      */
     /**
      * @param staticParameters the staticParameters to set
      */
-    var staticParameters: String? = null
+    var staticParameters: String = Constants.String.BLANK
         set(staticParameters) {
             field = staticParameters
-            if (this.staticParameters != null) {
-                val parameterMap = RequestUtil.parseParameterString(this.staticParameters)
-                this.parameterMap.putAll(parameterMap)
-            }
+            val parameterMap = RequestUtil.parseParameterString(this.staticParameters)
+            this.parameterMap.putAll(parameterMap)
         }
     /**
      * @return the staticFilePath
@@ -42,27 +41,23 @@ class ActionForwardBean : Cloneable {
     /**
      * @param staticFilePath the staticFilePath to set
      */
-    var staticFilePath: String? = null
-    private val parameterMap = ConcurrentHashMap<String, Array<String>>()
+    var staticFilePath: String = Constants.String.BLANK
+    val parameterMap = mutableMapOf<String, Array<String>>()
 
     /**
      * is contains parameters
      * @param parameterMap
      * @return boolean
      */
-    fun isContainsParameters(parameterMap: Map<String, Array<String>>?): Boolean {
+    fun isContainsParameters(parameterMap: Map<String, Array<String>>): Boolean {
         var result = true
-        if (parameterMap != null) {
-            if (!this.parameterMap.isEmpty()) {
-                val iterator = this.parameterMap.entries.iterator()
-                while (iterator.hasNext()) {
-                    val entry = iterator.next()
-                    val settingParameterKey = entry.key
+        if (!this.parameterMap.isEmpty()) {
+            run loop@{
+                this.parameterMap.forEach { (settingParameterKey, settingParameterValues) ->
                     if (parameterMap.containsKey(settingParameterKey)) {
-                        val settingParameterValues = entry.value
                         val parameterValues = parameterMap[settingParameterKey]
-                        if (settingParameterValues != null && parameterValues != null && settingParameterValues.size > 0 && parameterValues.size > 0) {
-                            if (!StringUtil.isMatchPattern(parameterValues[0], settingParameterValues[0])) {
+                        if (parameterValues != null && settingParameterValues.isNotEmpty() && parameterValues.isNotEmpty()) {
+                            if (!parameterValues[0].matchPattern(settingParameterValues[0])) {
                                 result = false
                             }
                         }
@@ -70,12 +65,12 @@ class ActionForwardBean : Cloneable {
                         result = false
                     }
                     if (!result) {
-                        break
+                        return@loop
                     }
                 }
-            } else {
-                result = false
             }
+        } else {
+            result = false
         }
         return result
     }
@@ -90,17 +85,5 @@ class ActionForwardBean : Cloneable {
         actionForwardBean.staticParameters = this.staticParameters
         actionForwardBean.staticFilePath = this.staticFilePath
         return actionForwardBean
-    }
-
-    /**
-     * @return the parameterMap
-     */
-    fun getParameterMap(): Map<String, Array<String>> {
-        return parameterMap
-    }
-
-    companion object {
-
-        val TAG_FORWARD = "forward"
     }
 }

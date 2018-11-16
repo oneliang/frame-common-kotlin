@@ -1,5 +1,6 @@
 package com.oneliang.ktx.frame
 
+import com.oneliang.ktx.Constants
 import com.oneliang.ktx.util.jar.JarClassLoader
 
 abstract class AbstractContext : Context {
@@ -8,8 +9,8 @@ abstract class AbstractContext : Context {
         internal var jarClassLoader = JarClassLoader(Thread.currentThread().contextClassLoader)
     }
 
-    var classesRealPath: String? = null
-    var projectRealPath: String? = null
+    var classesRealPath: String = Constants.String.BLANK
+    var projectRealPath: String = Constants.String.BLANK
 
     protected var classLoader: ClassLoader = Thread.currentThread().contextClassLoader
 
