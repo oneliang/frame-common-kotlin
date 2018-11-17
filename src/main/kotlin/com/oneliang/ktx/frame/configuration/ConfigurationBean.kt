@@ -1,7 +1,7 @@
 package com.oneliang.ktx.frame.configuration
 
 import com.oneliang.ktx.Constants
-import com.oneliang.ktx.frame.Context
+import com.oneliang.ktx.frame.context.Context
 
 class ConfigurationBean {
 

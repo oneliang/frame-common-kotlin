@@ -2,7 +2,7 @@ package com.oneliang.ktx.frame.i18n
 
 import com.oneliang.ktx.Constants
 import com.oneliang.ktx.exception.InitializeException
-import com.oneliang.ktx.frame.AbstractContext
+import com.oneliang.ktx.frame.context.AbstractContext
 import com.oneliang.ktx.util.common.matchPattern
 import com.oneliang.ktx.util.file.FileUtil
 import java.io.File

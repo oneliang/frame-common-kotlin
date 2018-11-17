@@ -1,7 +1,7 @@
 package com.oneliang.ktx.frame.ioc
 
 import com.oneliang.ktx.exception.InitializeException
-import com.oneliang.ktx.frame.AnnotationContextUtil
+import com.oneliang.ktx.frame.context.AnnotationContextUtil
 
 class AnnotationIocContext : IocContext() {
 

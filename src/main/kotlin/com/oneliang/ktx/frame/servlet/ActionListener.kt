@@ -161,14 +161,14 @@ class ActionListener : HttpServlet() {
         logger.info("The request name is--:$uri")
 
         //global interceptor doIntercept
-        val beforeGlobalInterceptorList = ConfigurationFactory.beforeGlobalInterceptorList
+        val beforeGlobalInterceptorList = ConfigurationFactory.singletonConfigurationContext.beforeGlobalInterceptorList
         val beforeGlobalInterceptorSign = doGlobalInterceptorList(beforeGlobalInterceptorList, request, response)
 
         //through the interceptor
         if (beforeGlobalInterceptorSign) {
             logger.info("Through the before global interceptors!")
             try {
-                val actionBeanList = ConfigurationFactory.findActionBeanList(uri)
+                val actionBeanList = ConfigurationFactory.singletonConfigurationContext.findActionBeanList(uri)
                 if (actionBeanList != null && actionBeanList.isNotEmpty()) {
                     var actionBean: ActionBean? = null
                     for (eachActionBean in actionBeanList) {
@@ -205,7 +205,7 @@ class ActionListener : HttpServlet() {
                 e.printStackTrace()
                 logger.error(Constants.Base.EXCEPTION, e)
                 logger.info("Action or page is not exist")
-                val exceptionPath = ConfigurationFactory.globalExceptionForwardPath
+                val exceptionPath = ConfigurationFactory.singletonConfigurationContext.globalExceptionForwardPath
                 if (exceptionPath != null) {
                     request.setAttribute(Constants.Base.EXCEPTION, e)
                     val requestDispatcher = request.getRequestDispatcher(exceptionPath)
@@ -288,7 +288,7 @@ class ActionListener : HttpServlet() {
             val afterActionInterceptorSign = doActionInterceptorBeanList(afterActionBeanInterceptorList, request, response)
             if (afterActionInterceptorSign) {
                 logger.info("Through the after action interceptors!")
-                val afterGlobalInterceptorList = ConfigurationFactory.afterGlobalInterceptorList
+                val afterGlobalInterceptorList = ConfigurationFactory.singletonConfigurationContext.afterGlobalInterceptorList
                 val afterGlobalInterceptorSign = doGlobalInterceptorList(afterGlobalInterceptorList, request, response)
                 if (afterGlobalInterceptorSign) {
                     logger.info("Through the after global interceptors!")
@@ -297,7 +297,7 @@ class ActionListener : HttpServlet() {
                         if (path.isNotBlank()) {
                             logger.info("The forward name in configFile is--:actionPath:" + actionBean.path + "--forward:" + forward + "--path:" + path)
                         } else {
-                            path = ConfigurationFactory.findGlobalForwardPath(forward)
+                            path = ConfigurationFactory.singletonConfigurationContext.findGlobalForwardPath(forward)
                             logger.info("The forward name in global forward configFile is--:forward:$forward--path:$path")
                         }
                         this.doForward(normalExecute, needToStaticExecute, actionForwardBean, path, request, response, false)
@@ -408,7 +408,7 @@ class ActionListener : HttpServlet() {
             val afterActionInterceptorSign = doActionInterceptorBeanList(afterActionBeanInterceptorList, request, response)
             if (afterActionInterceptorSign) {
                 logger.info("Through the after action interceptors!")
-                val afterGlobalInterceptorList = ConfigurationFactory.afterGlobalInterceptorList
+                val afterGlobalInterceptorList = ConfigurationFactory.singletonConfigurationContext.afterGlobalInterceptorList
                 val afterGlobalInterceptorSign = doGlobalInterceptorList(afterGlobalInterceptorList, request, response)
                 if (afterGlobalInterceptorSign) {
                     logger.info("Through the after global interceptors!")

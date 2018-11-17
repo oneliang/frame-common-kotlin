@@ -2,7 +2,7 @@ package com.oneliang.ktx.frame.servlet.action
 
 import com.oneliang.ktx.Constants
 import com.oneliang.ktx.exception.InitializeException
-import com.oneliang.ktx.frame.AbstractContext
+import com.oneliang.ktx.frame.context.AbstractContext
 import com.oneliang.ktx.util.common.JavaXmlUtil
 import java.util.concurrent.ConcurrentHashMap
 

@@ -2,7 +2,7 @@ package com.oneliang.ktx.frame.servlet.action
 
 import com.oneliang.ktx.Constants
 import com.oneliang.ktx.exception.InitializeException
-import com.oneliang.ktx.frame.AnnotationContextUtil
+import com.oneliang.ktx.frame.context.AnnotationContextUtil
 
 class AnnotationActionContext : ActionContext() {
 

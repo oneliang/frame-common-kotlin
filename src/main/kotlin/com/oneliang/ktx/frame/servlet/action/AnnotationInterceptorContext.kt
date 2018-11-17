@@ -1,7 +1,7 @@
 package com.oneliang.ktx.frame.servlet.action
 
 import com.oneliang.ktx.exception.InitializeException
-import com.oneliang.ktx.frame.AnnotationContextUtil
+import com.oneliang.ktx.frame.context.AnnotationContextUtil
 import com.oneliang.ktx.util.common.ObjectUtil
 
 class AnnotationInterceptorContext : InterceptorContext() {

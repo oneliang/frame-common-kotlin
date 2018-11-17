@@ -2,15 +2,16 @@ package com.oneliang.ktx.frame.servlet
 
 import com.oneliang.ktx.Constants
 import com.oneliang.ktx.frame.ConfigurationFactory
+import com.oneliang.ktx.frame.configuration.ConfigurationContext
 import com.oneliang.ktx.util.logging.LoggerManager
 import java.io.File
 import java.util.*
 import javax.servlet.ServletContextEvent
 import javax.servlet.ServletContextListener
 
-class ContextListener : ServletContextListener {
+abstract class AbstractServletContextListener : ServletContextListener {
     companion object {
-        private val logger = LoggerManager.getLogger(ContextListener::class)
+        private val logger = LoggerManager.getLogger(AbstractServletContextListener::class)
 
         //	private static final String CONTEXT_PARAMETER_DBCONFIG="dbConfig";
         private const val CONTEXT_PARAMETER_CONFIGFILE = "configFile"
@@ -38,22 +39,23 @@ class ContextListener : ServletContextListener {
 
         //config file
         if (configFile.isNotBlank()) {
-            val configurationContext = ConfigurationFactory.singletonConfigurationContext
             try {
+                val configurationContext = ConfigurationFactory.singletonConfigurationContext
                 var classesRealPath = Thread.currentThread().contextClassLoader.getResource(Constants.String.BLANK).path
                 classesRealPath = File(classesRealPath).absolutePath
                 configurationContext.classesRealPath = classesRealPath
                 configurationContext.projectRealPath = projectRealPath
                 configurationContext.initialize(configFile)
-                ConfigurationFactory.inject()
-                ConfigurationFactory.afterInject()
+                afterConfigurationInitialize(configurationContext)
             } catch (e: Exception) {
                 e.printStackTrace()
                 logger.error(Constants.Base.EXCEPTION, e)
             }
-
         } else {
             logger.error("config file is not found,please initial the config file")
         }
     }
+
+    @Throws(Exception::class)
+    abstract fun afterConfigurationInitialize(configurationContext: ConfigurationContext)
 }

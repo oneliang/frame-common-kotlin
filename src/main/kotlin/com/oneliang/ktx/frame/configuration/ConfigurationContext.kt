@@ -2,8 +2,8 @@ package com.oneliang.ktx.frame.configuration
 
 import com.oneliang.ktx.Constants
 import com.oneliang.ktx.exception.InitializeException
-import com.oneliang.ktx.frame.AbstractContext
-import com.oneliang.ktx.frame.Context
+import com.oneliang.ktx.frame.context.AbstractContext
+import com.oneliang.ktx.frame.context.Context
 import com.oneliang.ktx.util.common.JavaXmlUtil
 import com.oneliang.ktx.util.common.ObjectUtil
 import com.oneliang.ktx.util.logging.LoggerManager
@@ -20,7 +20,7 @@ class ConfigurationContext : AbstractContext() {
     /**
      * @return the initialized
      */
-    var isInitialized = false
+    var initialized = false
         protected set
 
     /**
@@ -64,7 +64,7 @@ class ConfigurationContext : AbstractContext() {
                     this.selfConfigurationBeanMap[configurationBean.id] = configurationBean
                 }
             }
-            this.isInitialized = true
+            this.initialized = true
         } catch (e: Exception) {
             throw InitializeException(parameters, e)
         }
