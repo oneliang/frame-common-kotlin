@@ -68,42 +68,4 @@ object ConfigurationFactory {
 //        }
 //    }
 
-
-
-
-    /**
-     * find mappingBean
-     *
-     * @param <T>
-     * @param clazz
-     * @return MappingBean
-    </T> */
-//    fun <T : Any> findMappingBean(clazz: Class<T>?): MappingBean? {
-//        var mappingBean: MappingBean? = null
-//        if (clazz != null) {
-//            val mappingContext = singletonConfigurationContext.findContext(MappingContext::class.java)
-//            if (mappingContext != null) {
-//                mappingBean = mappingContext!!.findMappingBean(clazz)
-//            }
-//        }
-//        return mappingBean
-//    }
-
-    /**
-     * find mappingBean
-     *
-     * @param name
-     * @return MappingBean
-     */
-//    fun findMappingBean(name: String?): MappingBean? {
-//        var mappingBean: MappingBean? = null
-//        if (name != null) {
-//            val mappingContext = singletonConfigurationContext.findContext(MappingContext::class.java)
-//            if (mappingContext != null) {
-//                mappingBean = mappingContext!!.findMappingBean(name)
-//            }
-//        }
-//        return mappingBean
-//    }
-
 }
