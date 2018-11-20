@@ -340,7 +340,7 @@ class ActionListener : HttpServlet() {
             } else if (ObjectUtil.isEntity(response, classes[i])) {
                 parameterValues[i] = response
             } else {
-                if (KotlinClassUtil.isBaseClass(classes[i].kotlin) || KotlinClassUtil.isBaseArray(classes[i].kotlin) || KotlinClassUtil.isSimpleClass(classes[i].kotlin) || KotlinClassUtil.isSimpleArray(classes[i].kotlin)) {
+                if (KotlinClassUtil.isBaseArray(classes[i].kotlin) || KotlinClassUtil.isSimpleClass(classes[i].kotlin) || KotlinClassUtil.isSimpleArray(classes[i].kotlin)) {
                     parameterValues[i] = KotlinClassUtil.changeType(classes[i].kotlin, emptyArray(), Constants.String.BLANK, this.classProcessor)
                 } else if (classes[i].isArray) {
                     val clazz = classes[i].componentType

@@ -61,21 +61,26 @@ open class IocContext : AbstractContext() {
                         for (childNodeIndex in 0 until childNodeLength) {
                             val childNode = childNodeList.item(childNodeIndex)
                             val nodeName = childNode.nodeName
-                            if (nodeName == IocConstructorBean.TAG_CONSTRUCTOR) {
-                                val iocConstructorBean = IocConstructorBean()
-                                val iocConstructorAttributeMap = childNode.attributes
-                                JavaXmlUtil.initializeFromAttributeMap(iocConstructorBean, iocConstructorAttributeMap)
-                                iocBean.iocConstructorBean = iocConstructorBean
-                            } else if (nodeName == IocPropertyBean.TAG_PROPERTY) {
-                                val iocPropertyBean = IocPropertyBean()
-                                val iocPropertyAttributeMap = childNode.attributes
-                                JavaXmlUtil.initializeFromAttributeMap(iocPropertyBean, iocPropertyAttributeMap)
-                                iocBean.addIocPropertyBean(iocPropertyBean)
-                            } else if (nodeName == IocAfterInjectBean.TAG_AFTER_INJECT) {
-                                val iocAfterInjectBean = IocAfterInjectBean()
-                                val iocAfterInjectAttributeMap = childNode.attributes
-                                JavaXmlUtil.initializeFromAttributeMap(iocAfterInjectBean, iocAfterInjectAttributeMap)
-                                iocBean.addIocAfterInjectBean(iocAfterInjectBean)
+                            when (nodeName) {
+                                IocConstructorBean.TAG_CONSTRUCTOR -> {
+                                    val iocConstructorBean = IocConstructorBean()
+                                    val iocConstructorAttributeMap = childNode.attributes
+                                    JavaXmlUtil.initializeFromAttributeMap(iocConstructorBean, iocConstructorAttributeMap)
+                                    iocBean.iocConstructorBean = iocConstructorBean
+                                }
+                                IocPropertyBean.TAG_PROPERTY -> {
+                                    val iocPropertyBean = IocPropertyBean()
+                                    val iocPropertyAttributeMap = childNode.attributes
+                                    JavaXmlUtil.initializeFromAttributeMap(iocPropertyBean, iocPropertyAttributeMap)
+                                    iocBean.addIocPropertyBean(iocPropertyBean)
+                                }
+                                IocAfterInjectBean.TAG_AFTER_INJECT -> {
+                                    val iocAfterInjectBean = IocAfterInjectBean()
+                                    val iocAfterInjectAttributeMap = childNode.attributes
+                                    JavaXmlUtil.initializeFromAttributeMap(iocAfterInjectBean, iocAfterInjectAttributeMap)
+                                    iocBean.addIocAfterInjectBean(iocAfterInjectBean)
+                                }//after inject
+                            //property
                             }//after inject
                             //property
                         }
@@ -103,15 +108,18 @@ open class IocContext : AbstractContext() {
      * @throws Exception
      */
     @Throws(Exception::class)
-    protected fun iocBeanObjectInstantiated() {
-        val iterator = iocBeanMap.entries.iterator()
-        while (iterator.hasNext()) {
-            val entry = iterator.next()
-            val iocBean = entry.value
-            if (iocBean.iocConstructorBean != null) {
-                iocBeanObjectInstantiatedByConstructor(iocBean)
-            } else {
-                iocBeanObjectInstantiatedByDefaultConstructor(iocBean)
+    open fun instantiateIocBeanObject() {
+        iocBeanMap.forEach { (_, iocBean) ->
+            try {
+                if (iocBean.iocConstructorBean != null) {
+                    instantiateIocBeanObjectByConstructor(iocBean)
+
+                } else {
+                    instantiateIocBeanObjectByDefaultConstructor(iocBean)
+                }
+            } catch (e: Exception) {
+                logger.error("instantiate ioc bean object error, id:${iocBean.id}, type:${iocBean.type}, value:${iocBean.value}", e)
+                throw e
             }
         }
     }
@@ -122,7 +130,7 @@ open class IocContext : AbstractContext() {
      * @throws Exception
      */
     @Throws(Exception::class)
-    private fun iocBeanObjectInstantiatedByConstructor(iocBean: IocBean) {
+    private fun instantiateIocBeanObjectByConstructor(iocBean: IocBean) {
         val iocConstructorBean = iocBean.iocConstructorBean
         val type = iocBean.type
         val beanClass = iocBean.beanClass
@@ -142,7 +150,7 @@ open class IocContext : AbstractContext() {
             if (referenceObject != null) {
                 var referenceProxyObject = referenceObject.proxyInstance
                 if (referenceProxyObject == null) {
-                    iocBeanObjectInstantiatedByDefaultConstructor(referenceObject)
+                    instantiateIocBeanObjectByDefaultConstructor(referenceObject)
                     referenceProxyObject = referenceObject.proxyInstance
                 }
                 constructorReferenceObjectArray[index++] = referenceProxyObject
@@ -176,7 +184,7 @@ open class IocContext : AbstractContext() {
      * @throws Exception
      */
     @Throws(Exception::class)
-    private fun iocBeanObjectInstantiatedByDefaultConstructor(iocBean: IocBean) {
+    private fun instantiateIocBeanObjectByDefaultConstructor(iocBean: IocBean) {
         val type = iocBean.type
         val beanClass = iocBean.beanClass
         val value = iocBean.value
@@ -184,11 +192,11 @@ open class IocContext : AbstractContext() {
         if (beanInstance == null) {
             val iocBeanId = iocBean.id
             if (objectMap.containsKey(iocBeanId)) {//object map contain,prove duplicate config in ioc,copy to ioc bean
-                beanInstance = objectMap.get(iocBeanId)
+                beanInstance = objectMap[iocBeanId]
                 iocBean.beanInstance = beanInstance
                 iocBean.proxyInstance = beanInstance
             } else {//normal config
-                if (KotlinClassUtil.isBaseClass(type) || KotlinClassUtil.isSimpleClass(type)) {
+                if (KotlinClassUtil.isSimpleClass(type)) {
                     val clazz = KotlinClassUtil.getClass(this.classLoader, type)!!
                     beanInstance = KotlinClassUtil.changeType(clazz, arrayOf(value))
                 } else {
@@ -218,7 +226,7 @@ open class IocContext : AbstractContext() {
                     } else {
                         beanClass.classLoader
                     }
-                    val proxyInstance = ProxyUtil.newProxyInstance(classLoader, beanInstance, AopInvocationHandler<Any>(beanInstance))
+                    val proxyInstance = ProxyUtil.newProxyInstance(classLoader, beanInstance, AopInvocationHandler(beanInstance))
                     iocBean.proxyInstance = proxyInstance
                 } else {
                     iocBean.proxyInstance = beanInstance
@@ -234,8 +242,8 @@ open class IocContext : AbstractContext() {
      */
     @Throws(Exception::class)
     fun inject() {
-        //instantiated all ioc bean
-        iocBeanObjectInstantiated()
+        //instantiate all ioc bean
+        instantiateIocBeanObject()
         //inject
         val objectInjectType = iocConfigurationBean.objectInjectType
         if (objectInjectType == IocConfigurationBean.INJECT_TYPE_AUTO_BY_ID) {
@@ -267,7 +275,7 @@ open class IocContext : AbstractContext() {
      * @throws Exception
      */
     @Throws(Exception::class)
-    protected fun autoInjectObjectByType(instance: Any) {
+    open fun autoInjectObjectByType(instance: Any) {
         val objectMethods = instance.javaClass.methods
         for (method in objectMethods) {
             val methodName = method.name
@@ -330,7 +338,7 @@ open class IocContext : AbstractContext() {
      * @throws Exception
      */
     @Throws(Exception::class)
-    protected fun manualInject(iocBean: IocBean) {
+    open fun manualInject(iocBean: IocBean) {
         val id = iocBean.id
         val iocPropertyBeanList = iocBean.iocPropertyBeanList
         for (iocPropertyBean in iocPropertyBeanList) {

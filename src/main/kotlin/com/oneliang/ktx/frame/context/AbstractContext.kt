@@ -2,10 +2,11 @@ package com.oneliang.ktx.frame.context
 
 import com.oneliang.ktx.Constants
 import com.oneliang.ktx.util.jar.JarClassLoader
+import java.util.concurrent.ConcurrentHashMap
 
 abstract class AbstractContext : Context {
     companion object {
-        internal val objectMap = mutableMapOf<String, Any>()
+        internal val objectMap = ConcurrentHashMap<String, Any>()
         internal var jarClassLoader = JarClassLoader(Thread.currentThread().contextClassLoader)
     }
 
