@@ -3,7 +3,7 @@ package com.oneliang.ktx.frame.jdbc
 import com.oneliang.ktx.Constants
 import com.oneliang.ktx.exception.MappingNotFoundException
 import com.oneliang.ktx.frame.ConfigurationFactory
-import com.oneliang.ktx.util.common.StringUtil
+import com.oneliang.ktx.util.common.parseStringGroup
 
 /**
  * for db mapping file use,through the class can find the table column which
@@ -29,7 +29,7 @@ object DatabaseMappingUtil {
     @Throws(MappingNotFoundException::class)
     fun parseSql(sql: String): String {
         var tempSql = sql
-        val list = StringUtil.parseStringGroup(tempSql, REGEX, FIRST_REGEX, Constants.String.BLANK, 1)
+        val list = tempSql.parseStringGroup(REGEX, FIRST_REGEX, Constants.String.BLANK, 1)
         for (string in list) {
             val pos = string.lastIndexOf(Constants.Symbol.DOT)
             if (pos > 0) {

@@ -1,7 +1,7 @@
 package com.oneliang.ktx.frame.servlet
 
 import com.oneliang.ktx.Constants
-import com.oneliang.ktx.util.common.StringUtil
+import com.oneliang.ktx.util.common.parseStringGroup
 import com.oneliang.ktx.util.file.FileUtil
 import com.oneliang.ktx.util.logging.LoggerManager
 import java.io.*
@@ -60,7 +60,7 @@ object ActionUtil {
     internal fun parsePath(path: String): String {
         var resultPath = path
         val request = servletRequest
-        val attributeList = StringUtil.parseStringGroup(resultPath, REGEX, FIRST_REGEX, Constants.String.BLANK, 1)
+        val attributeList = resultPath.parseStringGroup(REGEX, FIRST_REGEX, Constants.String.BLANK, 1)
         for (attribute in attributeList) {
             val attributeValue = request.getAttribute(attribute)
             resultPath = resultPath.replaceFirst(REGEX.toRegex(), if (attributeValue == null) Constants.String.BLANK else attributeValue!!.toString())

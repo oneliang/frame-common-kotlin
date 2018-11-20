@@ -107,11 +107,10 @@ class PaginationTag : BodyTagSupport() {
             if (this.size > page.totalPages) {
                 this.size = page.totalPages
             }
-            var middlePosition = 0
-            if (this.size % 2 == 0) {//even
-                middlePosition = this.size / 2
+            val middlePosition: Int = if (this.size % 2 == 0) {//even
+                this.size / 2
             } else {//odd
-                middlePosition = this.size / 2 + 1
+                this.size / 2 + 1
             }
             var startPage = 0
             if (page.page <= middlePosition) {

@@ -1,7 +1,7 @@
 package com.oneliang.ktx.frame.servlet.action
 
 import com.oneliang.ktx.Constants
-import com.oneliang.ktx.util.common.StringUtil
+import com.oneliang.ktx.util.common.parseStringGroup
 
 open class ActionBean {
 
@@ -118,7 +118,7 @@ open class ActionBean {
         val staticFilePath = actionForwardBean.staticFilePath
         if (staticFilePath.isNotBlank()) {
             var staticFilePathResult = staticFilePath
-            val groupList = StringUtil.parseStringGroup(staticFilePath, REGEX, FIRST_REGEX, Constants.String.BLANK, 1)
+            val groupList = staticFilePath.parseStringGroup(REGEX, FIRST_REGEX, Constants.String.BLANK, 1)
             for (group in groupList) {
                 val parameterValues = parameterMap[group]
                 if (parameterValues != null && parameterValues.isNotEmpty()) {
