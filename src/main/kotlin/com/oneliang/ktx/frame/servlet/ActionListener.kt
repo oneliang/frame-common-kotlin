@@ -334,7 +334,8 @@ class ActionListener : HttpServlet() {
         for (i in annotations.indices) {
             if (annotations[i].isNotEmpty() && annotations[i][0] is Action.RequestMapping.RequestParameter) {
                 val requestParameterAnnotation = annotations[i][0] as Action.RequestMapping.RequestParameter
-                parameterValues[i] = KotlinClassUtil.changeType(classes[i].kotlin, request.getParameterValues(requestParameterAnnotation.value), Constants.String.BLANK, this.classProcessor)
+                parameterValues[i] = KotlinClassUtil.changeType(classes[i].kotlin, request.getParameterValues(requestParameterAnnotation.value)
+                        ?: emptyArray(), Constants.String.BLANK, this.classProcessor)
             } else if (ObjectUtil.isEntity(request, classes[i])) {
                 parameterValues[i] = request
             } else if (ObjectUtil.isEntity(response, classes[i])) {
@@ -395,7 +396,7 @@ class ActionListener : HttpServlet() {
                     logger.info("Need to static execute,first time executing original action")
                 }
                 val parameterValues = this.annotationActionMethodParameterValues(actionBean, request, response)
-                val methodInvokeValue = actionBean.method?.invoke(actionInstance, parameterValues)
+                val methodInvokeValue = actionBean.method?.invoke(actionInstance, *parameterValues)
                 if (methodInvokeValue != null && methodInvokeValue is String) {
                     path = methodInvokeValue.toString()
                 } else {

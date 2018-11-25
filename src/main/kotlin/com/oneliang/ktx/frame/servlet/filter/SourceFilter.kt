@@ -2,6 +2,7 @@ package com.oneliang.ktx.frame.servlet.filter
 
 import com.oneliang.ktx.Constants
 import com.oneliang.ktx.util.common.matchPattern
+import com.oneliang.ktx.util.logging.LoggerManager
 import java.io.IOException
 import javax.servlet.*
 import javax.servlet.http.HttpServletRequest
@@ -14,6 +15,7 @@ import javax.servlet.http.HttpServletRequest
 class SourceFilter : Filter {
 
     companion object {
+        private val logger = LoggerManager.getLogger(SourceFilter::class)
         private const val EXCLUDE_PATH = "excludePath"
         private const val ERROR_FORWARD = "errorForward"
         private const val COMMA_SPLIT = ","
@@ -27,6 +29,7 @@ class SourceFilter : Filter {
      */
     @Throws(ServletException::class)
     override fun init(filterConfig: FilterConfig) {
+        logger.info("initialize filter:${this.javaClass.kotlin}")
         val excludePaths = filterConfig.getInitParameter(EXCLUDE_PATH)
         this.errorForward = filterConfig.getInitParameter(ERROR_FORWARD)
         if (excludePaths != null) {
@@ -49,8 +52,8 @@ class SourceFilter : Filter {
         //		httpResponse.setHeader("Cache-Control","no-cache");
         //		httpResponse.setHeader("Pragma","no-cache");
         //		httpResponse.setDateHeader ("Expires", -1);
-        val projectPath = httpRequest.getContextPath()
-        val requestUri = httpRequest.getRequestURI()
+        val projectPath = httpRequest.contextPath
+        val requestUri = httpRequest.requestURI
         var excludePathThrough = false
         if (this.excludePathArray.isNotEmpty()) {
             for (excludePath in this.excludePathArray) {
@@ -61,6 +64,7 @@ class SourceFilter : Filter {
                 }
             }
         }
+        logger.info("doing filter, request uri:$requestUri, exclude:$excludePathThrough, project path:$projectPath")
         if (excludePathThrough) {
             filterChain.doFilter(request, response)
         } else {

@@ -26,7 +26,7 @@ object ActionUtil {
      * set servlet bean
      * @param servletBean
      */
-    internal var servletBean: ServletBean
+    internal var servletBean: ServletBean?
         get() = servletBeanThreadLocal.get()
         set(servletBean) = servletBeanThreadLocal.set(servletBean)
 
