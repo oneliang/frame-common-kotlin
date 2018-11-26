@@ -22,19 +22,18 @@ class UriMappingContext : AbstractContext() {
          */
         fun findUriTo(uriFrom: String): String {
             var uriTo: String = Constants.String.BLANK
-            val iterator = uriMappingBeanMap.entries.iterator()
-            while (iterator.hasNext()) {
-                val entry = iterator.next()
-                val from = entry.key
-                val fromRegex = Constants.Symbol.XOR + from + Constants.Symbol.DOLLAR
-                if (uriFrom.matches(fromRegex.toRegex())) {
-                    uriTo = entry.value.to
-                    val groupList = uriFrom.parseRegexGroup(fromRegex)
-                    val parameterList = uriTo.parseStringGroup(REGEX, FIRST_REGEX, Constants.String.BLANK, 1)
-                    for (parameter in parameterList) {
-                        uriTo = uriTo.replaceFirst(REGEX.toRegex(), groupList[Integer.parseInt(parameter)])
+            run loop@{
+                uriMappingBeanMap.forEach { (from, uriMappingBean) ->
+                    val fromRegex = Constants.Symbol.XOR + from + Constants.Symbol.DOLLAR
+                    if (uriFrom.matches(fromRegex.toRegex())) {
+                        uriTo = uriMappingBean.to
+                        val groupList = uriFrom.parseRegexGroup(fromRegex)
+                        val parameterList = uriTo.parseStringGroup(REGEX, FIRST_REGEX, Constants.String.BLANK, 1)
+                        for (parameter in parameterList) {
+                            uriTo = uriTo.replaceFirst(REGEX.toRegex(), groupList[Integer.parseInt(parameter)])
+                        }
+                        return@loop
                     }
-                    break
                 }
             }
             return uriTo
