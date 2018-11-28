@@ -16,13 +16,7 @@ import kotlin.reflect.KClass
  */
 open class DefaultQueryImpl : BaseQueryImpl(), Query {
 
-    /**
-     * @return the connectionPool
-     */
-    /**
-     * @param connectionPool the connectionPool to set
-     */
-    override var connectionPool: ResourcePool<Connection>? = null
+    override lateinit var connectionPool: ResourcePool<Connection>
 
     /**
      *
@@ -65,15 +59,15 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
     </T> */
     @Throws(QueryException::class)
     override fun <T : Any> deleteObject(clazz: KClass<T>, condition: String): Int {
-        var result = 0
+        val result: Int
         var connection: Connection? = null
         try {
-            connection = this.connectionPool!!.resource!!
+            connection = this.connectionPool.resource!!
             result = this.executeDelete(connection, clazz, condition)
         } catch (e: Exception) {
             throw QueryException(e)
         } finally {
-            this.connectionPool!!.releaseResource(connection)
+            this.connectionPool.releaseResource(connection)
         }
         return result
     }
@@ -119,15 +113,15 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
     </T> */
     @Throws(QueryException::class)
     override fun <T : Any> deleteObjectById(clazz: KClass<T>, id: Serializable): Int {
-        var updateResult = 0
+        val updateResult: Int
         var connection: Connection? = null
         try {
-            connection = this.connectionPool!!.resource!!
+            connection = this.connectionPool.resource!!
             updateResult = this.executeDeleteById(connection, clazz, id)
         } catch (e: Exception) {
             throw QueryException(e)
         } finally {
-            this.connectionPool!!.releaseResource(connection)
+            this.connectionPool.releaseResource(connection)
         }
         return updateResult
     }
@@ -143,15 +137,15 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
     </T> */
     @Throws(QueryException::class)
     override fun <T : Any> deleteObjectByIds(clazz: KClass<T>, ids: Array<Serializable>): Int {
-        var updateResult = 0
+        val updateResult: Int
         var connection: Connection? = null
         try {
-            connection = this.connectionPool!!.resource!!
+            connection = this.connectionPool.resource!!
             updateResult = this.executeDeleteByIds(connection, clazz, ids)
         } catch (e: Exception) {
             throw QueryException(e)
         } finally {
-            this.connectionPool!!.releaseResource(connection)
+            this.connectionPool.releaseResource(connection)
         }
         return updateResult
     }
@@ -274,12 +268,12 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
         val instance: T?
         var connection: Connection? = null
         try {
-            connection = this.connectionPool!!.resource!!
+            connection = this.connectionPool.resource!!
             instance = this.executeQueryById(connection, clazz, id)
         } catch (e: Exception) {
             throw QueryException(e)
         } finally {
-            this.connectionPool!!.releaseResource(connection)
+            this.connectionPool.releaseResource(connection)
         }
         return instance
     }
@@ -301,12 +295,12 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
         val list: List<T>
         var connection: Connection? = null
         try {
-            connection = this.connectionPool!!.resource!!
+            connection = this.connectionPool.resource!!
             list = this.executeQuery(connection, clazz, selectColumns, table, condition, parameters)
         } catch (e: Exception) {
             throw QueryException(e)
         } finally {
-            this.connectionPool!!.releaseResource(connection)
+            this.connectionPool.releaseResource(connection)
         }
         return list
     }
@@ -326,12 +320,12 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
         val list: List<T>
         var connection: Connection? = null
         try {
-            connection = this.connectionPool!!.resource!!
+            connection = this.connectionPool.resource!!
             list = this.executeQueryBySql(connection, clazz, sql, parameters)
         } catch (e: Exception) {
             throw QueryException(e)
         } finally {
-            this.connectionPool!!.releaseResource(connection)
+            this.connectionPool.releaseResource(connection)
         }
         return list
     }
@@ -373,12 +367,12 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
     override fun executeBySql(sql: String, parameters: Array<Any>) {
         var connection: Connection? = null
         try {
-            connection = this.connectionPool!!.resource!!
+            connection = this.connectionPool.resource!!
             this.executeBySql(connection, sql, parameters)
         } catch (e: Exception) {
             throw QueryException(e)
         } finally {
-            this.connectionPool!!.releaseResource(connection)
+            this.connectionPool.releaseResource(connection)
         }
     }
 
@@ -395,12 +389,12 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
         val resultSet: ResultSet
         var connection: Connection? = null
         try {
-            connection = this.connectionPool!!.resource!!
+            connection = this.connectionPool.resource!!
             resultSet = this.executeQueryBySql(connection, sql, parameters)
         } catch (e: Exception) {
             throw QueryException(e)
         } finally {
-            this.connectionPool!!.releaseResource(connection)
+            this.connectionPool.releaseResource(connection)
         }
         return resultSet
     }
@@ -416,15 +410,15 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
      */
     @Throws(QueryException::class)
     override fun <T : Any> executeUpdate(instance: T, table: String, condition: String, executeType: BaseQuery.ExecuteType): Int {
-        var rows = 0
+        val rows: Int
         var connection: Connection? = null
         try {
-            connection = this.connectionPool!!.resource!!
+            connection = this.connectionPool.resource!!
             rows = this.executeUpdate(connection, instance, table, condition, executeType)
         } catch (e: Exception) {
             throw QueryException(e)
         } finally {
-            this.connectionPool!!.releaseResource(connection)
+            this.connectionPool.releaseResource(connection)
         }
         return rows
     }
@@ -444,12 +438,12 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
         val rows: IntArray
         var connection: Connection? = null
         try {
-            connection = this.connectionPool!!.resource!!
+            connection = this.connectionPool.resource!!
             rows = this.executeUpdate(connection, collection, table, executeType)
         } catch (e: Exception) {
             throw QueryException(e)
         } finally {
-            this.connectionPool!!.releaseResource(connection)
+            this.connectionPool.releaseResource(connection)
         }
         return rows
     }
@@ -471,12 +465,12 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
         val rows: IntArray
         var connection: Connection? = null
         try {
-            connection = this.connectionPool!!.resource!!
+            connection = this.connectionPool.resource!!
             rows = this.executeUpdate(connection, collection, clazz, table, executeType)
         } catch (e: Exception) {
             throw QueryException(e)
         } finally {
-            this.connectionPool!!.releaseResource(connection)
+            this.connectionPool.releaseResource(connection)
         }
         return rows
     }
@@ -494,12 +488,12 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
         var updateResult = 0
         var connection: Connection? = null
         try {
-            connection = this.connectionPool!!.resource!!
+            connection = this.connectionPool.resource!!
             updateResult = this.executeUpdateBySql(connection, sql, parameters)
         } catch (e: Exception) {
             throw QueryException(e)
         } finally {
-            this.connectionPool!!.releaseResource(connection)
+            this.connectionPool.releaseResource(connection)
         }
         return updateResult
     }
@@ -516,12 +510,12 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
         val results: IntArray
         var connection: Connection? = null
         try {
-            connection = this.connectionPool!!.resource!!
+            connection = this.connectionPool.resource!!
             results = this.executeBatch(connection, sqls)
         } catch (e: Exception) {
             throw QueryException(e)
         } finally {
-            this.connectionPool!!.releaseResource(connection)
+            this.connectionPool.releaseResource(connection)
         }
         return results
     }
@@ -539,12 +533,12 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
         val results: IntArray
         var connection: Connection? = null
         try {
-            connection = this.connectionPool!!.resource!!
+            connection = this.connectionPool.resource!!
             results = this.executeBatch(connection, sql, parametersList)
         } catch (e: Exception) {
             throw QueryException(e)
         } finally {
-            this.connectionPool!!.releaseResource(connection)
+            this.connectionPool.releaseResource(connection)
         }
         return results
     }
@@ -561,12 +555,12 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
         val results: IntArray
         var connection: Connection? = null
         try {
-            connection = this.connectionPool!!.resource!!
+            connection = this.connectionPool.resource!!
             results = this.executeBatch(connection, batchObjectCollection)
         } catch (e: Exception) {
             throw QueryException(e)
         } finally {
-            this.connectionPool!!.releaseResource(connection)
+            this.connectionPool.releaseResource(connection)
         }
         return results
     }
@@ -603,7 +597,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
         var resultSet: ResultSet? = null
         var connection: Connection? = null
         try {
-            connection = this.connectionPool!!.resource!!
+            connection = this.connectionPool.resource!!
             val sql = if (clazz != null) {
                 val mappingBean = ConfigurationFactory.singletonConfigurationContext.findMappingBean(clazz)
                 SqlUtil.selectSql<Any>(arrayOf("COUNT(0) AS " + Constants.Database.COLUMN_NAME_TOTAL), table, condition, mappingBean)
@@ -625,7 +619,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
             } catch (e: Exception) {
                 throw QueryException(e)
             } finally {
-                this.connectionPool!!.releaseResource(connection)
+                this.connectionPool.releaseResource(connection)
             }
         }
         return totalRows
@@ -649,7 +643,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
             var connection: Connection? = null
             //beginTransaction
             try {
-                connection = this.connectionPool!!.resource!!
+                connection = this.connectionPool.resource!!
                 connection.autoCommit = false
                 transaction.execute()
                 connection.commit()
@@ -668,7 +662,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
                     throw QueryException(e)
                 } finally {
                     TransactionManager.customTransactionSign.set(false)
-                    this.connectionPool!!.releaseResource(connection)
+                    this.connectionPool.releaseResource(connection)
                 }
             }
         } else {

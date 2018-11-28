@@ -13,7 +13,7 @@ interface Query : BaseQuery {
     /**
      * @return the connectionPool
      */
-    val connectionPool: ResourcePool<Connection>?
+    val connectionPool: ResourcePool<Connection>
 
     /**
      *
