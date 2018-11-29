@@ -55,35 +55,33 @@ open class IocContext : AbstractContext() {
                     val attributeMap = beanElement.attributes
                     JavaXmlUtil.initializeFromAttributeMap(iocBean, attributeMap)
                     //constructor
-                    val childNodeList = beanElement.childNodes
-                    if (childNodeList != null) {
-                        val childNodeLength = childNodeList.length
-                        for (childNodeIndex in 0 until childNodeLength) {
-                            val childNode = childNodeList.item(childNodeIndex)
-                            val nodeName = childNode.nodeName
-                            when (nodeName) {
-                                IocConstructorBean.TAG_CONSTRUCTOR -> {
-                                    val iocConstructorBean = IocConstructorBean()
-                                    val iocConstructorAttributeMap = childNode.attributes
-                                    JavaXmlUtil.initializeFromAttributeMap(iocConstructorBean, iocConstructorAttributeMap)
-                                    iocBean.iocConstructorBean = iocConstructorBean
-                                }
-                                IocPropertyBean.TAG_PROPERTY -> {
-                                    val iocPropertyBean = IocPropertyBean()
-                                    val iocPropertyAttributeMap = childNode.attributes
-                                    JavaXmlUtil.initializeFromAttributeMap(iocPropertyBean, iocPropertyAttributeMap)
-                                    iocBean.addIocPropertyBean(iocPropertyBean)
-                                }
-                                IocAfterInjectBean.TAG_AFTER_INJECT -> {
-                                    val iocAfterInjectBean = IocAfterInjectBean()
-                                    val iocAfterInjectAttributeMap = childNode.attributes
-                                    JavaXmlUtil.initializeFromAttributeMap(iocAfterInjectBean, iocAfterInjectAttributeMap)
-                                    iocBean.addIocAfterInjectBean(iocAfterInjectBean)
-                                }//after inject
-                            //property
+                    val childNodeList = beanElement.childNodes ?: continue
+                    val childNodeLength = childNodeList.length
+                    for (childNodeIndex in 0 until childNodeLength) {
+                        val childNode = childNodeList.item(childNodeIndex)
+                        val nodeName = childNode.nodeName
+                        when (nodeName) {
+                            IocConstructorBean.TAG_CONSTRUCTOR -> {
+                                val iocConstructorBean = IocConstructorBean()
+                                val iocConstructorAttributeMap = childNode.attributes
+                                JavaXmlUtil.initializeFromAttributeMap(iocConstructorBean, iocConstructorAttributeMap)
+                                iocBean.iocConstructorBean = iocConstructorBean
+                            }
+                            IocPropertyBean.TAG_PROPERTY -> {
+                                val iocPropertyBean = IocPropertyBean()
+                                val iocPropertyAttributeMap = childNode.attributes
+                                JavaXmlUtil.initializeFromAttributeMap(iocPropertyBean, iocPropertyAttributeMap)
+                                iocBean.addIocPropertyBean(iocPropertyBean)
+                            }
+                            IocAfterInjectBean.TAG_AFTER_INJECT -> {
+                                val iocAfterInjectBean = IocAfterInjectBean()
+                                val iocAfterInjectAttributeMap = childNode.attributes
+                                JavaXmlUtil.initializeFromAttributeMap(iocAfterInjectBean, iocAfterInjectAttributeMap)
+                                iocBean.addIocAfterInjectBean(iocAfterInjectBean)
                             }//after inject
-                            //property
-                        }
+                        //property
+                        }//after inject
+                        //property
                     }
                     if (!iocBeanMap.containsKey(iocBean.id)) {
                         iocBeanMap[iocBean.id] = iocBean

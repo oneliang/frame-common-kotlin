@@ -38,12 +38,10 @@ class MessageContext : AbstractContext() {
             var directoryPath: String = Constants.String.BLANK
             var matchPatternName: String = Constants.String.BLANK
             for (parameter in parameterArray) {
-                if (parameter == PARAMETER_RECURSION) {
-                    isRecursion = true
-                } else if (parameter.startsWith(PARAMETER_PATH)) {
-                    directoryPath = parameter.replaceFirst(PARAMETER_PATH.toRegex(), Constants.String.BLANK)
-                } else if (parameter.startsWith(PARAMETER_FILE)) {
-                    matchPatternName = parameter.replaceFirst(PARAMETER_FILE.toRegex(), Constants.String.BLANK)
+                when {
+                    parameter == PARAMETER_RECURSION -> isRecursion = true
+                    parameter.startsWith(PARAMETER_PATH) -> directoryPath = parameter.replaceFirst(PARAMETER_PATH, Constants.String.BLANK)
+                    parameter.startsWith(PARAMETER_FILE) -> matchPatternName = parameter.replaceFirst(PARAMETER_FILE, Constants.String.BLANK)
                 }
             }
             val fullDirectoryPath = if (directoryPath.isNotBlank()) classesRealPath + directoryPath else classesRealPath
@@ -91,7 +89,7 @@ class MessageContext : AbstractContext() {
             } else if (file.isFile) {
                 if (filename.matchPattern(matchPatternName)) {
                     val properties = FileUtil.getProperties(file)
-                    val key = filename.substring(filename.indexOf(UNDERLINE) + 1, filename.lastIndexOf(Constants.Symbol.DOT))
+                    val key = filename.substring(filename.indexOf(Constants.Symbol.UNDERLINE) + 1, filename.lastIndexOf(Constants.Symbol.DOT))
                     if (messagePropertiesMap.containsKey(key)) {
                         val messageProperties = messagePropertiesMap[key]!!
                         messageProperties.putAll(properties)
@@ -121,7 +119,7 @@ class MessageContext : AbstractContext() {
                     if (file.isFile) {
                         if (filename.matchPattern(matchPatternName)) {
                             val properties = FileUtil.getProperties(directoryPath + filename)
-                            val key = filename.substring(filename.indexOf(UNDERLINE) + 1, filename.lastIndexOf(Constants.Symbol.DOT))
+                            val key = filename.substring(filename.indexOf(Constants.Symbol.UNDERLINE) + 1, filename.lastIndexOf(Constants.Symbol.DOT))
                             if (messagePropertiesMap.containsKey(key)) {
                                 val messageProperties = messagePropertiesMap[key]!!
                                 messageProperties.putAll(properties)

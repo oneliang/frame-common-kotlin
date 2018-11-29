@@ -35,7 +35,7 @@ object AnnotationContextUtil {
      * @throws FileLoadException
      */
     @Throws(ClassNotFoundException::class, FileLoadException::class)
-    fun parseAnnotationContextParameter(parameters: String, classLoader: ClassLoader, classesRealPath: String, jarClassLoader: JarClassLoader, projectRealPath: String, annotationClass: KClass<out Annotation>): List<KClass<*>> {
+    fun parseAnnotationContextParameterAndSearchClass(parameters: String, classLoader: ClassLoader, classesRealPath: String, jarClassLoader: JarClassLoader, projectRealPath: String, annotationClass: KClass<out Annotation>): List<KClass<*>> {
         var classList: List<KClass<*>> = emptyList()
         val parameterArray = parameters.split(Constants.Symbol.COMMA)
         if (parameterArray.size == 1) {
@@ -45,25 +45,26 @@ object AnnotationContextUtil {
             } else {
                 classesRealPath
             }
-            path = tempClassesRealPath + path
+            path = File(tempClassesRealPath, path).absolutePath
+            logger.debug("search class path:$path")
             classList = searchClassList(tempClassesRealPath, path, annotationClass)
         } else {
             var type: String? = null
             var packageName: String = Constants.String.BLANK
             var file: String = Constants.String.BLANK
             for (parameter in parameterArray) {
-                if (parameter.startsWith(PARAMETER_TYPE)) {
-                    type = parameter.replaceFirst(PARAMETER_TYPE.toRegex(), Constants.String.BLANK)
-                } else if (parameter.startsWith(PARAMETER_PACKAGE)) {
-                    packageName = parameter.replaceFirst(PARAMETER_PACKAGE.toRegex(), Constants.String.BLANK)
-                } else if (parameter.startsWith(PARAMETER_FILE)) {
-                    file = parameter.replaceFirst(PARAMETER_FILE.toRegex(), Constants.String.BLANK)
+                when {
+                    parameter.startsWith(PARAMETER_TYPE) -> type = parameter.replaceFirst(PARAMETER_TYPE, Constants.String.BLANK)
+                    parameter.startsWith(PARAMETER_PACKAGE) -> packageName = parameter.replaceFirst(PARAMETER_PACKAGE, Constants.String.BLANK)
+                    parameter.startsWith(PARAMETER_FILE) -> file = parameter.replaceFirst(PARAMETER_FILE, Constants.String.BLANK)
                 }
             }
             if (type != null && type.equals(Constants.File.JAR, ignoreCase = true)) {
                 if (file.startsWith(SIGN_ROOT)) {
                     file = file.replace(SIGN_ROOT, projectRealPath)
                 }
+                file = File(file).absolutePath
+                logger.debug("search class file:$file")
                 classList = JarUtil.searchClassList(jarClassLoader, file, packageName, annotationClass)
             }
         }
@@ -101,7 +102,6 @@ object AnnotationContextUtil {
                     val className = filePath.substring(classesRealPathFile.absolutePath.length + 1, filePath.length - (Constants.Symbol.DOT + Constants.File.CLASS).length).replace(File.separator, Constants.Symbol.DOT)
                     val clazz = Thread.currentThread().contextClassLoader.loadClass(className)
                     if (clazz.isAnnotationPresent(annotationClass.java)) {
-                        logger.info(clazz)
                         classList.add(clazz.kotlin)
                     }
                 }

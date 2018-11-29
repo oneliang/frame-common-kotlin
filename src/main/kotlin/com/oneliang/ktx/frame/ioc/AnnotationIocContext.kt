@@ -2,16 +2,22 @@ package com.oneliang.ktx.frame.ioc
 
 import com.oneliang.ktx.exception.InitializeException
 import com.oneliang.ktx.frame.context.AnnotationContextUtil
+import com.oneliang.ktx.util.logging.LoggerManager
 
 class AnnotationIocContext : IocContext() {
+
+    companion object {
+        private val logger = LoggerManager.getLogger(AnnotationIocContext::class)
+    }
 
     /**
      * initialize
      */
     override fun initialize(parameters: String) {
         try {
-            val classList = AnnotationContextUtil.parseAnnotationContextParameter(parameters, classLoader, classesRealPath, jarClassLoader, projectRealPath, Ioc::class)
+            val classList = AnnotationContextUtil.parseAnnotationContextParameterAndSearchClass(parameters, classLoader, classesRealPath, jarClassLoader, projectRealPath, Ioc::class)
             for (clazz in classList) {
+                logger.debug("found class:$clazz")
                 val iocAnnotation = clazz.java.getAnnotation(Ioc::class.java)
                 val iocBean = IocBean()
                 var id = iocAnnotation.id

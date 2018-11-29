@@ -10,7 +10,7 @@ class AnnotationMappingContext : MappingContext() {
      */
     override fun initialize(parameters: String) {
         try {
-            val classList = AnnotationContextUtil.parseAnnotationContextParameter(parameters, classLoader, classesRealPath, jarClassLoader, projectRealPath, Table::class)
+            val classList = AnnotationContextUtil.parseAnnotationContextParameterAndSearchClass(parameters, classLoader, classesRealPath, jarClassLoader, projectRealPath, Table::class)
             for (clazz in classList) {
                 val className = clazz.java.name
                 val classSimpleName = clazz.java.simpleName

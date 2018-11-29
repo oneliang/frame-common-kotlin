@@ -35,18 +35,16 @@ open class MappingContext : AbstractContext() {
                     val attributeMap = beanElement.attributes
                     JavaXmlUtil.initializeFromAttributeMap(mappingBean, attributeMap)
                     //bean column
-                    val childNodeList = beanElement.childNodes
-                    if (childNodeList != null) {
-                        val childNodeLength = childNodeList.length
-                        for (childNodeIndex in 0 until childNodeLength) {
-                            val childNode = childNodeList.item(childNodeIndex)
-                            val nodeName = childNode.nodeName
-                            if (nodeName == MappingColumnBean.TAG_COLUMN) {
-                                val mappingColumnBean = MappingColumnBean()
-                                val childNodeAttributeMap = childNode.attributes
-                                JavaXmlUtil.initializeFromAttributeMap(mappingColumnBean, childNodeAttributeMap)
-                                mappingBean.addMappingColumnBean(mappingColumnBean)
-                            }
+                    val childNodeList = beanElement.childNodes ?: continue
+                    val childNodeLength = childNodeList.length
+                    for (childNodeIndex in 0 until childNodeLength) {
+                        val childNode = childNodeList.item(childNodeIndex)
+                        val nodeName = childNode.nodeName
+                        if (nodeName == MappingColumnBean.TAG_COLUMN) {
+                            val mappingColumnBean = MappingColumnBean()
+                            val childNodeAttributeMap = childNode.attributes
+                            JavaXmlUtil.initializeFromAttributeMap(mappingColumnBean, childNodeAttributeMap)
+                            mappingBean.addMappingColumnBean(mappingColumnBean)
                         }
                     }
                     val className = mappingBean.type
