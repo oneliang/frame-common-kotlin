@@ -26,7 +26,7 @@ open class BaseQueryImpl : BaseQuery {
      * @throws QueryException
      */
     @Throws(QueryException::class)
-    override fun executeBySql(connection: Connection, sql: String, parameters: Array<Any>) {
+    override fun executeBySql(connection: Connection, sql: String, parameters: Array<*>) {
         var tempSql = sql
         var preparedStatement: PreparedStatement? = null
         try {
@@ -68,7 +68,7 @@ open class BaseQueryImpl : BaseQuery {
      * @throws QueryException
     </T></T> */
     @Throws(QueryException::class)
-    override fun <T : Any> executeQuery(connection: Connection, clazz: KClass<T>, selectColumns: Array<String>, table: String, condition: String, parameters: Array<Any>): List<T> {
+    override fun <T : Any> executeQuery(connection: Connection, clazz: KClass<T>, selectColumns: Array<String>, table: String, condition: String, parameters: Array<*>): List<T> {
         var resultSet: ResultSet? = null
         val list: List<T>
         try {
@@ -144,7 +144,7 @@ open class BaseQueryImpl : BaseQuery {
      * @throws QueryException
      */
     @Throws(QueryException::class)
-    override fun <T : Any> executeQueryBySql(connection: Connection, clazz: KClass<T>, sql: String, parameters: Array<Any>): List<T> {
+    override fun <T : Any> executeQueryBySql(connection: Connection, clazz: KClass<T>, sql: String, parameters: Array<*>): List<T> {
         var resultSet: ResultSet? = null
         val list: List<T>
         try {
@@ -179,7 +179,7 @@ open class BaseQueryImpl : BaseQuery {
      * @throws QueryException
      */
     @Throws(QueryException::class)
-    override fun executeQueryBySql(connection: Connection, sql: String, parameters: Array<Any>): ResultSet {
+    override fun executeQueryBySql(connection: Connection, sql: String, parameters: Array<*>): ResultSet {
         val resultSet: ResultSet
         try {
             val tempSql = DatabaseMappingUtil.parseSql(sql)
@@ -513,7 +513,7 @@ open class BaseQueryImpl : BaseQuery {
      * @throws QueryException
      */
     @Throws(QueryException::class)
-    override fun executeUpdateBySql(connection: Connection, sql: String, parameters: Array<Any>): Int {
+    override fun executeUpdateBySql(connection: Connection, sql: String, parameters: Array<*>): Int {
         var preparedStatement: PreparedStatement? = null
         val updateResult: Int
         try {

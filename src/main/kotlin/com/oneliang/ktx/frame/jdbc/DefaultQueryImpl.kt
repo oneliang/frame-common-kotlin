@@ -291,7 +291,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
      * @throws QueryException
     </T></T> */
     @Throws(QueryException::class)
-    override fun <T : Any> selectObjectList(clazz: KClass<T>, selectColumns: Array<String>, table: String, condition: String, parameters: Array<Any>): List<T> {
+    override fun <T : Any> selectObjectList(clazz: KClass<T>, selectColumns: Array<String>, table: String, condition: String, parameters: Array<*>): List<T> {
         val list: List<T>
         var connection: Connection? = null
         try {
@@ -316,7 +316,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
      * @throws QueryException
     </T></T> */
     @Throws(QueryException::class)
-    override fun <T : Any> selectObjectListBySql(clazz: KClass<T>, sql: String, parameters: Array<Any>): List<T> {
+    override fun <T : Any> selectObjectListBySql(clazz: KClass<T>, sql: String, parameters: Array<*>): List<T> {
         val list: List<T>
         var connection: Connection? = null
         try {
@@ -344,7 +344,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
      * @throws QueryException
     </T></T> */
     @Throws(QueryException::class)
-    override fun <T : Any> selectObjectPaginationList(clazz: KClass<T>, page: Page, selectColumns: Array<String>, table: String, condition: String, parameters: Array<Any>): List<T> {
+    override fun <T : Any> selectObjectPaginationList(clazz: KClass<T>, page: Page, selectColumns: Array<String>, table: String, condition: String, parameters: Array<*>): List<T> {
         val totalRows = this.totalRows(clazz, table, condition, parameters)
         val rowsPerPage = page.rowsPerPage
         page.initialize(totalRows, rowsPerPage)
@@ -364,7 +364,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
      * @throws QueryException
      */
     @Throws(QueryException::class)
-    override fun executeBySql(sql: String, parameters: Array<Any>) {
+    override fun executeBySql(sql: String, parameters: Array<*>) {
         var connection: Connection? = null
         try {
             connection = this.connectionPool.resource!!
@@ -385,7 +385,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
      * @throws QueryException
      */
     @Throws(QueryException::class)
-    override fun executeQueryBySql(sql: String, parameters: Array<Any>): ResultSet {
+    override fun executeQueryBySql(sql: String, parameters: Array<*>): ResultSet {
         val resultSet: ResultSet
         var connection: Connection? = null
         try {
@@ -484,7 +484,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
      * @throws QueryException
      */
     @Throws(QueryException::class)
-    override fun executeUpdateBySql(sql: String, parameters: Array<Any>): Int {
+    override fun executeUpdateBySql(sql: String, parameters: Array<*>): Int {
         var updateResult = 0
         var connection: Connection? = null
         try {
@@ -576,7 +576,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
      * @throws QueryException
     </T> */
     @Throws(QueryException::class)
-    override fun <T : Any> totalRows(table: String, condition: String, parameters: Array<Any>): Int {
+    override fun <T : Any> totalRows(table: String, condition: String, parameters: Array<*>): Int {
         return this.totalRows<Any>(null, table, condition, parameters)
     }
 
@@ -592,7 +592,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
      * @throws QueryException
     </T> */
     @Throws(QueryException::class)
-    override fun <T : Any> totalRows(clazz: KClass<T>?, table: String, condition: String, parameters: Array<Any>): Int {
+    override fun <T : Any> totalRows(clazz: KClass<T>?, table: String, condition: String, parameters: Array<*>): Int {
         var totalRows = 0
         var resultSet: ResultSet? = null
         var connection: Connection? = null
