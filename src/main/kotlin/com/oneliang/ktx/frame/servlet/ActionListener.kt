@@ -207,10 +207,10 @@ class ActionListener : HttpServlet() {
                 logger.info("Action or page is not exist")
                 val exceptionPath = ConfigurationFactory.singletonConfigurationContext.globalExceptionForwardPath
                 if (exceptionPath != null) {
+                    logger.info("Forward to exception path:$exceptionPath")
                     request.setAttribute(Constants.Base.EXCEPTION, e)
                     val requestDispatcher = request.getRequestDispatcher(exceptionPath)
                     requestDispatcher.forward(request, response)
-                    logger.info("Forward to exception path:$exceptionPath")
                 } else {
                     logger.info("System can not find the exception path.Please config the global exception forward path.")
                     response.sendError(Constants.Http.StatusCode.INTERNAL_SERVER_ERROR)
