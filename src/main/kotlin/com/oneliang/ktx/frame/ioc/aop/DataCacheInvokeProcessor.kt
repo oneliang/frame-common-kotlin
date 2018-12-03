@@ -11,10 +11,10 @@ class DataCacheInvokeProcessor : InvokeProcessor {
     }
 
     @Throws(Throwable::class)
-    override fun invoke(instance: Any, method: Method, args: Array<Any>?): Any? {
+    override fun invoke(instance: Any, method: Method, args: Array<Any>): Any? {
         var returnValue: Any? = null
         val objectMethod = instance.javaClass.getMethod(method.name, *method.parameterTypes)
-        if (objectMethod.isAnnotationPresent(DataCache::class.java) && (args == null || args.isEmpty())) {
+        if (objectMethod.isAnnotationPresent(DataCache::class.java) && args.isEmpty()) {
             if (methodUpdateInvokeMap.containsKey(objectMethod)) {
                 returnValue = methodUpdateInvokeMap[objectMethod]?.dataCache
             } else {
@@ -23,7 +23,7 @@ class DataCacheInvokeProcessor : InvokeProcessor {
                         returnValue = methodUpdateInvokeMap[objectMethod]?.dataCache
                     } else {
                         val dataCache = objectMethod.getAnnotation(DataCache::class.java)
-                        returnValue = method.invoke(instance, *(args ?: emptyArray()))
+                        returnValue = method.invoke(instance, *args)
                         val methodUpdateInvoke = MethodUpdateInvoke()
                         methodUpdateInvoke.method = method
                         methodUpdateInvoke.interfaceImpl = instance
@@ -42,13 +42,13 @@ class DataCacheInvokeProcessor : InvokeProcessor {
             val dataCacheMethod = instance.javaClass.getMethod(dataCacheMethodName)
             if (methodUpdateInvokeMap.containsKey(dataCacheMethod)) {
                 val dataCache = methodUpdateInvokeMap[dataCacheMethod]?.dataCache!!
-                if (args != null && args.isNotEmpty()) {
+                if (args.isNotEmpty()) {
                     args[args.size - 1] = dataCache
                 }
             }
-            returnValue = method.invoke(instance, *(args ?: emptyArray()))
+            returnValue = method.invoke(instance, *args)
         } else {
-            returnValue = method.invoke(instance, *(args ?: emptyArray()))
+            returnValue = method.invoke(instance, *args)
         }
         return returnValue
     }

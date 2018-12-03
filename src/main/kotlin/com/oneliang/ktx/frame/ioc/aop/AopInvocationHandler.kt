@@ -14,19 +14,19 @@ class AopInvocationHandler<T : Any>(private val interfaceImpl: T) : InvocationHa
         //		logger.log("proxy invocation:"+interfaceImpl.getClass().getName()+"--"+method.getName());
         val instance: Any?
         for (beforeInvokeProcessor in beforeInvokeProcessorList) {
-            beforeInvokeProcessor.beforeInvoke(this.interfaceImpl, method, args)
+            beforeInvokeProcessor.beforeInvoke(this.interfaceImpl, method, args ?: emptyArray())
         }
         try {
-            instance = invokeProcessor.invoke(this.interfaceImpl, method, args)
+            instance = invokeProcessor.invoke(this.interfaceImpl, method, args ?: emptyArray())
         } catch (e: Exception) {
             for (afterThrowingProcessor in afterThrowingProcessorList) {
-                afterThrowingProcessor.afterThrowing(this.interfaceImpl, method, args, e)
+                afterThrowingProcessor.afterThrowing(this.interfaceImpl, method, args ?: emptyArray(), e)
             }
             throw e
         }
 
         for (afterReturningProcessor in afterReturningProcessorList) {
-            afterReturningProcessor.afterReturning(this.interfaceImpl, method, args, instance)
+            afterReturningProcessor.afterReturning(this.interfaceImpl, method, args ?: emptyArray(), instance)
         }
         return instance
     }
@@ -34,8 +34,8 @@ class AopInvocationHandler<T : Any>(private val interfaceImpl: T) : InvocationHa
     private class DefaultInvokeProcessor : InvokeProcessor {
 
         @Throws(Throwable::class)
-        override fun invoke(instance: Any, method: Method, args: Array<Any>?): Any? {
-            return method.invoke(instance, *(args ?: emptyArray()))
+        override fun invoke(instance: Any, method: Method, args: Array<Any>): Any? {
+            return method.invoke(instance, *args)
         }
     }
 
