@@ -218,7 +218,7 @@ interface Query : BaseQuery {
      * @throws QueryException
     </T></T> */
     @Throws(QueryException::class)
-    fun <T : Any> selectObjectList(clazz: KClass<T>, selectColumns: Array<String> = emptyArray(), table: String = Constants.String.BLANK, condition: String = Constants.String.BLANK, parameters: Array<*> = emptyArray<Any>()): List<T>
+    fun <T : Any> selectObjectList(clazz: KClass<T>, selectColumns: Array<String> = emptyArray(), table: String = Constants.String.BLANK, condition: String = Constants.String.BLANK, parameters: Array<Any> = emptyArray()): List<T>
 
     /**
      *
@@ -231,7 +231,7 @@ interface Query : BaseQuery {
      * @throws QueryException
     </T></T> */
     @Throws(QueryException::class)
-    fun <T : Any> selectObjectListBySql(clazz: KClass<T>, sql: String, parameters: Array<*> = emptyArray<Any>()): List<T>
+    fun <T : Any> selectObjectListBySql(clazz: KClass<T>, sql: String, parameters: Array<Any> = emptyArray()): List<T>
 
     /**
      *
@@ -247,7 +247,7 @@ interface Query : BaseQuery {
      * @throws QueryException
     </T></T> */
     @Throws(QueryException::class)
-    fun <T : Any> selectObjectPaginationList(clazz: KClass<T>, page: Page, selectColumns: Array<String> = emptyArray(), table: String = Constants.String.BLANK, condition: String = Constants.String.BLANK, parameters: Array<*> = emptyArray<Any>()): List<T>
+    fun <T : Any> selectObjectPaginationList(clazz: KClass<T>, page: Page, selectColumns: Array<String> = emptyArray(), table: String = Constants.String.BLANK, condition: String = Constants.String.BLANK, parameters: Array<Any> = emptyArray()): List<T>
 
     /**
      *
@@ -257,7 +257,7 @@ interface Query : BaseQuery {
      * @throws QueryException
      */
     @Throws(QueryException::class)
-    fun executeBySql(sql: String, parameters: Array<*> = emptyArray<Any>())
+    fun executeBySql(sql: String, parameters: Array<Any> = emptyArray())
 
     /**
      *
@@ -268,7 +268,7 @@ interface Query : BaseQuery {
      * @throws QueryException
      */
     @Throws(QueryException::class)
-    fun executeQueryBySql(sql: String, parameters: Array<*> = emptyArray<Any>()): ResultSet
+    fun executeQueryBySql(sql: String, parameters: Array<Any> = emptyArray()): ResultSet
 
     /**
      *
@@ -291,7 +291,7 @@ interface Query : BaseQuery {
      * @throws QueryException
      */
     @Throws(QueryException::class)
-    fun executeUpdateBySql(sql: String, parameters: Array<*> = emptyArray<Any>()): Int
+    fun executeUpdateBySql(sql: String, parameters: Array<Any> = emptyArray()): Int
 
     /**
      *
@@ -335,7 +335,7 @@ interface Query : BaseQuery {
      * @throws QueryException
     </T> */
     @Throws(QueryException::class)
-    fun <T : Any> totalRows(table: String, condition: String = Constants.String.BLANK, parameters: Array<*> = emptyArray<Any>()): Int
+    fun <T : Any> totalRows(table: String, condition: String = Constants.String.BLANK, parameters: Array<Any> = emptyArray()): Int
 
     /**
      *
@@ -349,7 +349,7 @@ interface Query : BaseQuery {
      * @throws QueryException
     </T> */
     @Throws(QueryException::class)
-    fun <T : Any> totalRows(clazz: KClass<T>? = null, table: String = Constants.String.BLANK, condition: String = Constants.String.BLANK, parameters: Array<*> = emptyArray<Any>()): Int
+    fun <T : Any> totalRows(clazz: KClass<T>? = null, table: String = Constants.String.BLANK, condition: String = Constants.String.BLANK, parameters: Array<Any> = emptyArray()): Int
 
     /**
      *

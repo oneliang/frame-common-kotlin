@@ -23,7 +23,7 @@ class OracleQueryImpl : DefaultQueryImpl() {
      * @throws QueryException
     </T></T> */
     @Throws(QueryException::class)
-    override fun <T : Any> selectObjectPaginationList(clazz: KClass<T>, page: Page, selectColumns: Array<String>, table: String, condition: String, parameters: Array<*>): List<T> {
+    override fun <T : Any> selectObjectPaginationList(clazz: KClass<T>, page: Page, selectColumns: Array<String>, table: String, condition: String, parameters: Array<Any>): List<T> {
         var tempSelectColumns = selectColumns
         var tempTable = table
         val totalRows = this.totalRows(clazz, tempTable, condition, parameters)
