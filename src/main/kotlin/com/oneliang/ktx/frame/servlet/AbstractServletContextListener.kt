@@ -18,14 +18,6 @@ abstract class AbstractServletContextListener : ServletContextListener {
     }
 
     /**
-     * when the server is shut down,close the connection pool
-     */
-    override fun contextDestroyed(servletContextEvent: ServletContextEvent) {
-        val configurationContext = ConfigurationFactory.singletonConfigurationContext
-        configurationContext.destroyAll()
-    }
-
-    /**
      * when the server is starting initial all thing
      */
     override fun contextInitialized(servletContextEvent: ServletContextEvent) {
@@ -54,6 +46,14 @@ abstract class AbstractServletContextListener : ServletContextListener {
         } else {
             logger.error("config file is not found,please initial the config file")
         }
+    }
+
+    /**
+     * when the server is shut down,close the connection pool
+     */
+    override fun contextDestroyed(servletContextEvent: ServletContextEvent) {
+        val configurationContext = ConfigurationFactory.singletonConfigurationContext
+        configurationContext.destroyAll()
     }
 
     @Throws(Exception::class)

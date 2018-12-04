@@ -5,11 +5,29 @@ import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CopyOnWriteArrayList
 
 open class Tree<T : Any> {
+    companion object {
+        /**
+         * private method: check the fieldvalue is values or not
+         *
+         * @param fieldValue
+         * @param values
+         * @return boolean
+         */
+        internal fun checkValue(fieldValue: Any, values: Array<Any>): Boolean {
+            var sign = false
+            for (value in values) {
+                if (fieldValue == value) {
+                    sign = true
+                }
+            }
+            return sign
+        }
+    }
 
     /**
      * @return the root
      */
-    var root: TreeNode<T>? = null
+    lateinit var root: TreeNode<T>
         protected set
 
     /**
@@ -47,25 +65,5 @@ open class Tree<T : Any> {
             }
         }
         return farther
-    }
-
-    companion object {
-
-        /**
-         * private method: check the fieldvalue is values or not
-         *
-         * @param fieldValue
-         * @param values
-         * @return boolean
-         */
-        internal fun checkValue(fieldValue: Any, values: Array<Any>): Boolean {
-            var sign = false
-            for (value in values) {
-                if (fieldValue == value) {
-                    sign = true
-                }
-            }
-            return sign
-        }
     }
 }
