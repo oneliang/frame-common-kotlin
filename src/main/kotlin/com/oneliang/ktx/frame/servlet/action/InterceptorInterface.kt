@@ -31,13 +31,5 @@ interface InterceptorInterface {
          * @param cause
          */
         constructor(message: String, cause: Throwable) : super(message, cause) {}
-
-        companion object {
-
-            /**
-             * serialVersionUID
-             */
-            private val serialVersionUID = 3607915711758608642L
-        }
     }
 }
