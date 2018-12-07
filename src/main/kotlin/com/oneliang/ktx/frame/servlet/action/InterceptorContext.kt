@@ -10,8 +10,8 @@ open class InterceptorContext : AbstractContext() {
     companion object {
         internal val globalInterceptorBeanMap = mutableMapOf<String, GlobalInterceptorBean>()
         internal val interceptorBeanMap = mutableMapOf<String, InterceptorBean>()
-        internal val beforeGlobalInterceptorList = mutableListOf<Interceptor>()
-        internal val afterGlobalInterceptorList = mutableListOf<Interceptor>()
+        internal val beforeGlobalInterceptorList = mutableListOf<InterceptorInterface>()
+        internal val afterGlobalInterceptorList = mutableListOf<InterceptorInterface>()
     }
 
     /**
@@ -37,7 +37,7 @@ open class InterceptorContext : AbstractContext() {
                     val globalInterceptorBean = GlobalInterceptorBean()
                     val attributeMap = globalInterceptorElement.attributes
                     JavaXmlUtil.initializeFromAttributeMap(globalInterceptorBean, attributeMap)
-                    val interceptorInstance: Interceptor = this.classLoader.loadClass(globalInterceptorBean.type).newInstance() as Interceptor
+                    val interceptorInstance: InterceptorInterface = this.classLoader.loadClass(globalInterceptorBean.type).newInstance() as InterceptorInterface
                     globalInterceptorBean.interceptorInstance = interceptorInstance
                     globalInterceptorBeanMap[globalInterceptorBean.id] = globalInterceptorBean
                     objectMap.put(globalInterceptorBean.id, interceptorInstance)
@@ -58,7 +58,7 @@ open class InterceptorContext : AbstractContext() {
                     val interceptor = InterceptorBean()
                     val attributeMap = interceptorElement.attributes
                     JavaXmlUtil.initializeFromAttributeMap(interceptor, attributeMap)
-                    val interceptorInstance = this.classLoader.loadClass(interceptor.type).newInstance() as Interceptor
+                    val interceptorInstance = this.classLoader.loadClass(interceptor.type).newInstance() as InterceptorInterface
                     interceptor.interceptorInstance = interceptorInstance
                     interceptorBeanMap[interceptor.id] = interceptor
                     objectMap[interceptor.id] = interceptorInstance
@@ -83,14 +83,14 @@ open class InterceptorContext : AbstractContext() {
     /**
      * @return the beforeGlobalInterceptorList
      */
-    fun getBeforeGlobalInterceptorList(): List<Interceptor> {
+    fun getBeforeGlobalInterceptorList(): List<InterceptorInterface> {
         return beforeGlobalInterceptorList
     }
 
     /**
      * @return the afterGlobalInterceptorList
      */
-    fun getAfterGlobalInterceptorList(): List<Interceptor> {
+    fun getAfterGlobalInterceptorList(): List<InterceptorInterface> {
         return afterGlobalInterceptorList
     }
 }

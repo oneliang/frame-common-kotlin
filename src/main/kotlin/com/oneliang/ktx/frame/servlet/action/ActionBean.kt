@@ -136,12 +136,10 @@ open class ActionBean {
     fun addActionBeanInterceptor(actionInterceptorBean: ActionInterceptorBean?) {
         if (actionInterceptorBean != null) {
             val interceptorMode = actionInterceptorBean.mode
-            if (interceptorMode != null) {
-                if (interceptorMode == ActionInterceptorBean.INTERCEPTOR_MODE_BEFORE) {
-                    this.beforeActionInterceptorBeanList.add(actionInterceptorBean)
-                } else if (interceptorMode == ActionInterceptorBean.INTERCEPTOR_MODE_AFTER) {
-                    this.afterActionInterceptorBeanList.add(actionInterceptorBean)
-                }
+            if (interceptorMode == ActionInterceptorBean.Mode.BEFORE) {
+                this.beforeActionInterceptorBeanList.add(actionInterceptorBean)
+            } else if (interceptorMode == ActionInterceptorBean.Mode.AFTER) {
+                this.afterActionInterceptorBeanList.add(actionInterceptorBean)
             }
             this.actionInterceptorBeanList.add(actionInterceptorBean)
         }

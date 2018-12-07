@@ -6,7 +6,6 @@ import com.oneliang.ktx.Constants
 class InterceptorBean {
 
     companion object {
-
         const val TAG_INTERCEPTOR = "interceptor"
     }
     /**
@@ -29,5 +28,5 @@ class InterceptorBean {
     /**
      * @param interceptorInstance the interceptorInstance to set
      */
-    var interceptorInstance: Interceptor? = null
+    var interceptorInstance: InterceptorInterface? = null
 }

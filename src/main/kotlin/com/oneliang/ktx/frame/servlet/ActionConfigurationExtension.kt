@@ -7,15 +7,15 @@ import com.oneliang.ktx.frame.ioc.IocBean
 import com.oneliang.ktx.frame.ioc.IocContext
 import com.oneliang.ktx.frame.servlet.action.ActionBean
 import com.oneliang.ktx.frame.servlet.action.ActionContext
-import com.oneliang.ktx.frame.servlet.action.Interceptor
+import com.oneliang.ktx.frame.servlet.action.InterceptorInterface
 import com.oneliang.ktx.frame.servlet.action.InterceptorContext
 
 /**
  * before global interceptor list
  */
-val ConfigurationContext.beforeGlobalInterceptorList: List<Interceptor>
+val ConfigurationContext.beforeGlobalInterceptorList: List<InterceptorInterface>
     get() {
-        var beforeGlobalInterceptorList: List<Interceptor> = emptyList()
+        var beforeGlobalInterceptorList: List<InterceptorInterface> = emptyList()
         val interceptorContext = this.findContext(InterceptorContext::class)
         if (interceptorContext != null) {
             beforeGlobalInterceptorList = interceptorContext.getBeforeGlobalInterceptorList()
@@ -26,9 +26,9 @@ val ConfigurationContext.beforeGlobalInterceptorList: List<Interceptor>
 /**
  * after global interceptor list
  */
-val ConfigurationContext.afterGlobalInterceptorList: List<Interceptor>
+val ConfigurationContext.afterGlobalInterceptorList: List<InterceptorInterface>
     get() {
-        var afterGlobalInterceptorList: List<Interceptor> = emptyList()
+        var afterGlobalInterceptorList: List<InterceptorInterface> = emptyList()
         val interceptorContext = this.findContext(InterceptorContext::class)
         if (interceptorContext != null) {
             afterGlobalInterceptorList = interceptorContext.getAfterGlobalInterceptorList()

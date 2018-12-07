@@ -132,7 +132,7 @@ open class ActionContext : AbstractContext() {
             val actionInterceptorBeanList = actionBean.actionInterceptorBeanList
             for (actionInterceptorBean in actionInterceptorBeanList) {
                 if (objectMap.containsKey(actionInterceptorBean.id)) {
-                    val interceptorInstance = objectMap[actionInterceptorBean.id] as Interceptor
+                    val interceptorInstance = objectMap[actionInterceptorBean.id] as InterceptorInterface
                     actionInterceptorBean.interceptorInstance = interceptorInstance
                 }
             }

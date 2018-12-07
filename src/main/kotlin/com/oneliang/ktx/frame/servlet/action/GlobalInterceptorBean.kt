@@ -39,5 +39,5 @@ class GlobalInterceptorBean {
     /**
      * @param interceptorInstance the interceptorInstance to set
      */
-    var interceptorInstance: Interceptor? = null
+    var interceptorInstance: InterceptorInterface? = null
 }

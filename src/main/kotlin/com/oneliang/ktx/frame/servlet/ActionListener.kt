@@ -481,7 +481,7 @@ class ActionListener : HttpServlet() {
      * @param response
      * @return boolean
      */
-    private fun doGlobalInterceptorList(interceptorList: List<Interceptor>?, request: HttpServletRequest, response: HttpServletResponse): Boolean {
+    private fun doGlobalInterceptorList(interceptorList: List<InterceptorInterface>?, request: HttpServletRequest, response: HttpServletResponse): Boolean {
         var interceptorSign = true
         if (interceptorList != null) {
             try {

@@ -65,8 +65,8 @@ class AnnotationActionContext : ActionContext() {
                                     val actionInterceptorBean = ActionInterceptorBean()
                                     actionInterceptorBean.id = interceptorId
                                     when (interceptorMode) {
-                                        Action.RequestMapping.Interceptor.Mode.BEFORE -> actionInterceptorBean.mode = ActionInterceptorBean.INTERCEPTOR_MODE_BEFORE
-                                        Action.RequestMapping.Interceptor.Mode.AFTER -> actionInterceptorBean.mode = ActionInterceptorBean.INTERCEPTOR_MODE_AFTER
+                                        Action.RequestMapping.Interceptor.Mode.BEFORE -> actionInterceptorBean.mode = ActionInterceptorBean.Mode.BEFORE
+                                        Action.RequestMapping.Interceptor.Mode.AFTER -> actionInterceptorBean.mode = ActionInterceptorBean.Mode.AFTER
                                     }
                                     annotationActionBean.addActionBeanInterceptor(actionInterceptorBean)
                                 }
