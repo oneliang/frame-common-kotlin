@@ -64,7 +64,7 @@ class SourceFilter : Filter {
                 }
             }
         }
-        logger.info("doing filter, request uri:$requestUri, exclude:$excludePathThrough, project path:$projectPath")
+        logger.info("Doing filter, request uri:$requestUri, exclude:$excludePathThrough, project path:$projectPath")
         if (excludePathThrough) {
             filterChain.doFilter(request, response)
         } else {

@@ -19,7 +19,6 @@ class SessionFilter : Filter {
         private const val SESSION_KEY = "sessionKey"
         private const val EXCLUDE_PATH = "excludePath"
         private const val ERROR_FORWARD = "errorForward"
-        private const val COMMA_SPLIT = ","
 
         private val QUESTION_ENCODE = Encoder.escape("?")
         private val EQUAL_ENCODE = Encoder.escape("=")
@@ -40,14 +39,14 @@ class SessionFilter : Filter {
         val excludePaths = filterConfig.getInitParameter(EXCLUDE_PATH)
         this.errorForward = filterConfig.getInitParameter(ERROR_FORWARD)
         if (sessionKeys != null) {
-            val sessionKeyArray = sessionKeys.split(COMMA_SPLIT)
+            val sessionKeyArray = sessionKeys.split(Constants.Symbol.COMMA)
             this.sessionKeyArray = Array(sessionKeyArray.size) { Constants.String.BLANK }
             for ((i, sessionKey) in sessionKeyArray.withIndex()) {
                 this.sessionKeyArray[i] = sessionKey.trim()
             }
         }
         if (excludePaths != null) {
-            val excludePathArray = excludePaths.split(COMMA_SPLIT)
+            val excludePathArray = excludePaths.split(Constants.Symbol.COMMA)
             this.excludePathArray = Array(excludePathArray.size) { Constants.String.BLANK }
             for ((i, excludePath) in excludePathArray.withIndex()) {
                 this.excludePathArray[i] = excludePath.trim()
@@ -85,7 +84,7 @@ class SessionFilter : Filter {
                 }
             }
         }
-        logger.info("doing filter, request uri:$requestUri, excludePathThrough:$excludePathThrough, sessionThrough:$sessionThrough")
+        logger.info("Doing filter, request uri:$requestUri, excludePathThrough:$excludePathThrough, sessionThrough:$sessionThrough")
         when {
             excludePathThrough -> filterChain.doFilter(request, response)
             sessionThrough -> filterChain.doFilter(request, response)

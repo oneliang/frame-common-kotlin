@@ -23,7 +23,6 @@ class ProjectPathTag : BodyTagSupport() {
         } catch (e: Exception) {
             logger.error(Constants.Base.EXCEPTION, e)
         }
-
         return EVAL_PAGE
     }
 }

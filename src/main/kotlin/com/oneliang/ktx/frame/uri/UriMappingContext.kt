@@ -4,13 +4,10 @@ import com.oneliang.ktx.Constants
 import com.oneliang.ktx.exception.InitializeException
 import com.oneliang.ktx.frame.context.AbstractContext
 import com.oneliang.ktx.util.common.JavaXmlUtil
-import com.oneliang.ktx.util.common.parseRegexGroup
-import com.oneliang.ktx.util.common.parseStringGroup
 import java.util.concurrent.ConcurrentHashMap
 
 class UriMappingContext : AbstractContext() {
     companion object {
-
         private const val REGEX = "\\{[\\w]*\\}"
         private const val FIRST_REGEX = "\\{"
         internal val uriMappingBeanMap: MutableMap<String, UriMappingBean> = ConcurrentHashMap()
@@ -27,11 +24,7 @@ class UriMappingContext : AbstractContext() {
                     val fromRegex = Constants.Symbol.XOR + from + Constants.Symbol.DOLLAR
                     if (uriFrom.matches(fromRegex.toRegex())) {
                         uriTo = uriMappingBean.to
-                        val groupList = uriFrom.parseRegexGroup(fromRegex)
-                        val parameterList = uriTo.parseStringGroup(REGEX, FIRST_REGEX, Constants.String.BLANK, 1)
-                        for (parameter in parameterList) {
-                            uriTo = uriTo.replaceFirst(REGEX.toRegex(), groupList[Integer.parseInt(parameter)])
-                        }
+                        uriTo = uriFrom.replace(fromRegex.toRegex(), uriTo)
                         return@loop
                     }
                 }
@@ -44,11 +37,11 @@ class UriMappingContext : AbstractContext() {
         try {
             var path = parameters
             val tempClassesRealPath = if (classesRealPath.isBlank()) {
-                this.classLoader.getResource(Constants.String.BLANK).getPath()
+                this.classLoader.getResource(Constants.String.BLANK).path
             } else {
                 classesRealPath
             }
-            path = tempClassesRealPath!! + path
+            path = tempClassesRealPath + path
             val document = JavaXmlUtil.parse(path)
             val root = document.documentElement
             val uriBeanElementList = root.getElementsByTagName(UriMappingBean.TAG_URI)
@@ -65,7 +58,6 @@ class UriMappingContext : AbstractContext() {
         } catch (e: Exception) {
             throw InitializeException(parameters, e)
         }
-
     }
 
     override fun destroy() {
