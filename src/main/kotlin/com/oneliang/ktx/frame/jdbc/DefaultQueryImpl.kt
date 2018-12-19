@@ -4,7 +4,6 @@ import com.oneliang.ktx.Constants
 import com.oneliang.ktx.frame.ConfigurationFactory
 import com.oneliang.ktx.frame.bean.Page
 import com.oneliang.ktx.util.resource.ResourcePool
-import java.io.Serializable
 import java.sql.Connection
 import java.sql.ResultSet
 import kotlin.reflect.KClass
@@ -112,7 +111,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
      * @throws QueryException
     </T> */
     @Throws(QueryException::class)
-    override fun <T : Any> deleteObjectById(clazz: KClass<T>, id: Serializable): Int {
+    override fun <T : Any, IdType : Any> deleteObjectById(clazz: KClass<T>, id: IdType): Int {
         val updateResult: Int
         var connection: Connection? = null
         try {
@@ -136,7 +135,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
      * @throws QueryException
     </T> */
     @Throws(QueryException::class)
-    override fun <T : Any> deleteObjectByIds(clazz: KClass<T>, ids: Array<Serializable>): Int {
+    override fun <T : Any, IdType : Any> deleteObjectByIds(clazz: KClass<T>, ids: Array<IdType>): Int {
         val updateResult: Int
         var connection: Connection? = null
         try {
@@ -264,7 +263,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
      * @throws QueryException
     </T> */
     @Throws(QueryException::class)
-    override fun <T : Any> selectObjectById(clazz: KClass<T>, id: Serializable): T? {
+    override fun <T : Any, IdType : Any> selectObjectById(clazz: KClass<T>, id: IdType): T? {
         val instance: T?
         var connection: Connection? = null
         try {

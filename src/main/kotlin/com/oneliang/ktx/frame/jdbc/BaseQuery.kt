@@ -1,7 +1,6 @@
 package com.oneliang.ktx.frame.jdbc
 
 import com.oneliang.ktx.Constants
-import java.io.Serializable
 import java.sql.Connection
 import java.sql.ResultSet
 import kotlin.reflect.KClass
@@ -53,7 +52,7 @@ interface BaseQuery {
      * @throws QueryException
     </T> */
     @Throws(QueryException::class)
-    fun <T : Any> executeQueryById(connection: Connection, clazz: KClass<T>, id: Serializable): T?
+    fun <T : Any, IdType : Any> executeQueryById(connection: Connection, clazz: KClass<T>, id: IdType): T?
 
     /**
      *
@@ -144,7 +143,7 @@ interface BaseQuery {
      * @throws QueryException
     </T> */
     @Throws(QueryException::class)
-    fun <T : Any> executeDeleteById(connection: Connection, clazz: KClass<T>, id: Serializable): Int
+    fun <T : Any, IdType : Any> executeDeleteById(connection: Connection, clazz: KClass<T>, id: IdType): Int
 
     /**
      *
@@ -157,7 +156,7 @@ interface BaseQuery {
      * @throws QueryException
     </T> */
     @Throws(QueryException::class)
-    fun <T : Any> executeDeleteByIds(connection: Connection, clazz: KClass<T>, ids: Array<Serializable>): Int
+    fun <T : Any, IdType : Any> executeDeleteByIds(connection: Connection, clazz: KClass<T>, ids: Array<IdType>): Int
 
     /**
      *

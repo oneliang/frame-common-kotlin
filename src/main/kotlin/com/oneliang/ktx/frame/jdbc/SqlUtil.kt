@@ -4,7 +4,6 @@ import com.oneliang.ktx.Constants
 import com.oneliang.ktx.exception.MappingNotFoundException
 import com.oneliang.ktx.util.common.ObjectUtil
 import com.oneliang.ktx.util.json.toJson
-import java.io.Serializable
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 import kotlin.reflect.KClass
@@ -198,8 +197,8 @@ object SqlUtil {
      * @param mappingBean
      * @return String
     </T> */
-    fun <T : Any> classToDeleteOneRowSql(clazz: KClass<T>, id: Serializable, mappingBean: MappingBean): String {
-        return classToDeleteSql(clazz, arrayOf(id), mappingBean, DeleteType.ONE_ROW)
+    fun <T : Any, IdType : Any> classToDeleteOneRowSql(clazz: KClass<T>, id: IdType, mappingBean: MappingBean): String {
+        return classToDeleteSql(clazz, arrayOf<Any>(id), mappingBean, DeleteType.ONE_ROW)
     }
 
     /**
@@ -213,7 +212,7 @@ object SqlUtil {
      * @param mappingBean
      * @return String
     </T> */
-    fun <T : Any> classToDeleteMultipleRowSql(clazz: KClass<T>, ids: Array<Serializable>, mappingBean: MappingBean): String {
+    fun <T : Any, IdType : Any> classToDeleteMultipleRowSql(clazz: KClass<T>, ids: Array<IdType>, mappingBean: MappingBean): String {
         return classToDeleteSql(clazz, ids, mappingBean, DeleteType.MULTIPLE_ROW)
     }
 
@@ -229,7 +228,7 @@ object SqlUtil {
      * @param deleteType
      * @return String
     </T> */
-    private fun <T : Any> classToDeleteSql(clazz: KClass<T>, ids: Array<Serializable>, mappingBean: MappingBean, deleteType: DeleteType): String {
+    private fun <T : Any, IdType : Any> classToDeleteSql(clazz: KClass<T>, ids: Array<IdType>, mappingBean: MappingBean, deleteType: DeleteType): String {
         val methods = clazz.java.methods
         val condition = StringBuilder()
         for (method in methods) {

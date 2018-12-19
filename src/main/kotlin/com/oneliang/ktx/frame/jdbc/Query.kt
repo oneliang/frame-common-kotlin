@@ -3,7 +3,6 @@ package com.oneliang.ktx.frame.jdbc
 import com.oneliang.ktx.Constants
 import com.oneliang.ktx.frame.bean.Page
 import com.oneliang.ktx.util.resource.ResourcePool
-import java.io.Serializable
 import java.sql.Connection
 import java.sql.ResultSet
 import kotlin.reflect.KClass
@@ -89,7 +88,7 @@ interface Query : BaseQuery {
      * @throws QueryException
     </T> */
     @Throws(QueryException::class)
-    fun <T : Any> deleteObjectById(clazz: KClass<T>, id: Serializable): Int
+    fun <T : Any, IdType : Any> deleteObjectById(clazz: KClass<T>, id: IdType): Int
 
     /**
      *
@@ -101,7 +100,7 @@ interface Query : BaseQuery {
      * @throws QueryException
     </T> */
     @Throws(QueryException::class)
-    fun <T : Any> deleteObjectByIds(clazz: KClass<T>, ids: Array<Serializable>): Int
+    fun <T : Any, IdType : Any> deleteObjectByIds(clazz: KClass<T>, ids: Array<IdType>): Int
 
     /**
      *
@@ -203,7 +202,7 @@ interface Query : BaseQuery {
      * @throws QueryException
     </T> */
     @Throws(QueryException::class)
-    fun <T : Any> selectObjectById(clazz: KClass<T>, id: Serializable): T?
+    fun <T : Any, IdType : Any> selectObjectById(clazz: KClass<T>, id: IdType): T?
 
     /**
      *

@@ -5,7 +5,6 @@ import com.oneliang.ktx.exception.MappingNotFoundException
 import com.oneliang.ktx.frame.ConfigurationFactory
 import com.oneliang.ktx.util.common.ObjectUtil
 import com.oneliang.ktx.util.logging.LoggerManager
-import java.io.Serializable
 import java.sql.*
 import kotlin.reflect.KClass
 
@@ -103,7 +102,7 @@ open class BaseQueryImpl : BaseQuery {
      * @throws QueryException
     </T> */
     @Throws(QueryException::class)
-    override fun <T : Any> executeQueryById(connection: Connection, clazz: KClass<T>, id: Serializable): T? {
+    override fun <T : Any, IdType : Any> executeQueryById(connection: Connection, clazz: KClass<T>, id: IdType): T? {
         var instance: T? = null
         val list: List<T>
         var resultSet: ResultSet? = null
@@ -269,7 +268,7 @@ open class BaseQueryImpl : BaseQuery {
      * @throws QueryException
     </T> */
     @Throws(QueryException::class)
-    override fun <T : Any> executeDeleteById(connection: Connection, clazz: KClass<T>, id: Serializable): Int {
+    override fun <T : Any, IdType : Any> executeDeleteById(connection: Connection, clazz: KClass<T>, id: IdType): Int {
         val sql: String
         try {
             val mappingBean = ConfigurationFactory.singletonConfigurationContext.findMappingBean(clazz) ?: throw MappingNotFoundException("Mapping is not found, class:$clazz")
@@ -291,7 +290,7 @@ open class BaseQueryImpl : BaseQuery {
      * @throws QueryException
     </T> */
     @Throws(QueryException::class)
-    override fun <T : Any> executeDeleteByIds(connection: Connection, clazz: KClass<T>, ids: Array<Serializable>): Int {
+    override fun <T : Any, IdType : Any> executeDeleteByIds(connection: Connection, clazz: KClass<T>, ids: Array<IdType>): Int {
         val updateResult: Int
         try {
             val mappingBean = ConfigurationFactory.singletonConfigurationContext.findMappingBean(clazz) ?: throw MappingNotFoundException("Mapping is not found, class:$clazz")
