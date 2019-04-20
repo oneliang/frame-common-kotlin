@@ -1,7 +1,7 @@
 package com.oneliang.ktx.frame.ioc
 
 class IocConfigurationBean {
-    //	static final String INJECT_TYPE_MANUAL="manual";
+    //	static final String INJECT_TYPE_MANUAL="manual"
     companion object {
 
         const val TAG_CONFIGURATION = "configuration"

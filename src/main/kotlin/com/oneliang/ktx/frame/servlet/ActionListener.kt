@@ -60,10 +60,10 @@ class ActionListener : HttpServlet() {
 
     override fun getLastModified(request: HttpServletRequest): Long {
         //uri
-        //		String uri=request.getRequestURI();
-        //		int front=request.getContextPath().length();
-        //		uri=uri.substring(front,uri.length());
-        //		return 1368624759725l;
+        //		String uri=request.getRequestURI()
+        //		int front=request.getContextPath().length()
+        //		uri=uri.substring(front,uri.length())
+        //		return 1368624759725l
         return super.getLastModified(request)
     }
 
@@ -150,15 +150,17 @@ class ActionListener : HttpServlet() {
         //uri
         var uri = request.requestURI
 
-        logger.info("System is requesting uri--:$uri")
+        logger.info("System is requesting uri:$uri")
 
         val front = request.contextPath.length
-        //		int rear=uri.lastIndexOf(StaticVar.DOT);
+        //		int rear=uri.lastIndexOf(StaticVar.DOT)
         //		if(rear>front){
         uri = uri.substring(front, uri.length)
         //		}
-        //		uri=uri.substring(front,rear);
-        logger.info("The request name is--:$uri")
+        //		uri=uri.substring(front,rear)
+        logger.info("The request name is:$uri")
+
+        request.setAttribute(ConstantsAction.RequestKey.KEY_STRING_CURRENT_REQUEST_URI, uri)
 
         //global interceptor doIntercept
         val beforeGlobalInterceptorList = ConfigurationFactory.singletonConfigurationContext.beforeGlobalInterceptorList
@@ -190,21 +192,21 @@ class ActionListener : HttpServlet() {
                                 doAnnotationAction(actionBean, request, response, httpRequestMethod)
                             }
                         } else {
-                            logger.info("Can not through the before action interceptors")
+                            logger.info("The request name:$uri. Can not through the before action interceptors")
                             response.sendError(Constants.Http.StatusCode.FORBIDDEN)
                         }
                     } else {
-                        logger.info("Method not allowed,http request method:$httpRequestMethod")
+                        logger.info("The request name:$uri. Method not allowed,http request method:$httpRequestMethod")
                         response.sendError(Constants.Http.StatusCode.METHOD_NOT_ALLOWED)
                     }
                 } else {
-                    logger.info("The request name--:$uri is not exist,please config the name and entity class")
+                    logger.info("The request name:$uri. It is not exist,please config the name and entity class")
                     response.sendError(Constants.Http.StatusCode.NOT_FOUND)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
                 logger.error(Constants.Base.EXCEPTION, e)
-                logger.info("Action or page is not exist")
+                logger.info("The request name:$uri. Action or page is not exist")
                 val exceptionPath = ConfigurationFactory.singletonConfigurationContext.globalExceptionForwardPath
                 if (exceptionPath != null) {
                     logger.info("Forward to exception path:$exceptionPath")
@@ -218,7 +220,7 @@ class ActionListener : HttpServlet() {
             }
 
         } else {
-            logger.info("Can not through the before global interceptors")
+            logger.info("The request name:$uri. Can not through the before global interceptors")
             response.sendError(Constants.Http.StatusCode.FORBIDDEN)
         }
     }

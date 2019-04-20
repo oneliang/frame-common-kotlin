@@ -13,7 +13,7 @@ abstract class AbstractServletContextListener : ServletContextListener {
     companion object {
         private val logger = LoggerManager.getLogger(AbstractServletContextListener::class)
 
-        //	private static final String CONTEXT_PARAMETER_DBCONFIG="dbConfig";
+        //	private static final String CONTEXT_PARAMETER_DBCONFIG="dbConfig"
         private const val CONTEXT_PARAMETER_CONFIGFILE = "configFile"
     }
 
@@ -22,9 +22,9 @@ abstract class AbstractServletContextListener : ServletContextListener {
      */
     override fun contextInitialized(servletContextEvent: ServletContextEvent) {
         TimeZone.setDefault(TimeZone.getTimeZone(Constants.Timezone.ASIA_SHANGHAI))
-        //System.setProperty(StaticVar.USER_TIMEZONE, StaticVar.TIMEZONE_ASIA_SHANGHAI);
+        //System.setProperty(StaticVar.USER_TIMEZONE, StaticVar.TIMEZONE_ASIA_SHANGHAI)
         Locale.setDefault(Locale.CHINA)
-        //		String dbConfig=servletContextEvent.getServletContext().getInitParameter(CONTEXT_PARAMETER_DBCONFIG);
+        //		String dbConfig=servletContextEvent.getServletContext().getInitParameter(CONTEXT_PARAMETER_DBCONFIG)
         val configFile = servletContextEvent.servletContext.getInitParameter(CONTEXT_PARAMETER_CONFIGFILE)
         //real path
         val projectRealPath = servletContextEvent.servletContext.getRealPath(Constants.String.BLANK)

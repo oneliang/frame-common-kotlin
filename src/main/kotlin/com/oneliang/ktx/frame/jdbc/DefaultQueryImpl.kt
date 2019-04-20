@@ -566,7 +566,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
 
     /**
      *
-     * Method; get the total size,it is sql binding
+     * Method: get the total size,it is sql binding
      * @param <T>
      * @param table
      * @param condition
@@ -581,7 +581,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
 
     /**
      *
-     * Method; get the total size
+     * Method: get the total size
      * @param <T>
      * @param clazz
      * @param table

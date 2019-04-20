@@ -47,11 +47,11 @@ class SourceFilter : Filter {
     @Throws(IOException::class, ServletException::class)
     override fun doFilter(request: ServletRequest, response: ServletResponse, filterChain: FilterChain) {
         val httpRequest = request as HttpServletRequest
-        //		HttpServletResponse httpResponse = (HttpServletResponse)response;
-        //		HttpSession session = httpRequest.getSession();
-        //		httpResponse.setHeader("Cache-Control","no-cache");
-        //		httpResponse.setHeader("Pragma","no-cache");
-        //		httpResponse.setDateHeader ("Expires", -1);
+        //		HttpServletResponse httpResponse = (HttpServletResponse)response
+        //		HttpSession session = httpRequest.getSession()
+        //		httpResponse.setHeader("Cache-Control","no-cache")
+        //		httpResponse.setHeader("Pragma","no-cache")
+        //		httpResponse.setDateHeader ("Expires", -1)
         val projectPath = httpRequest.contextPath
         val requestUri = httpRequest.requestURI
         var excludePathThrough = false

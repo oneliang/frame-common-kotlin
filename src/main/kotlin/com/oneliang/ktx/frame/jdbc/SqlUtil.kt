@@ -30,7 +30,7 @@ object SqlUtil {
         val list = mutableListOf<T>()
         try {
             var instance: T? = null
-            //			Field[] field = clazz.getDeclaredFields();// get the fields one
+            //			Field[] field = clazz.getDeclaredFields()// get the fields one
             val methods = clazz.java.methods
             // time is ok
             while (resultSet.next()) {

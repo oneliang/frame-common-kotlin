@@ -235,7 +235,7 @@ abstract class CommonAction : ActionInterface {
     }
 
     /**
-     * request.getRequestDispatcher(path).forward(request,response);
+     * request.getRequestDispatcher(path).forward(request,response)
      * @param request
      * @param response
      * @param path

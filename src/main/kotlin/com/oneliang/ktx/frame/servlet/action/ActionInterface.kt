@@ -20,7 +20,7 @@ interface ActionInterface {
      * @author oneliang
      */
     enum class HttpRequestMethod(val code: Int) {
-        PUT(0x01), DELETE(0x02), GET(0x04), POST(0x08), HEAD(0x10), OPTIONS(0x20), TRACE(0x40);
+        PUT(0x01), DELETE(0x02), GET(0x04), POST(0x08), HEAD(0x10), OPTIONS(0x20), TRACE(0x40)
     }
 
     companion object {
