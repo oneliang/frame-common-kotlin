@@ -20,8 +20,14 @@ class ConfigurationContext : AbstractContext() {
     /**
      * @return the initialized
      */
-    var initialized = false
-        protected set
+    private var initialized = false
+
+    /**
+     * is initialized
+     */
+    public fun isInitialized(): Boolean {
+        return this.initialized
+    }
 
     /**
      * get configuration bean entry set
