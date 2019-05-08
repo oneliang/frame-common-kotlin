@@ -10,10 +10,22 @@ abstract class AbstractContext : Context {
         internal var jarClassLoader = JarClassLoader(Thread.currentThread().contextClassLoader)
     }
 
-    var classesRealPath: String = Constants.String.BLANK
-    var projectRealPath: String = Constants.String.BLANK
+    internal var classLoader: ClassLoader = Thread.currentThread().contextClassLoader
+        set(value) {
+            field = value
+            classesRealPath = field.getResource(Constants.String.BLANK).path
+        }
 
-    protected var classLoader: ClassLoader = Thread.currentThread().contextClassLoader
+    var classesRealPath: String = this.classLoader.getResource(Constants.String.BLANK).path
+        set(value) {
+            if (value.isNotBlank()) {
+                field = value
+            } else {
+                throw RuntimeException(message = "classesRealPath can not be blank.")
+            }
+        }
+
+    var projectRealPath: String = Constants.String.BLANK
 
     /**
      * find bean
@@ -23,6 +35,6 @@ abstract class AbstractContext : Context {
      */
     @Suppress("UNCHECKED_CAST")
     fun <T : Any> findBean(id: String): T? {
-        return objectMap[id] as T
+        return objectMap[id] as T?
     }
 }

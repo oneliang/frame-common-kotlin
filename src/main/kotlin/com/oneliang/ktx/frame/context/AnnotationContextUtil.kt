@@ -18,6 +18,11 @@ object AnnotationContextUtil {
     private const val PARAMETER_PACKAGE = "-P="
     private const val PARAMETER_FILE = "-F="
 
+    private object Type {
+        const val JAR = Constants.File.JAR
+        const val CLASS_DIRECTORY = "class_directory"
+    }
+
     /**
      *
      *
@@ -49,7 +54,7 @@ object AnnotationContextUtil {
             logger.debug("search class path:$path")
             classList = searchClassList(tempClassesRealPath, path, annotationClass)
         } else {
-            var type: String? = null
+            var type: String = Constants.String.BLANK
             var packageName: String = Constants.String.BLANK
             var file: String = Constants.String.BLANK
             for (parameter in parameterArray) {
@@ -59,13 +64,26 @@ object AnnotationContextUtil {
                     parameter.startsWith(PARAMETER_FILE) -> file = parameter.replaceFirst(PARAMETER_FILE, Constants.String.BLANK)
                 }
             }
-            if (type != null && type.equals(Constants.File.JAR, ignoreCase = true)) {
+            if (type.equals(Type.JAR, ignoreCase = true)) {
                 if (file.startsWith(SIGN_ROOT)) {
                     file = file.replace(SIGN_ROOT, projectRealPath)
                 }
                 file = File(file).absolutePath
                 logger.debug("search class file:$file")
                 classList = JarUtil.searchClassList(jarClassLoader, file, packageName, annotationClass)
+            } else if (type.equals(Type.CLASS_DIRECTORY, ignoreCase = true)) {
+                val directoryList = file.split(Constants.Symbol.SEMICOLON)
+                val searchClassList = mutableListOf<KClass<*>>()
+                val mainClassesRealPath = if (classesRealPath.isBlank()) {
+                    classLoader.getResource(Constants.String.BLANK).path
+                } else {
+                    classesRealPath
+                }
+                for (directory in directoryList) {
+                    val otherClassesRealPath = File(mainClassesRealPath, directory).absolutePath
+                    searchClassList.addAll(searchClassList(otherClassesRealPath, "", annotationClass))
+                }
+                classList = searchClassList
             }
         }
         return classList
