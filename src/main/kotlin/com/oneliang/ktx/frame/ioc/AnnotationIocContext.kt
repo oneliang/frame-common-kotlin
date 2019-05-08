@@ -15,7 +15,7 @@ class AnnotationIocContext : IocContext() {
      */
     override fun initialize(parameters: String) {
         try {
-            val classList = AnnotationContextUtil.parseAnnotationContextParameterAndSearchClass(parameters, classLoader, classesRealPath, jarClassLoader, projectRealPath, Ioc::class)
+            val classList = AnnotationContextUtil.parseAnnotationContextParameterAndSearchClass(parameters, classLoader, classesRealPath, jarClassLoader, Ioc::class)
             for (clazz in classList) {
                 logger.debug("found class:$clazz")
                 val iocAnnotation = clazz.java.getAnnotation(Ioc::class.java)

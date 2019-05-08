@@ -1,6 +1,5 @@
 package com.oneliang.ktx.frame.servlet.action
 
-import com.oneliang.ktx.Constants
 import com.oneliang.ktx.exception.InitializeException
 import com.oneliang.ktx.frame.context.AbstractContext
 import com.oneliang.ktx.util.common.JavaXmlUtil
@@ -29,12 +28,7 @@ open class ActionContext : AbstractContext() {
      */
     override fun initialize(parameters: String) {
         try {
-            val tempClassesRealPath = if (classesRealPath.isBlank()) {
-                this.classLoader.getResource(Constants.String.BLANK).path
-            } else {
-                classesRealPath
-            }
-            val path = tempClassesRealPath!! + parameters
+            val path = this.classesRealPath + parameters
             val document = JavaXmlUtil.parse(path)
             val root = document.documentElement
             //global forward list

@@ -21,7 +21,7 @@ abstract class AbstractContext : Context {
             if (value.isNotBlank()) {
                 field = value
             } else {
-                throw RuntimeException(message = "classesRealPath can not be blank.")
+                throw RuntimeException("classesRealPath can not be blank.")
             }
         }
 

@@ -38,13 +38,7 @@ class DatabaseContext : AbstractContext() {
      */
     override fun initialize(parameters: String) {
         try {
-            var path = parameters
-            val tempClassesRealPath = if (classesRealPath.isBlank()) {
-                this.classLoader.getResource(Constants.String.BLANK).path
-            } else {
-                classesRealPath
-            }
-            path = tempClassesRealPath + path
+            val path = this.classesRealPath + parameters
             val properties = FileUtil.getProperties(path)
             properties.forEach { (k, v) ->
                 val key = k.toString()

@@ -11,7 +11,7 @@ class AnnotationInterceptorContext : InterceptorContext() {
      */
     override fun initialize(parameters: String) {
         try {
-            val classList = AnnotationContextUtil.parseAnnotationContextParameterAndSearchClass(parameters, classLoader, classesRealPath, jarClassLoader, projectRealPath, Interceptor::class)
+            val classList = AnnotationContextUtil.parseAnnotationContextParameterAndSearchClass(parameters, classLoader, classesRealPath, jarClassLoader, Interceptor::class)
             for (clazz in classList) {
                 if (ObjectUtil.isInheritanceOrInterfaceImplement(clazz.java, InterceptorInterface::class.java)) {
                     val interceptorAnnotation = clazz.java.getAnnotation(Interceptor::class.java)

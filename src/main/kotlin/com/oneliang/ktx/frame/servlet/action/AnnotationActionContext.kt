@@ -11,7 +11,7 @@ class AnnotationActionContext : ActionContext() {
      */
     override fun initialize(parameters: String) {
         try {
-            val classList = AnnotationContextUtil.parseAnnotationContextParameterAndSearchClass(parameters, classLoader, classesRealPath, jarClassLoader, projectRealPath, Action::class)
+            val classList = AnnotationContextUtil.parseAnnotationContextParameterAndSearchClass(parameters, classLoader, classesRealPath, jarClassLoader, Action::class)
             for (clazz in classList) {
                 val classId = clazz.java.name
                 var actionInstance: Any?

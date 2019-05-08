@@ -35,13 +35,7 @@ class UriMappingContext : AbstractContext() {
 
     override fun initialize(parameters: String) {
         try {
-            var path = parameters
-            val tempClassesRealPath = if (classesRealPath.isBlank()) {
-                this.classLoader.getResource(Constants.String.BLANK).path
-            } else {
-                classesRealPath
-            }
-            path = tempClassesRealPath + path
+            val path = this.classesRealPath + parameters
             val document = JavaXmlUtil.parse(path)
             val root = document.documentElement
             val uriBeanElementList = root.getElementsByTagName(UriMappingBean.TAG_URI)

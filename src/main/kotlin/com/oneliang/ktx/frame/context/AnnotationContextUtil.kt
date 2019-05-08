@@ -13,80 +13,68 @@ object AnnotationContextUtil {
 
     private val logger = LoggerManager.getLogger(AnnotationContextUtil::class)
 
-    private const val SIGN_ROOT = "\$ROOT"
     private const val PARAMETER_TYPE = "-T="
     private const val PARAMETER_PACKAGE = "-P="
-    private const val PARAMETER_FILE = "-F="
+    private const val PARAMETER_PATH = "-PATH="
 
     private object Type {
         const val JAR = Constants.File.JAR
-        const val CLASS_DIRECTORY = "class_directory"
+        const val CLASSES_DIRECTORY = "classes_directory"
     }
 
     /**
-     *
-     *
      * Method:use for AnnotationActionContext,AnnotationIocContext,AnnotationInterceptorContext,AnnotationMappingContext
-     *
-     *
      * @param parameters
      * @param classLoader
      * @param classesRealPath
      * @param jarClassLoader
-     * @param projectRealPath
      * @param annotationClass
      * @return List<Class></Class>>
      * @throws ClassNotFoundException
      * @throws FileLoadException
      */
     @Throws(ClassNotFoundException::class, FileLoadException::class)
-    fun parseAnnotationContextParameterAndSearchClass(parameters: String, classLoader: ClassLoader, classesRealPath: String, jarClassLoader: JarClassLoader, projectRealPath: String, annotationClass: KClass<out Annotation>): List<KClass<*>> {
-        var classList: List<KClass<*>> = emptyList()
+    fun parseAnnotationContextParameterAndSearchClass(parameters: String, classLoader: ClassLoader, classesRealPath: String, jarClassLoader: JarClassLoader, annotationClass: KClass<out Annotation>): List<KClass<*>> {
         val parameterArray = parameters.split(Constants.Symbol.COMMA)
-        if (parameterArray.size == 1) {
-            var path = parameters
-            val tempClassesRealPath = if (classesRealPath.isBlank()) {
-                classLoader.getResource(Constants.String.BLANK).path
-            } else {
-                classesRealPath
-            }
-            path = File(tempClassesRealPath, path).absolutePath
+        val mainClassesRealPath = if (classesRealPath.isBlank()) {
+            classLoader.getResource(Constants.String.BLANK).path
+        } else {
+            classesRealPath
+        }
+        return if (parameterArray.size == 1) {
+            val path = File(mainClassesRealPath, parameters).absolutePath
             logger.debug("search class path:$path")
-            classList = searchClassList(tempClassesRealPath, path, annotationClass)
+            searchClassList(mainClassesRealPath, path, annotationClass)
         } else {
             var type: String = Constants.String.BLANK
             var packageName: String = Constants.String.BLANK
-            var file: String = Constants.String.BLANK
+            var path: String = Constants.String.BLANK
             for (parameter in parameterArray) {
                 when {
                     parameter.startsWith(PARAMETER_TYPE) -> type = parameter.replaceFirst(PARAMETER_TYPE, Constants.String.BLANK)
                     parameter.startsWith(PARAMETER_PACKAGE) -> packageName = parameter.replaceFirst(PARAMETER_PACKAGE, Constants.String.BLANK)
-                    parameter.startsWith(PARAMETER_FILE) -> file = parameter.replaceFirst(PARAMETER_FILE, Constants.String.BLANK)
+                    parameter.startsWith(PARAMETER_PATH) -> path = parameter.replaceFirst(PARAMETER_PATH, Constants.String.BLANK)
                 }
             }
+            val filePathList = path.split(Constants.Symbol.COLON)
+            val searchClassList = mutableListOf<KClass<*>>()
             if (type.equals(Type.JAR, ignoreCase = true)) {
-                if (file.startsWith(SIGN_ROOT)) {
-                    file = file.replace(SIGN_ROOT, projectRealPath)
+                for (filePath in filePathList) {
+                    val jarFileRealPath = File(mainClassesRealPath, filePath).absolutePath
+                    logger.debug("search jar file real path:$jarFileRealPath")
+                    searchClassList.addAll(JarUtil.searchClassList(jarClassLoader, jarFileRealPath, packageName, annotationClass))
                 }
-                file = File(file).absolutePath
-                logger.debug("search class file:$file")
-                classList = JarUtil.searchClassList(jarClassLoader, file, packageName, annotationClass)
-            } else if (type.equals(Type.CLASS_DIRECTORY, ignoreCase = true)) {
-                val directoryList = file.split(Constants.Symbol.SEMICOLON)
-                val searchClassList = mutableListOf<KClass<*>>()
-                val mainClassesRealPath = if (classesRealPath.isBlank()) {
-                    classLoader.getResource(Constants.String.BLANK).path
-                } else {
-                    classesRealPath
+            } else if (type.equals(Type.CLASSES_DIRECTORY, ignoreCase = true)) {
+                val packageToPath = packageName.replace(Constants.Symbol.DOT, Constants.Symbol.SLASH_LEFT)
+                for (filePath in filePathList) {
+                    val otherClassesRealPath = File(mainClassesRealPath, filePath).absolutePath
+                    val searchClassPath = File(otherClassesRealPath, Constants.Symbol.SLASH_LEFT + packageToPath).absolutePath
+                    logger.debug("search classes real path:$otherClassesRealPath, search class path:$searchClassPath")
+                    searchClassList.addAll(searchClassList(otherClassesRealPath, searchClassPath, annotationClass))
                 }
-                for (directory in directoryList) {
-                    val otherClassesRealPath = File(mainClassesRealPath, directory).absolutePath
-                    searchClassList.addAll(searchClassList(otherClassesRealPath, "", annotationClass))
-                }
-                classList = searchClassList
             }
+            searchClassList
         }
-        return classList
     }
 
     /**
@@ -101,9 +89,9 @@ object AnnotationContextUtil {
     fun searchClassList(classesRealPath: String, searchClassPath: String, annotationClass: KClass<out Annotation>): List<KClass<*>> {
         val classList = mutableListOf<KClass<*>>()
         val classesRealPathFile = File(classesRealPath)
-        val classPathFile = File(searchClassPath)
+        val searchClassPathFile = File(searchClassPath)
         val queue = ConcurrentLinkedQueue<File>()
-        queue.add(classPathFile)
+        queue.add(searchClassPathFile)
         while (!queue.isEmpty()) {
             val file = queue.poll()
             val filename = file.name
