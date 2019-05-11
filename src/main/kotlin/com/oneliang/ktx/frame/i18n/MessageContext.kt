@@ -14,7 +14,6 @@ class MessageContext : AbstractContext() {
 
     companion object {
         private const val FILE_PATH = '/'
-        private const val UNDERLINE = '_'
         private const val PARAMETER_PATH = "-P="
         private const val PARAMETER_RECURSION = "-R"
         private const val PARAMETER_FILE = "-F="
