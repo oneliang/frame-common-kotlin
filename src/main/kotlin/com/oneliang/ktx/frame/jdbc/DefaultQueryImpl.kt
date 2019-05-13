@@ -652,7 +652,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
                 } catch (ex: Exception) {
                     throw QueryException(ex)
                 }
-
+                throw QueryException(e)
             } finally {
                 //endTransaction
                 try {
