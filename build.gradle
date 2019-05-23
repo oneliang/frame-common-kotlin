@@ -49,6 +49,8 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation "com.oneliang.ktx:common-util-kotlin:1.0"
     implementation "javax:javaee-api:8.0"
+    def coroutines_version = "1.2.1"
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
 }
 
 task sourceJar(type: Jar) {
