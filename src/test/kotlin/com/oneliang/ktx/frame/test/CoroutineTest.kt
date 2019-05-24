@@ -7,6 +7,7 @@ open class CoroutineTest {
 
     suspend fun suspendFun() {
         println("suspend fun")
+        println(Thread.currentThread())
         withContext(Dispatchers.IO) {
             suspendFun2()
             delay(1000)
@@ -15,6 +16,7 @@ open class CoroutineTest {
 
     suspend fun suspendFun2() {
         println("suspend fun2")
+        println(Thread.currentThread())
         withContext(Dispatchers.Default) {
             notSuspendFun2()
             delay(1000)
@@ -34,11 +36,14 @@ fun <T : CoroutineTest> a(constructor: () -> T) {
 
 }
 
+
 fun main(args: Array<String>) {
     val coroutineTest = CoroutineTest()
     GlobalScope.launch {
+        println(Thread.currentThread())
         coroutineTest.suspendFun()
         coroutineTest.notSuspendFun()
     }
+    println(Thread.currentThread())
     Thread.sleep(3000)
 }
