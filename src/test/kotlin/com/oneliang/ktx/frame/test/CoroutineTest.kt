@@ -1,34 +1,43 @@
 package com.oneliang.ktx.frame.test
 
 import kotlinx.coroutines.*
+import kotlin.coroutines.EmptyCoroutineContext
 
+
+fun log(message: Any) {
+    println("[${Thread.currentThread()}][$message]")
+}
 
 open class CoroutineTest {
 
     suspend fun suspendFun() {
-        println("suspend fun")
-        println(Thread.currentThread())
+        log(1)
         withContext(Dispatchers.IO) {
+            log(2)
             suspendFun2()
             delay(1000)
+            log(3)
         }
+        log(4)
     }
 
     suspend fun suspendFun2() {
-        println("suspend fun2")
-        println(Thread.currentThread())
+        log(11)
         withContext(Dispatchers.Default) {
+            log(12)
             notSuspendFun2()
             delay(1000)
+            log(13)
         }
+        log(14)
     }
 
     fun notSuspendFun() {
-        println("not suspend fun")
+        log(100)
     }
 
     fun notSuspendFun2() {
-        println("not suspend fun2")
+        log(200)
     }
 }
 
@@ -38,12 +47,31 @@ fun <T : CoroutineTest> a(constructor: () -> T) {
 
 
 fun main(args: Array<String>) {
+    val coroutineScope = CoroutineScope(EmptyCoroutineContext)
+
     val coroutineTest = CoroutineTest()
+    log(1000)
     GlobalScope.launch {
-        println(Thread.currentThread())
+        log(1001)
         coroutineTest.suspendFun()
         coroutineTest.notSuspendFun()
+        log(1002)
     }
-    println(Thread.currentThread())
-    Thread.sleep(3000)
+    GlobalScope.launch {
+        log(2000)
+    }
+    Thread.sleep(1000)
+    GlobalScope.launch {
+        log(3000)
+    }
+    Thread.sleep(1000)
+    GlobalScope.launch {
+        log(4000)
+    }
+    Thread.sleep(1000)
+    GlobalScope.launch {
+        log(5000)
+    }
+    log(1003)
+    Thread.sleep(6000)
 }
