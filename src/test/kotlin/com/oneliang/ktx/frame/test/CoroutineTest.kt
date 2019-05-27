@@ -1,6 +1,7 @@
 package com.oneliang.ktx.frame.test
 
 import kotlinx.coroutines.*
+import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
 
@@ -45,9 +46,15 @@ fun <T : CoroutineTest> a(constructor: () -> T) {
 
 }
 
+object CustomCoroutineScope :CoroutineScope {
+    override val coroutineContext: CoroutineContext
+        get() = newFixedThreadPoolContext(4, "Custom")
 
+}
 fun main(args: Array<String>) {
-    val coroutineScope = CoroutineScope(EmptyCoroutineContext)
+    CustomCoroutineScope.launch {
+        log(23498)
+    }
 
     val coroutineTest = CoroutineTest()
     log(1000)
