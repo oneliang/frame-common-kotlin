@@ -45,40 +45,51 @@ fun <T : CoroutineTest> a(constructor: () -> T) {
 
 }
 
-object CustomCoroutineScope :CoroutineScope {
+object CustomCoroutineScope : CoroutineScope {
     @ObsoleteCoroutinesApi
     override val coroutineContext: CoroutineContext
-//        get() = Executors.newFixedThreadPool(4).asCoroutineDispatcher()
-          get() = newFixedThreadPoolContext(Runtime.getRuntime().availableProcessors(), "Custom")
+        //        get() = Executors.newFixedThreadPool(4).asCoroutineDispatcher()
+        get() = newFixedThreadPoolContext(Runtime.getRuntime().availableProcessors(), "Custom")
 }
-fun main(args: Array<String>) {
-    CustomCoroutineScope.launch {
-        log(23498)
-    }
 
-    val coroutineTest = CoroutineTest()
-    log(1000)
-    GlobalScope.launch {
-        log(1001)
-        coroutineTest.suspendFun()
-        coroutineTest.notSuspendFun()
-        log(1002)
+fun main(args: Array<String>) {
+//    CustomCoroutineScope.launch {
+//        log(23498)
+//    }
+//
+//    val coroutineTest = CoroutineTest()
+//    log(1000)
+//    GlobalScope.launch {
+//        log(1001)
+//        coroutineTest.suspendFun()
+//        coroutineTest.notSuspendFun()
+//        log(1002)
+//    }
+//    GlobalScope.launch {
+//        log(2000)
+//    }
+//    Thread.sleep(1000)
+//    GlobalScope.launch {
+//        log(3000)
+//    }
+//    Thread.sleep(1000)
+//    GlobalScope.launch {
+//        log(4000)
+//    }
+//    Thread.sleep(1000)
+//    GlobalScope.launch {
+//        log(5000)
+//    }
+//    log(1003)
+//    Thread.sleep(6000)
+    runBlocking {
+        val job = CustomCoroutineScope.launch {
+            delay(1000)
+            log(1)
+        }
+        job.join()
+        log(2)
+//        delay(5000)
     }
-    GlobalScope.launch {
-        log(2000)
-    }
-    Thread.sleep(1000)
-    GlobalScope.launch {
-        log(3000)
-    }
-    Thread.sleep(1000)
-    GlobalScope.launch {
-        log(4000)
-    }
-    Thread.sleep(1000)
-    GlobalScope.launch {
-        log(5000)
-    }
-    log(1003)
-    Thread.sleep(6000)
+    log(3)
 }
