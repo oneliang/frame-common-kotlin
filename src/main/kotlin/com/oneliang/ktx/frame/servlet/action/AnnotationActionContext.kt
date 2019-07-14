@@ -14,12 +14,12 @@ class AnnotationActionContext : ActionContext() {
             val classList = AnnotationContextUtil.parseAnnotationContextParameterAndSearchClass(parameters, classLoader, classesRealPath, jarClassLoader, Action::class)
             for (clazz in classList) {
                 val classId = clazz.java.name
-                var actionInstance: Any?
+                val actionInstance: Any
                 if (!objectMap.containsKey(classId)) {
                     actionInstance = clazz.java.newInstance()
                     objectMap[classId] = actionInstance
                 } else {
-                    actionInstance = objectMap[classId]
+                    actionInstance = objectMap[classId]!!
                 }
                 val methods = clazz.java.methods
                 for (method in methods) {
@@ -29,11 +29,16 @@ class AnnotationActionContext : ActionContext() {
                             val annotationActionBean = AnnotationActionBean()
                             val requestMappingAnnotation = method.getAnnotation(Action.RequestMapping::class.java)
                             annotationActionBean.type = clazz.java.name
-                            val httpRequestMethods = requestMappingAnnotation.httpRequestMethods
+                            val annotationHttpRequestMethods = requestMappingAnnotation.httpRequestMethods
+                            val httpRequestMethods = if (annotationHttpRequestMethods.isNotEmpty()) {
+                                annotationHttpRequestMethods
+                            } else {
+                                arrayOf(Constants.Http.RequestMethod.GET, Constants.Http.RequestMethod.POST)
+                            }
                             if (httpRequestMethods.isNotEmpty()) {
                                 val stringBuilder = StringBuilder()
                                 for (i in httpRequestMethods.indices) {
-                                    stringBuilder.append(httpRequestMethods[i])
+                                    stringBuilder.append(httpRequestMethods[i].value)
                                     if (i < httpRequestMethods.size - 1) {
                                         stringBuilder.append(Constants.Symbol.COMMA)
                                     }

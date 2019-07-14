@@ -47,17 +47,17 @@ open class ActionContext : AbstractContext() {
             }
             //global exception forward
             val globalExceptionForwardElementList = root.getElementsByTagName(GlobalExceptionForwardBean.TAG_GLOBAL_EXCEPTION_FORWARD)
-            if (globalExceptionForwardElementList != null && globalExceptionForwardElementList!!.getLength() > 0) {
-                val attributeMap = globalExceptionForwardElementList!!.item(0).getAttributes()
+            if (globalExceptionForwardElementList != null && globalExceptionForwardElementList.length > 0) {
+                val attributeMap = globalExceptionForwardElementList.item(0).attributes
                 JavaXmlUtil.initializeFromAttributeMap(globalExceptionForwardBean, attributeMap)
             }
             //action list
             val actionElementList = root.getElementsByTagName(ActionBean.TAG_ACTION)
             //xml to object
             if (actionElementList != null) {
-                val length = actionElementList!!.getLength()
+                val length = actionElementList.length
                 for (index in 0 until length) {
-                    val actionElement = actionElementList!!.item(index)
+                    val actionElement = actionElementList.item(index)
                     //action bean
                     val actionBean = ActionBean()
                     val attributeMap = actionElement.attributes
@@ -86,7 +86,7 @@ open class ActionContext : AbstractContext() {
                     val actionInstance: ActionInterface
                     if (!objectMap.containsKey(actionBean.id)) {
                         actionInstance = this.classLoader.loadClass(actionBean.type).newInstance() as ActionInterface
-                        objectMap.put(actionBean.id, actionInstance)
+                        objectMap[actionBean.id] = actionInstance
                     } else {
                         actionInstance = objectMap[actionBean.id] as ActionInterface
                     }

@@ -5,10 +5,10 @@ import com.oneliang.ktx.frame.ConfigurationFactory
 import com.oneliang.ktx.frame.configuration.ConfigurationContext
 import com.oneliang.ktx.frame.ioc.IocBean
 import com.oneliang.ktx.frame.ioc.IocContext
-import com.oneliang.ktx.frame.servlet.action.ActionBean
-import com.oneliang.ktx.frame.servlet.action.ActionContext
-import com.oneliang.ktx.frame.servlet.action.InterceptorInterface
-import com.oneliang.ktx.frame.servlet.action.InterceptorContext
+import com.oneliang.ktx.frame.servlet.action.*
+import java.io.BufferedWriter
+import java.io.File
+import java.io.FileWriter
 
 /**
  * before global interceptor list
@@ -145,4 +145,34 @@ fun ConfigurationContext.findGlobalForwardPath(name: String): String {
 fun ConfigurationContext.findActionBeanList(uri: String): List<ActionBean>? {
     val actionContext = ConfigurationFactory.singletonConfigurationContext.findContext(ActionContext::class)
     return actionContext?.findActionBeanList(uri)
+}
+
+/**
+ * output action map
+ */
+fun ConfigurationContext.outputActionMap(outputFilename: String) {
+    val sortedActionBeanMap = ActionContext.actionBeanMap.toSortedMap()
+    val bufferedWriter = BufferedWriter(FileWriter(File(this.projectRealPath, outputFilename)))
+    bufferedWriter.use {
+        sortedActionBeanMap.forEach { (_, actionBean) ->
+            it.newLine()
+            it.write("uri:${actionBean.path}")
+            it.newLine()
+            it.write("\tmethods:${actionBean.httpRequestMethods}")
+            it.newLine()
+            if (actionBean is AnnotationActionBean) {
+                val annotationActionBeanMethod = actionBean.method!!
+                val classes = annotationActionBeanMethod.parameterTypes
+                val parameterAnnotations = annotationActionBeanMethod.parameterAnnotations
+                parameterAnnotations.forEachIndexed { index, annotationArray ->
+                    if (annotationArray.isNotEmpty() && annotationArray[0] is Action.RequestMapping.RequestParameter) {
+                        val parameterAnnotation = annotationArray[0] as Action.RequestMapping.RequestParameter
+                        it.write("\tparameter$index(${parameterAnnotation.value}):${classes[index].name}")
+                        it.newLine()
+                    }
+                }
+            }
+            it.flush()
+        }
+    }
 }

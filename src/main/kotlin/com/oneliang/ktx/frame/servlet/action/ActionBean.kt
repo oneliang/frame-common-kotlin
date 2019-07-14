@@ -47,13 +47,13 @@ open class ActionBean {
                 val httpRequestMethodArray = this.httpRequestMethods.split(Constants.Symbol.COMMA)
                 for (httpRequestMethod in httpRequestMethodArray) {
                     when {
-                        httpRequestMethod.equals(Constants.Http.RequestMethod.PUT, ignoreCase = true) -> this.httpRequestMethodsCode = this.httpRequestMethodsCode or ActionInterface.HttpRequestMethod.PUT.code
-                        httpRequestMethod.equals(Constants.Http.RequestMethod.DELETE, ignoreCase = true) -> this.httpRequestMethodsCode = this.httpRequestMethodsCode or ActionInterface.HttpRequestMethod.DELETE.code
-                        httpRequestMethod.equals(Constants.Http.RequestMethod.GET, ignoreCase = true) -> this.httpRequestMethodsCode = this.httpRequestMethodsCode or ActionInterface.HttpRequestMethod.GET.code
-                        httpRequestMethod.equals(Constants.Http.RequestMethod.POST, ignoreCase = true) -> this.httpRequestMethodsCode = this.httpRequestMethodsCode or ActionInterface.HttpRequestMethod.POST.code
-                        httpRequestMethod.equals(Constants.Http.RequestMethod.HEAD, ignoreCase = true) -> this.httpRequestMethodsCode = this.httpRequestMethodsCode or ActionInterface.HttpRequestMethod.HEAD.code
-                        httpRequestMethod.equals(Constants.Http.RequestMethod.OPTIONS, ignoreCase = true) -> this.httpRequestMethodsCode = this.httpRequestMethodsCode or ActionInterface.HttpRequestMethod.OPTIONS.code
-                        httpRequestMethod.equals(Constants.Http.RequestMethod.TRACE, ignoreCase = true) -> this.httpRequestMethodsCode = this.httpRequestMethodsCode or ActionInterface.HttpRequestMethod.TRACE.code
+                        httpRequestMethod.equals(Constants.Http.RequestMethod.PUT.value, ignoreCase = true) -> this.httpRequestMethodsCode = this.httpRequestMethodsCode or ActionInterface.HttpRequestMethod.PUT.code
+                        httpRequestMethod.equals(Constants.Http.RequestMethod.DELETE.value, ignoreCase = true) -> this.httpRequestMethodsCode = this.httpRequestMethodsCode or ActionInterface.HttpRequestMethod.DELETE.code
+                        httpRequestMethod.equals(Constants.Http.RequestMethod.GET.value, ignoreCase = true) -> this.httpRequestMethodsCode = this.httpRequestMethodsCode or ActionInterface.HttpRequestMethod.GET.code
+                        httpRequestMethod.equals(Constants.Http.RequestMethod.POST.value, ignoreCase = true) -> this.httpRequestMethodsCode = this.httpRequestMethodsCode or ActionInterface.HttpRequestMethod.POST.code
+                        httpRequestMethod.equals(Constants.Http.RequestMethod.HEAD.value, ignoreCase = true) -> this.httpRequestMethodsCode = this.httpRequestMethodsCode or ActionInterface.HttpRequestMethod.HEAD.code
+                        httpRequestMethod.equals(Constants.Http.RequestMethod.OPTIONS.value, ignoreCase = true) -> this.httpRequestMethodsCode = this.httpRequestMethodsCode or ActionInterface.HttpRequestMethod.OPTIONS.code
+                        httpRequestMethod.equals(Constants.Http.RequestMethod.TRACE.value, ignoreCase = true) -> this.httpRequestMethodsCode = this.httpRequestMethodsCode or ActionInterface.HttpRequestMethod.TRACE.code
                     }
                 }
             }
