@@ -83,13 +83,18 @@ fun main(args: Array<String>) {
 //    log(1003)
 //    Thread.sleep(6000)
     runBlocking {
-        val job = CustomCoroutineScope.launch {
-            delay(1000)
-            log(1)
+        val jobs = mutableListOf<Job>()
+        listOf(1, 2, 3).forEach {
+            jobs += CustomCoroutineScope.launch {
+                delay(5000)
+                log(it)
+            }
         }
-        job.join()
+        jobs.forEach {
+            it.join()
+        }
         log(2)
 //        delay(5000)
     }
-    log(3)
+    log(300)
 }
