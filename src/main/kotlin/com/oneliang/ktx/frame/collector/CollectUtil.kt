@@ -22,7 +22,7 @@ object CollectUtil {
      * @param advancedOption
      * @return ByteArrayOutputStream
      */
-    fun collectFromHttp(httpUrl: String, httpHeaderList: List<HttpNameValue>, advancedOption: AdvancedOption? = null): ByteArrayOutputStream {
+    fun collectFromHttp(httpUrl: String, httpHeaderList: List<HttpNameValue> = emptyList(), advancedOption: AdvancedOption? = null): ByteArrayOutputStream {
         val byteArrayOutputStream = ByteArrayOutputStream()
         HttpUtil.sendRequestGet(httpUrl = httpUrl, httpHeaderList = httpHeaderList, advancedOption = advancedOption, callback = object : Callback {
             @Throws(Exception::class)
