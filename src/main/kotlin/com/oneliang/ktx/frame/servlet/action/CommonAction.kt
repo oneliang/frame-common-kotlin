@@ -19,7 +19,7 @@ import javax.servlet.http.HttpServletRequest
  * @author Dandelion
  * @since 2008-07-31
  */
-abstract class CommonAction : ActionInterface {
+abstract class CommonAction : BaseAction(), ActionInterface {
 
     protected var classProcessor = KotlinClassUtil.DEFAULT_KOTLIN_CLASS_PROCESSOR
 
@@ -33,20 +33,6 @@ abstract class CommonAction : ActionInterface {
             val request = ActionUtil.servletRequest
             return getPage(request)
         }
-
-    /**
-     *
-     *
-     * Method: set the instance object to the request
-     *
-     * @param <T>
-     * @param key
-     * @param value
-    </T> */
-    protected fun <T : Any> setObjectToRequest(key: String, value: T) {
-        val request = ActionUtil.servletRequest
-        this.setObjectToRequest(request, key, value)
-    }
 
     /**
      *
@@ -89,25 +75,7 @@ abstract class CommonAction : ActionInterface {
     }
 
     /**
-     *
-     *
      * Method: set the instance object to the session
-     *
-     * @param <T>
-     * @param key
-     * @param value
-    </T> */
-    protected fun <T : Any> setObjectToSession(key: String, value: T) {
-        val request = ActionUtil.servletRequest
-        this.setObjectToSession(request, key, value)
-    }
-
-    /**
-     *
-     *
-     * Method: set the instance object to the session
-     *
-     *
      * @param <T>
      * @param request
      * @param key
@@ -115,19 +83,6 @@ abstract class CommonAction : ActionInterface {
     </T> */
     protected fun <T : Any> setObjectToSession(request: ServletRequest, key: String, value: T) {
         (request as HttpServletRequest).session.setAttribute(key, value)
-    }
-
-    /**
-     *
-     *
-     * Method: get the instance object to the session by key
-     *
-     * @param key
-     * @return Object
-     */
-    protected fun getObjectFromSession(key: String): Any {
-        val request = ActionUtil.servletRequest
-        return this.getObjectFromSession(request, key)
     }
 
     /**
@@ -145,17 +100,6 @@ abstract class CommonAction : ActionInterface {
     }
 
     /**
-     *
-     * Method: remove object from session
-     * @param key
-     */
-    protected fun removeObjectFromSession(key: String) {
-        val request = ActionUtil.servletRequest
-        removeObjectFromSession(request, key)
-    }
-
-    /**
-     *
      * Method: remove object from session
      * @param request
      * @param key
@@ -165,43 +109,13 @@ abstract class CommonAction : ActionInterface {
     }
 
     /**
-     *
-     *
      * Method: get the parameter from request
-     *
-     * @param parameter
-     * @return String
-     */
-    protected fun getParameter(parameter: String): String {
-        val request = ActionUtil.servletRequest
-        return this.getParameter(request, parameter)
-    }
-
-    /**
-     *
-     *
-     * Method: get the parameter from request
-     *
-     *
      * @param request
      * @param parameter
      * @return String
      */
     protected fun getParameter(request: ServletRequest, parameter: String): String {
         return request.getParameter(parameter)
-    }
-
-    /**
-     *
-     *
-     * Method:get the parameter values from request
-     *
-     * @param parameter
-     * @return String[]
-     */
-    protected fun getParameterValues(parameter: String): Array<String> {
-        val request = ActionUtil.servletRequest
-        return this.getParameterValues(request, parameter)
     }
 
     /**
@@ -218,23 +132,6 @@ abstract class CommonAction : ActionInterface {
     }
 
     /**
-     * forward
-     * @param path
-     * @throws ActionExecuteException
-     */
-    @Throws(ActionExecuteException::class)
-    protected fun forward(path: String) {
-        val request = ActionUtil.servletRequest
-        val response = ActionUtil.servletResponse
-        try {
-            this.forward(request, response, path)
-        } catch (e: Exception) {
-            throw ActionExecuteException(e)
-        }
-
-    }
-
-    /**
      * request.getRequestDispatcher(path).forward(request,response)
      * @param request
      * @param response
@@ -245,22 +142,6 @@ abstract class CommonAction : ActionInterface {
     protected fun forward(request: ServletRequest, response: ServletResponse, path: String) {
         try {
             request.getRequestDispatcher(path).forward(request, response)
-        } catch (e: Exception) {
-            throw ActionExecuteException(e)
-        }
-
-    }
-
-    /**
-     * write
-     * @param string
-     * @throws ActionExecuteException
-     */
-    @Throws(ActionExecuteException::class)
-    protected fun write(string: String) {
-        val response = ActionUtil.servletResponse
-        try {
-            this.write(response, string)
         } catch (e: Exception) {
             throw ActionExecuteException(e)
         }
