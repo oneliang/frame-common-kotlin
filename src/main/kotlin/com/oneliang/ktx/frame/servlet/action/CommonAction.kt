@@ -21,7 +21,7 @@ import javax.servlet.http.HttpServletRequest
  */
 abstract class CommonAction : BaseAction(), ActionInterface {
 
-    protected var classProcessor = KotlinClassUtil.DEFAULT_KOTLIN_CLASS_PROCESSOR
+    protected val classProcessor = KotlinClassUtil.DEFAULT_KOTLIN_CLASS_PROCESSOR
 
     /**
      *
@@ -170,7 +170,7 @@ abstract class CommonAction : BaseAction(), ActionInterface {
      * @param request
      * @return Page
      */
-    protected fun getPage(request: ServletRequest): Page {
+    private fun getPage(request: ServletRequest): Page {
         val page = Page()
         this.requestValuesToObject<Any>(request, page)
         return page
