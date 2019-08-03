@@ -39,12 +39,19 @@ class HeaderFilter : Filter {
                     return true
                 }
             })
-            if (responseHeaderJsonAfterTrim.isNotBlank()) {
-                val headerJsonArray = JsonArray(responseHeaderJsonAfterTrim)
-                for (i in 0 until headerJsonArray.length()) {
-                    val headerJsonObject = headerJsonArray.getJsonObject(i)
-                    headerList.add(HttpUtil.HttpNameValue(headerJsonObject.getString(HEADER_KEY), headerJsonObject.getString(HEADER_VALUE)))
+            try {
+                val responseHeaderJsonAfterTrimString = responseHeaderJsonAfterTrim.toString()
+                logger.info("response header json:$responseHeaderJsonAfterTrimString")
+                if (responseHeaderJsonAfterTrimString.isNotBlank()) {
+                    val headerJsonArray = JsonArray(responseHeaderJsonAfterTrimString)
+                    for (i in 0 until headerJsonArray.length()) {
+                        val headerJsonObject = headerJsonArray.getJsonObject(i)
+                        headerList.add(HttpUtil.HttpNameValue(headerJsonObject.getString(HEADER_KEY), headerJsonObject.getString(HEADER_VALUE)))
+                    }
                 }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                logger.error("init exception", e)
             }
         }
     }
