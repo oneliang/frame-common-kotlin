@@ -250,7 +250,7 @@ object SqlUtil {
                     SqlUtil.DeleteType.ONE_ROW -> condition.append(" AND " + columnName + "='" + ids[0] + "'")
                     SqlUtil.DeleteType.MULTIPLE_ROW -> {
                         var id = ids.toJson()
-                        id = id.replace(("^\\" + Constants.Symbol.MIDDLE_BRACKET_LEFT), "").replace(("\\" + Constants.Symbol.MIDDLE_BRACKET_RIGHT + "$"), "")
+                        id = id.replace(("^\\" + Constants.Symbol.MIDDLE_BRACKET_LEFT).toRegex(), "").replace(("\\" + Constants.Symbol.MIDDLE_BRACKET_RIGHT + "$").toRegex(), "")
                         condition.append(" AND $columnName IN ($id)")
                     }
                 }
