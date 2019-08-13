@@ -5,6 +5,7 @@ apply plugin: 'kotlinx-serialization'
 
 group = 'com.oneliang.ktx'
 version = '1.0'
+def artifactName = 'frame-common-kotlin'
 
 [compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
 
@@ -66,7 +67,7 @@ publishing {
         mavenJava(MavenPublication) {
             from components.java
             groupId = group
-            artifactId = project.getName()
+            artifactId = artifactName
             version = version
             artifact sourceJar {
                 classifier "sources"
