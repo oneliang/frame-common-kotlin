@@ -1,15 +1,12 @@
 package com.oneliang.ktx.frame.servlet.action
 
 import com.oneliang.ktx.Constants
-import com.oneliang.ktx.util.common.parseStringGroup
+import com.oneliang.ktx.util.common.parseRegexGroup
 
 open class ActionBean {
 
     companion object {
-
-        private const val REGEX = "\\{[\\w]*\\}"
-        private const val FIRST_REGEX = "\\{"
-
+        private const val REGEX = "\\{([\\w]*)\\}"
         const val TAG_ACTION = "action"
     }
     /**
@@ -118,7 +115,7 @@ open class ActionBean {
         val staticFilePath = actionForwardBean.staticFilePath
         if (staticFilePath.isNotBlank()) {
             var staticFilePathResult = staticFilePath
-            val groupList = staticFilePath.parseStringGroup(REGEX, FIRST_REGEX, Constants.String.BLANK, 1)
+            val groupList = staticFilePath.parseRegexGroup(REGEX)
             for (group in groupList) {
                 val parameterValues = parameterMap[group]
                 if (parameterValues != null && parameterValues.isNotEmpty()) {

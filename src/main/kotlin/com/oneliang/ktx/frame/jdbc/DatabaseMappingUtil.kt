@@ -3,7 +3,7 @@ package com.oneliang.ktx.frame.jdbc
 import com.oneliang.ktx.Constants
 import com.oneliang.ktx.exception.MappingNotFoundException
 import com.oneliang.ktx.frame.ConfigurationFactory
-import com.oneliang.ktx.util.common.parseStringGroup
+import com.oneliang.ktx.util.common.parseRegexGroup
 
 /**
  * for db mapping file use,through the class can find the table column which
@@ -17,8 +17,7 @@ object DatabaseMappingUtil {
     /**
      * regex
      */
-    private val REGEX = "\\{[\\w\\.]*\\}"
-    private val FIRST_REGEX = "\\{"
+    private const val REGEX = "\\{([\\w\\.]*)\\}"
 
     /**
      * parse sql like:select * from {User}--can find the mapping file where {User.id} and so on
@@ -29,7 +28,7 @@ object DatabaseMappingUtil {
     @Throws(MappingNotFoundException::class)
     fun parseSql(sql: String): String {
         var tempSql = sql
-        val list = tempSql.parseStringGroup(REGEX, FIRST_REGEX, Constants.String.BLANK, 1)
+        val list = tempSql.parseRegexGroup(REGEX)
         for (string in list) {
             val pos = string.lastIndexOf(Constants.Symbol.DOT)
             if (pos > 0) {
