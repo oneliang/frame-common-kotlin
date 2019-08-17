@@ -77,6 +77,60 @@ class ActionListener : HttpServlet() {
     }
 
     /**
+     * The doHead method of the servlet. <br></br>
+     *
+     * This method is called when a HTTP head request is received.
+     *
+     * @param request the request send by the client to the server
+     * @param response the response send by the server to the client
+     * @throws ServletException if an error occurred
+     * @throws IOException if an error occurred
+     */
+    @Throws(ServletException::class, IOException::class)
+    override fun doHead(request: HttpServletRequest, response: HttpServletResponse) {
+        super.doHead(request, response)
+        logRequestForOtherCase(request, response, ActionInterface.HttpRequestMethod.HEAD)
+    }
+
+    /**
+     * The doTrace method of the servlet. <br></br>
+     *
+     * This method is called when a HTTP trace request is received.
+     *
+     * @param request the request send by the client to the server
+     * @param response the response send by the server to the client
+     * @throws ServletException if an error occurred
+     * @throws IOException if an error occurred
+     */
+    @Throws(ServletException::class, IOException::class)
+    override fun doTrace(request: HttpServletRequest, response: HttpServletResponse) {
+        super.doTrace(request, response)
+        logRequestForOtherCase(request, response, ActionInterface.HttpRequestMethod.TRACE)
+    }
+
+    /**
+     * The doOptions method of the servlet. <br></br>
+     *
+     * This method is called when a HTTP options request is received.
+     *
+     * @param request the request send by the client to the server
+     * @param response the response send by the server to the client
+     * @throws ServletException if an error occurred
+     * @throws IOException if an error occurred
+     */
+    @Throws(ServletException::class, IOException::class)
+    override fun doOptions(request: HttpServletRequest, response: HttpServletResponse) {
+        super.doOptions(request, response)
+        logRequestForOtherCase(request, response, ActionInterface.HttpRequestMethod.OPTIONS)
+    }
+
+    @Throws(ServletException::class, IOException::class)
+    private fun logRequestForOtherCase(request: HttpServletRequest, response: HttpServletResponse, httpRequestMethod: ActionInterface.HttpRequestMethod) {
+        val uri = request.requestURI
+        logger.info("It is requesting uri:$uri")
+    }
+
+    /**
      * The doDelete method of the servlet. <br></br>
      *
      * This method is called when a HTTP delete request is received.
@@ -150,7 +204,7 @@ class ActionListener : HttpServlet() {
         //uri
         var uri = request.requestURI
 
-        logger.info("System is requesting uri:$uri")
+        logger.info("It is requesting uri:$uri")
 
         val front = request.contextPath.length
         //		int rear=uri.lastIndexOf(StaticVar.DOT)
