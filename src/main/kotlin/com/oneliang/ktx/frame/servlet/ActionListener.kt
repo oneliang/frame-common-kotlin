@@ -127,7 +127,7 @@ class ActionListener : HttpServlet() {
     @Throws(ServletException::class, IOException::class)
     private fun logRequestForOtherCase(request: HttpServletRequest, response: HttpServletResponse, httpRequestMethod: ActionInterface.HttpRequestMethod) {
         val uri = request.requestURI
-        logger.info("It is requesting uri:$uri")
+        logger.info("It is requesting uri:$uri, http method:${httpRequestMethod.name}")
     }
 
     /**
