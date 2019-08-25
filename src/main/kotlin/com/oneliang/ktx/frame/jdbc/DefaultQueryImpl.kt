@@ -57,12 +57,12 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
      * @throws QueryException
     </T> */
     @Throws(QueryException::class)
-    override fun <T : Any> deleteObject(clazz: KClass<T>, condition: String): Int {
+    override fun <T : Any> deleteObject(clazz: KClass<T>, condition: String, parameters: Array<Any>): Int {
         val result: Int
         var connection: Connection? = null
         try {
             connection = this.connectionPool.resource!!
-            result = this.executeDelete(connection, clazz, condition)
+            result = this.executeDelete(connection, clazz, condition, parameters)
         } catch (e: Exception) {
             throw QueryException(e)
         } finally {

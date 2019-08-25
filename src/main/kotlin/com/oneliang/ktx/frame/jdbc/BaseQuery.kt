@@ -178,11 +178,12 @@ interface BaseQuery {
      * @param connection
      * @param clazz
      * @param condition
+     * @param parameters
      * @return int
      * @throws QueryException
     </T> */
     @Throws(QueryException::class)
-    fun <T : Any> executeDelete(connection: Connection, clazz: KClass<T>, condition: String): Int
+    fun <T : Any> executeDelete(connection: Connection, clazz: KClass<T>, condition: String = Constants.String.BLANK, parameters: Array<Any> = emptyArray()): Int
 
     /**
      *

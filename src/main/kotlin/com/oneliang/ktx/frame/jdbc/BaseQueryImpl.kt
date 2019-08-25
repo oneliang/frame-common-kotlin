@@ -324,16 +324,17 @@ open class BaseQueryImpl : BaseQuery {
      * @param connection
      * @param clazz
      * @param condition
+     * @param parameters
      * @return int
      * @throws QueryException
     </T> */
     @Throws(QueryException::class)
-    override fun <T : Any> executeDelete(connection: Connection, clazz: KClass<T>, condition: String): Int {
+    override fun <T : Any> executeDelete(connection: Connection, clazz: KClass<T>, condition: String, parameters: Array<Any>): Int {
         val result: Int
         try {
             val mappingBean = ConfigurationFactory.singletonConfigurationContext.findMappingBean(clazz) ?: throw MappingNotFoundException("Mapping is not found, class:$clazz")
             val sql = SqlUtil.deleteSql(Constants.String.BLANK, condition, mappingBean)
-            result = this.executeUpdateBySql(connection, sql)
+            result = this.executeUpdateBySql(connection, sql, parameters)
         } catch (e: Exception) {
             throw QueryException(e)
         }

@@ -46,11 +46,12 @@ interface Query : BaseQuery {
      * @param <T>
      * @param clazz
      * @param condition
+     * @param parameters
      * @return int
      * @throws QueryException
     </T> */
     @Throws(QueryException::class)
-    fun <T : Any> deleteObject(clazz: KClass<T>, condition: String = Constants.String.BLANK): Int
+    fun <T : Any> deleteObject(clazz: KClass<T>, condition: String = Constants.String.BLANK, parameters: Array<Any> = emptyArray()): Int
 
     /**
      *
