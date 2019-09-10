@@ -117,6 +117,18 @@ interface Query : BaseQuery {
 
     /**
      *
+     * Method: insert object for sql binding and return the auto increment id
+     * @param <T>
+     * @param instance
+     * @param table
+     * @return int
+     * @throws QueryException
+    </T> */
+    @Throws(QueryException::class)
+    fun <T : Any> insertObjectForAutoIncrement(instance: T, table: String = Constants.String.BLANK): Int
+
+    /**
+     *
      * Method: insert object collection,transaction,not for sql binding
      * @param <T>
      * @param collection

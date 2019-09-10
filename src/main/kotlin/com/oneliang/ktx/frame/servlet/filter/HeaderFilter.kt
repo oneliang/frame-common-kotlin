@@ -29,7 +29,7 @@ class HeaderFilter : Filter {
      */
     @Throws(ServletException::class)
     override fun init(filterConfig: FilterConfig) {
-        logger.info("initialize filter:${this.javaClass.kotlin}")
+        logger.info("initialize filter:${this::class}")
         val responseHeaderJson = filterConfig.getInitParameter(RESPONSE_HEADER_JSON)
         if (responseHeaderJson != null) {
             val responseHeaderJsonAfterTrim = StringBuilder()

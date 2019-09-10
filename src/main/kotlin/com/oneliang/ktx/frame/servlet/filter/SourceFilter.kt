@@ -29,7 +29,7 @@ class SourceFilter : Filter {
      */
     @Throws(ServletException::class)
     override fun init(filterConfig: FilterConfig) {
-        logger.info("initialize filter:${this.javaClass.kotlin}")
+        logger.info("initialize filter:${this::class}")
         val excludePaths = filterConfig.getInitParameter(EXCLUDE_PATH)
         this.errorForward = filterConfig.getInitParameter(ERROR_FORWARD)
         if (excludePaths != null) {

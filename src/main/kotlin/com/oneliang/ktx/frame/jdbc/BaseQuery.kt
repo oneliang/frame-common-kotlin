@@ -95,6 +95,18 @@ interface BaseQuery {
 
     /**
      *
+     * Method: execute insert for auto increment
+     * @param connection
+     * @param <T>
+     * @param table
+     * @return int for id
+     * @throws QueryException
+    </T> */
+    @Throws(QueryException::class)
+    fun <T : Any> executeInsertForAutoIncrement(connection: Connection, instance: T, table: String = Constants.String.BLANK): Int
+
+    /**
+     *
      * Method: execute insert collection(list),transaction
      * @param <T>
      * @param connection

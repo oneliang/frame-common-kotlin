@@ -16,7 +16,7 @@ class UriMappingFilter : Filter {
 
     @Throws(ServletException::class)
     override fun init(filterConfig: FilterConfig) {
-        logger.info("initialize filter:${this.javaClass.kotlin}")
+        logger.info("initialize filter:${this::class}")
     }
 
     @Throws(IOException::class, ServletException::class)

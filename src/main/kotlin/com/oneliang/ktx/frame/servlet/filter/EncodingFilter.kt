@@ -36,7 +36,7 @@ class EncodingFilter : Filter {
      */
     @Throws(ServletException::class)
     override fun init(filterConfig: FilterConfig) {
-        logger.info("initialize filter:${this.javaClass.kotlin}")
+        logger.info("initialize filter:${this::class}")
         this.filterConfig = filterConfig
         // read from web.xml to initial the key 'encoding' and 'ignore'
         val encoding = filterConfig.getInitParameter(ENCODING)

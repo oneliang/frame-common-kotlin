@@ -214,6 +214,29 @@ open class BaseQueryImpl : BaseQuery {
 
     /**
      *
+     * Method: execute insert for auto increment and return the auto increment id
+     * @param connection
+     * @param <T>
+     * @param table
+     * @return int for id
+     * @throws QueryException
+    </T> */
+    override fun <T : Any> executeInsertForAutoIncrement(connection: Connection, instance: T, table: String): Int {
+        val rows: Int
+        try {
+            val clazz = instance::class
+            val mappingBean = ConfigurationFactory.singletonConfigurationContext.findMappingBean(clazz) ?: throw MappingNotFoundException("Mapping is not found, class:$clazz")
+            val parameters = mutableListOf<Any>()
+            val sql = SqlInjectUtil.objectToInsertSql(instance, table, mappingBean, parameters)
+            rows = this.executeUpdateBySql(connection, sql, parameters.toTypedArray())
+        } catch (e: Exception) {
+            throw QueryException(e)
+        }
+        return rows
+    }
+
+    /**
+     *
      * Method: execute insert collection(list),transaction
      * @param <T>
      * @param connection
@@ -359,6 +382,55 @@ open class BaseQueryImpl : BaseQuery {
 
     /**
      *
+     * Method: execute insert for auto increment by sql and return the auto increment id
+     * @param connection
+     * @param sql
+     * @param parameters
+     * @return int id
+     * @throws QueryException
+     */
+    @Throws(QueryException::class)
+    protected fun <T : Any> executeInsertForAutoIncrementBySql(connection: Connection, sql: String, parameters: Array<Any>): Int {
+        var preparedStatement: PreparedStatement? = null
+        var id: Int = 0
+        var resultSet: ResultSet? = null
+        try {
+            val parsedSql = DatabaseMappingUtil.parseSql(sql)
+            logger.info(parsedSql)
+            preparedStatement = connection.prepareStatement(parsedSql, Statement.RETURN_GENERATED_KEYS)
+            var index = 1
+            for (parameter in parameters) {
+                this.sqlProcessor.statementProcess(preparedStatement, index, parameter)
+                index++
+            }
+            preparedStatement!!.execute()
+            resultSet = preparedStatement.generatedKeys
+            if (resultSet != null && resultSet.next()) {
+                id = resultSet.getInt(1)
+            }
+        } catch (e: Exception) {
+            throw QueryException(e)
+        } finally {
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close()
+                } catch (e: Exception) {
+                    throw QueryException(e)
+                }
+            }
+            if (resultSet != null) {
+                try {
+                    resultSet.close()
+                } catch (e: Exception) {
+                    throw QueryException(e)
+                }
+            }
+        }
+        return id
+    }
+
+    /**
+     *
      * Method: execute update include insert sql and update sql,for sql binding
      * @param connection
      * @param instance
@@ -371,7 +443,7 @@ open class BaseQueryImpl : BaseQuery {
     protected fun <T : Any> executeUpdate(connection: Connection, instance: T, table: String, condition: String, executeType: BaseQuery.ExecuteType): Int {
         val rows: Int
         try {
-            val clazz = instance.javaClass.kotlin
+            val clazz = instance::class
             val mappingBean = ConfigurationFactory.singletonConfigurationContext.findMappingBean(clazz) ?: throw MappingNotFoundException("Mapping is not found, class:$clazz")
             val parameters = mutableListOf<Any>()
             val sql = when (executeType) {
@@ -407,7 +479,7 @@ open class BaseQueryImpl : BaseQuery {
             try {
                 val sqls = Array(collection.size) { Constants.String.BLANK }
                 for ((i, instance) in collection.withIndex()) {
-                    val clazz = instance.javaClass.kotlin
+                    val clazz = instance::class
                     val mappingBean = ConfigurationFactory.singletonConfigurationContext.findMappingBean(clazz) ?: throw MappingNotFoundException("Mapping is not found, class:$clazz")
                     when (executeType) {
                         BaseQuery.ExecuteType.INSERT -> sqls[i] = SqlUtil.objectToInsertSql(instance, table, mappingBean, this.sqlProcessor)
@@ -517,9 +589,9 @@ open class BaseQueryImpl : BaseQuery {
         var preparedStatement: PreparedStatement? = null
         val updateResult: Int
         try {
-            val tempSql = DatabaseMappingUtil.parseSql(sql)
-            logger.info(tempSql)
-            preparedStatement = connection.prepareStatement(tempSql)
+            val parsedSql = DatabaseMappingUtil.parseSql(sql)
+            logger.info(parsedSql)
+            preparedStatement = connection.prepareStatement(parsedSql)
             var index = 1
             for (parameter in parameters) {
                 this.sqlProcessor.statementProcess(preparedStatement, index, parameter)
@@ -563,9 +635,9 @@ open class BaseQueryImpl : BaseQuery {
             }
             statement = connection.createStatement()
             for (sql in sqls) {
-                val tempSql = DatabaseMappingUtil.parseSql(sql)
-                logger.info(tempSql)
-                statement.addBatch(tempSql)
+                val parsedSql = DatabaseMappingUtil.parseSql(sql)
+                logger.info(parsedSql)
+                statement.addBatch(parsedSql)
             }
             results = statement.executeBatch()
             if (!customTransaction) {
@@ -615,12 +687,12 @@ open class BaseQueryImpl : BaseQuery {
             customTransaction = true
         }
         try {
-            val tempSql = DatabaseMappingUtil.parseSql(sql)
-            logger.info(tempSql)
+            val parsedSql = DatabaseMappingUtil.parseSql(sql)
+            logger.info(parsedSql)
             if (!customTransaction) {
                 connection.autoCommit = false
             }
-            preparedStatement = connection.prepareStatement(tempSql)
+            preparedStatement = connection.prepareStatement(parsedSql)
             for (parameters in parametersList) {
                 var index = 1
                 for (parameter in parameters) {

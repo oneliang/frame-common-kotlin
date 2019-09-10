@@ -165,6 +165,19 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
 
     /**
      *
+     * Method: insert object for sql binding and return the auto increment id
+     * @param <T>
+     * @param instance
+     * @param table
+     * @return int
+     * @throws QueryException
+    </T> */
+    override fun <T : Any> insertObjectForAutoIncrement(instance: T, table: String): Int {
+        return this.executeInsertForAutoIncrement(instance, table)
+    }
+
+    /**
+     *
      * Method: insert object collection,transaction,not for sql binding
      * @param <T>
      * @param collection
@@ -396,6 +409,29 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
             this.connectionPool.releaseResource(connection)
         }
         return resultSet
+    }
+
+    /**
+     *
+     * Method: execute insert for auto increment and return auto increment id
+     * @param instance
+     * @param table
+     * @return int
+     * @throws QueryException
+     */
+    @Throws(QueryException::class)
+    protected fun <T : Any> executeInsertForAutoIncrement(instance: T, table: String): Int {
+        val id: Int
+        var connection: Connection? = null
+        try {
+            connection = this.connectionPool.resource!!
+            id = this.executeInsertForAutoIncrement(connection, instance, table)
+        } catch (e: Exception) {
+            throw QueryException(e)
+        } finally {
+            this.connectionPool.releaseResource(connection)
+        }
+        return id
     }
 
     /**
