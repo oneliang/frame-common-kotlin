@@ -261,7 +261,7 @@ object SqlInjectUtil {
                     continue
                 }
                 val isId = mappingBean.isId(fieldName)
-                if (byId && isId || !byId && !isId) {
+                if ((byId && isId) || (!byId && !isId)) {
                     val value = method.invoke(instance)
                     if (value != null) {
                         condition.append(" AND $columnName=?")
