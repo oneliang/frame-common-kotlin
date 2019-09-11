@@ -29,7 +29,7 @@ object SqlUtil {
     fun <T : Any> resultSetToObjectList(resultSet: ResultSet, clazz: KClass<T>, mappingBean: MappingBean, sqlProcessor: SqlProcessor): List<T> {
         val list = mutableListOf<T>()
         try {
-            var instance: T? = null
+            var instance: T?
             //			Field[] field = clazz.getDeclaredFields()// get the fields one
             val methods = clazz.java.methods
             // time is ok
@@ -165,9 +165,8 @@ object SqlUtil {
     fun <T : Any> classToSelectIdSql(clazz: KClass<T>, mappingBean: MappingBean): String {
         val methods = clazz.java.methods
         val condition = StringBuilder()
-        for (method in methods) {
-            val methodName = method.name
-            val fieldName = ObjectUtil.methodNameToFieldName(methodName)
+        for (mappingColumnBean in mappingBean.mappingColumnBeanList) {
+            val fieldName = mappingColumnBean.field
             if (fieldName.isBlank()) {
                 continue
             }
@@ -179,7 +178,7 @@ object SqlUtil {
             if (!isId) {
                 continue
             }
-            condition.append(" AND $columnName=?")
+            condition.append(" AND $columnName = ?")
         }
         val table = mappingBean.table
         return selectSql(emptyArray(), table, condition.toString())
@@ -231,9 +230,8 @@ object SqlUtil {
     private fun <T : Any, IdType : Any> classToDeleteSql(clazz: KClass<T>, ids: Array<IdType>, mappingBean: MappingBean, deleteType: DeleteType): String {
         val methods = clazz.java.methods
         val condition = StringBuilder()
-        for (method in methods) {
-            val methodName = method.name
-            val fieldName = ObjectUtil.methodNameToFieldName(methodName)
+        for (mappingColumnBean in mappingBean.mappingColumnBeanList) {
+            val fieldName = mappingColumnBean.field
             if (fieldName.isBlank()) {
                 continue
             }
@@ -340,7 +338,7 @@ object SqlUtil {
                     values.append(sqlProcessor.beforeInsertProcess(type.kotlin, value) + Constants.Symbol.COMMA)
                 } else {
                     if (value != null) {
-                        values.append("'" + value.toString() + "'")
+                        values.append("'$value'")
                         values.append(Constants.Symbol.COMMA)
                     } else {
                         values.append(Constants.String.NULL + Constants.Symbol.COMMA)
@@ -391,7 +389,7 @@ object SqlUtil {
                     continue
                 }
                 val columnName = mappingBean.getColumn(fieldName)
-                if (columnName.isBlank()) {
+                if (columnName.isBlank()) {//this field can not find the mapping
                     continue
                 }
                 val isId = mappingBean.isId(fieldName)
@@ -475,7 +473,7 @@ object SqlUtil {
             } else {
                 table
             }
-            sql = deleteSql(tempTable, condition.toString() + " " + otherCondition)
+            sql = deleteSql(tempTable, "$condition $otherCondition")
         } catch (e: Exception) {
             throw SqlUtilException(e)
         }

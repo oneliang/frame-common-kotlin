@@ -27,8 +27,8 @@ object DatabaseMappingUtil {
      */
     @Throws(MappingNotFoundException::class)
     fun parseSql(sql: String): String {
-        var tempSql = sql
-        val list = tempSql.parseRegexGroup(REGEX)
+        var parsedSql = sql
+        val list = parsedSql.parseRegexGroup(REGEX)
         for (string in list) {
             val pos = string.lastIndexOf(Constants.Symbol.DOT)
             if (pos > 0) {
@@ -38,7 +38,7 @@ object DatabaseMappingUtil {
                 if (mappingBean != null) {
                     val column = mappingBean.getColumn(fieldName)
                     if (column.isNotBlank()) {
-                        tempSql = tempSql.replaceFirst(REGEX.toRegex(), column)
+                        parsedSql = parsedSql.replaceFirst(REGEX.toRegex(), column)
                     } else {
                         throw MappingNotFoundException("can not find the mapping field: " + className + Constants.Symbol.DOT + fieldName)
                     }
@@ -50,7 +50,7 @@ object DatabaseMappingUtil {
                 if (mappingBean != null) {
                     val table = mappingBean.table
                     if (table.isNotBlank()) {
-                        tempSql = tempSql.replaceFirst(REGEX.toRegex(), table)
+                        parsedSql = parsedSql.replaceFirst(REGEX.toRegex(), table)
                     } else {
                         throw MappingNotFoundException("can not find the mapping table of the class:$string")
                     }
@@ -59,6 +59,6 @@ object DatabaseMappingUtil {
                 }
             }
         }
-        return tempSql
+        return parsedSql
     }
 }

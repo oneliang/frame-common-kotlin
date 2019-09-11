@@ -10,22 +10,16 @@ open class MappingBean {
     var table: String = Constants.String.BLANK
     var type: String = Constants.String.BLANK
     val mappingColumnBeanList = mutableListOf<MappingColumnBean>()
+    private val mappingColumnBeanMap = mutableMapOf<String, MappingColumnBean>()
 
     /**
-     * get column
+     * get column, when can not find the column because the field had not mapping
      * @param field
      * @return column
      */
     fun getColumn(field: String): String {
-        var column: String? = null
-        for (mappingColumnBean in mappingColumnBeanList) {
-            val columnField = mappingColumnBean.field
-            if (columnField.isNotBlank() && columnField == field) {
-                column = mappingColumnBean.column
-                break
-            }
-        }
-        return column ?: Constants.String.BLANK
+        val mappingColumnBean = mappingColumnBeanMap[field]
+        return mappingColumnBean?.column ?: Constants.String.BLANK
     }
 
     /**
@@ -33,6 +27,7 @@ open class MappingBean {
      * @param column
      * @return field
      */
+    @Deprecated("not used yet")
     fun getField(column: String): String {
         var field: String? = null
         for (mappingColumnBean in mappingColumnBeanList) {
@@ -51,15 +46,9 @@ open class MappingBean {
      * @return is id
      */
     fun isId(field: String): Boolean {
-        var isId = false
-        for (mappingColumnBean in mappingColumnBeanList) {
-            val columnField = mappingColumnBean.field
-            if (columnField.isNotBlank() && columnField == field) {
-                isId = mappingColumnBean.isId
-                break
-            }
-        }
-        return isId
+        val mappingColumnBean = mappingColumnBeanMap[field]
+        mappingColumnBean ?: error("mapping column bean not found, field:$field")
+        return mappingColumnBean.isId
     }
 
     /**
@@ -67,6 +56,10 @@ open class MappingBean {
      * @return boolean
      */
     fun addMappingColumnBean(mappingColumnBean: MappingColumnBean): Boolean {
+        if (mappingColumnBean.field.isBlank()) {
+            error("mapping column field can not blank")
+        }
+        this.mappingColumnBeanMap[mappingColumnBean.field] = mappingColumnBean
         return this.mappingColumnBeanList.add(mappingColumnBean)
     }
 }

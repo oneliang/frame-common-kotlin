@@ -26,12 +26,12 @@ open class BaseQueryImpl : BaseQuery {
      */
     @Throws(QueryException::class)
     override fun executeBySql(connection: Connection, sql: String, parameters: Array<Any>) {
-        var tempSql = sql
+        var parsedSql = sql
         var preparedStatement: PreparedStatement? = null
         try {
-            tempSql = DatabaseMappingUtil.parseSql(tempSql)
-            logger.info(tempSql)
-            preparedStatement = connection.prepareStatement(tempSql)
+            parsedSql = DatabaseMappingUtil.parseSql(parsedSql)
+            logger.info(parsedSql)
+            preparedStatement = connection.prepareStatement(parsedSql)
             var index = 1
             for (parameter in parameters) {
                 this.sqlProcessor.statementProcess(preparedStatement, index, parameter)
@@ -181,9 +181,9 @@ open class BaseQueryImpl : BaseQuery {
     override fun executeQueryBySql(connection: Connection, sql: String, parameters: Array<Any>): ResultSet {
         val resultSet: ResultSet
         try {
-            val tempSql = DatabaseMappingUtil.parseSql(sql)
-            logger.info(tempSql)
-            val preparedStatement = connection.prepareStatement(tempSql)
+            val parsedSql = DatabaseMappingUtil.parseSql(sql)
+            logger.info(parsedSql)
+            val preparedStatement = connection.prepareStatement(parsedSql)
             if (parameters.isNotEmpty()) {
                 var index = 1
                 for (parameter in parameters) {
