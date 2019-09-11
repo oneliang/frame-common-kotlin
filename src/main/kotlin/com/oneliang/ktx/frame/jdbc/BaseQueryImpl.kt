@@ -222,17 +222,17 @@ open class BaseQueryImpl : BaseQuery {
      * @throws QueryException
     </T> */
     override fun <T : Any> executeInsertForAutoIncrement(connection: Connection, instance: T, table: String): Int {
-        val rows: Int
+        val id: Int
         try {
             val clazz = instance::class
             val mappingBean = ConfigurationFactory.singletonConfigurationContext.findMappingBean(clazz) ?: throw MappingNotFoundException("Mapping is not found, class:$clazz")
             val parameters = mutableListOf<Any>()
             val sql = SqlInjectUtil.objectToInsertSql(instance, table, mappingBean, parameters)
-            rows = this.executeUpdateBySql(connection, sql, parameters.toTypedArray())
+            id = this.executeInsertForAutoIncrementBySql(connection, sql, parameters.toTypedArray())
         } catch (e: Exception) {
             throw QueryException(e)
         }
-        return rows
+        return id
     }
 
     /**
@@ -390,7 +390,7 @@ open class BaseQueryImpl : BaseQuery {
      * @throws QueryException
      */
     @Throws(QueryException::class)
-    protected fun <T : Any> executeInsertForAutoIncrementBySql(connection: Connection, sql: String, parameters: Array<Any>): Int {
+    protected fun executeInsertForAutoIncrementBySql(connection: Connection, sql: String, parameters: Array<Any>): Int {
         var preparedStatement: PreparedStatement? = null
         var id: Int = 0
         var resultSet: ResultSet? = null
