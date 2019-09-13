@@ -16,10 +16,7 @@ import kotlin.reflect.KClass
 object SqlUtil {
 
     /**
-     *
-     *
      * Method: for database use,ResultSet to object list
-     *
      * @param <T>
      * @param resultSet
      * @param clazz
@@ -65,7 +62,6 @@ object SqlUtil {
     }
 
     /**
-     *
      * Method: the simple select sql
      * @param columns can be null
      * @param table can not be null
@@ -93,7 +89,6 @@ object SqlUtil {
     }
 
     /**
-     *
      * Method: class to select sql
      * @param <T>
      * @param columns String[] which columns do you select
@@ -195,7 +190,9 @@ object SqlUtil {
      * @param id
      * @param mappingBean
      * @return String
+     * @throws Exception
     </T> */
+    @Throws(Exception::class)
     fun <T : Any, IdType : Any> classToDeleteOneRowSql(clazz: KClass<T>, id: IdType, mappingBean: MappingBean): String {
         return classToDeleteSql(clazz, arrayOf<Any>(id), mappingBean, DeleteType.ONE_ROW)
     }
@@ -210,24 +207,28 @@ object SqlUtil {
      * @param ids
      * @param mappingBean
      * @return String
+     * @throws Exception
     </T> */
+    @Throws(Exception::class)
     fun <T : Any, IdType : Any> classToDeleteMultipleRowSql(clazz: KClass<T>, ids: Array<IdType>, mappingBean: MappingBean): String {
         return classToDeleteSql(clazz, ids, mappingBean, DeleteType.MULTIPLE_ROW)
     }
 
     /**
-     *
-     *
      * Method: for database use make the delete sql string,can delete one row and multi row
-     *
      * @param <T>
      * @param clazz
      * @param ids
      * @param mappingBean
      * @param deleteType
      * @return String
+     * @throws Exception
     </T> */
+    @Throws(Exception::class)
     private fun <T : Any, IdType : Any> classToDeleteSql(clazz: KClass<T>, ids: Array<IdType>, mappingBean: MappingBean, deleteType: DeleteType): String {
+        if (ids.isEmpty()) {
+            throw NullPointerException("ids can not be null or empty.")
+        }
         val methods = clazz.java.methods
         val condition = StringBuilder()
         for (mappingColumnBean in mappingBean.mappingColumnBeanList) {
@@ -241,9 +242,6 @@ object SqlUtil {
                 continue
             }
             if (isId) {
-                if (ids.isEmpty()) {
-                    throw NullPointerException("ids can not be null or empty.")
-                }
                 when (deleteType) {
                     SqlUtil.DeleteType.ONE_ROW -> condition.append(" AND " + columnName + "='" + ids[0] + "'")
                     SqlUtil.DeleteType.MULTIPLE_ROW -> {
