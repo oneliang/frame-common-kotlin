@@ -15,17 +15,17 @@ object SqlInjectUtil {
     /**
      *
      *
-     * Method: for database use,make the insert sql string
+     * Method: for database use,make the insert sql stringparameterList
      *
      * @param <T>
      * @param instance
      * @param table
      * @param mappingBean
-     * @param parameterList
-     * @return String
+     * @return Pair<String,List<Any>>
     </T> */
-    fun <T : Any> objectToInsertSql(instance: T, table: String, mappingBean: MappingBean, parameterList: MutableList<Any>): String {
+    fun <T : Any> objectToInsertSql(instance: T, table: String, mappingBean: MappingBean): Pair<String, List<Any>> {
         val sql = StringBuilder()
+        val parameterList = mutableListOf<Any>()
         try {
             val methods = instance.javaClass.methods
             val columnNameStringBuilder = StringBuilder()
@@ -57,7 +57,7 @@ object SqlInjectUtil {
         } catch (e: Exception) {
             throw SqlInjectUtilException(e)
         }
-        return sql.toString()
+        return sql.toString() to parameterList
     }
 
     /**
@@ -69,11 +69,11 @@ object SqlInjectUtil {
      * @param clazz
      * @param table
      * @param mappingBean
-     * @param fieldNameList
-     * @return String
+     * @return Pair<String, List<String>>
     </T> */
-    fun <T : Any> classToInsertSql(clazz: KClass<T>, table: String, mappingBean: MappingBean, fieldNameList: MutableList<String>): String {
+    fun <T : Any> classToInsertSql(clazz: KClass<T>, table: String, mappingBean: MappingBean): Pair<String, List<String>> {
         val sql = StringBuilder()
+        val fieldNameList = mutableListOf<String>()
         val methods = clazz.java.methods
         val columnNameStringBuilder = StringBuilder()
         val valueStringBuilder = StringBuilder()
@@ -100,7 +100,7 @@ object SqlInjectUtil {
         sql.append(tempTable)
         sql.append("(" + columnNameStringBuilder.substring(0, columnNameStringBuilder.length - 1) + ")")
         sql.append(" VALUES (" + valueStringBuilder.substring(0, valueStringBuilder.length - 1) + ")")
-        return sql.toString()
+        return sql.toString() to fieldNameList
     }
 
     /**
@@ -114,13 +114,13 @@ object SqlInjectUtil {
      * @param otherCondition
      * @param byId
      * @param mappingBean
-     * @param parameterList
-     * @return String
+     * @return Pair<String, List<Any>>
     </T> */
-    fun <T : Any> objectToUpdateSql(instance: T, table: String, otherCondition: String, byId: Boolean, mappingBean: MappingBean, parameterList: MutableList<Any>): String {
+    fun <T : Any> objectToUpdateSql(instance: T, table: String, otherCondition: String, byId: Boolean, mappingBean: MappingBean): Pair<String, List<Any>> {
         val sql = StringBuilder()
         val idList = mutableListOf<Any>()
         val valueList = mutableListOf<Any>()
+        val parameterList = mutableListOf<Any>()
         try {
             val methods = instance.javaClass.methods
             val columnsAndValues = StringBuilder()
@@ -169,7 +169,7 @@ object SqlInjectUtil {
         } catch (e: Exception) {
             throw SqlInjectUtilException(e)
         }
-        return sql.toString()
+        return sql.toString() to parameterList
     }
 
     /**
@@ -183,11 +183,11 @@ object SqlInjectUtil {
      * @param otherCondition
      * @param byId
      * @param mappingBean
-     * @param fieldNameList
-     * @return String
+     * @return Pair<String, List<String>>
     </T> */
-    fun <T : Any> classToUpdateSql(clazz: KClass<T>, table: String, otherCondition: String, byId: Boolean, mappingBean: MappingBean, fieldNameList: MutableList<String>): String {
+    fun <T : Any> classToUpdateSql(clazz: KClass<T>, table: String, otherCondition: String, byId: Boolean, mappingBean: MappingBean): Pair<String, List<String>> {
         val sql = StringBuilder()
+        val fieldNameList = mutableListOf<String>()
         val idList = ArrayList<String>()
         val valueList = ArrayList<String>()
         val methods = clazz.java.methods
@@ -226,7 +226,7 @@ object SqlInjectUtil {
         sql.append(" WHERE 1=1 $condition $otherCondition")
         fieldNameList.addAll(valueList)
         fieldNameList.addAll(idList)
-        return sql.toString()
+        return sql.toString() to fieldNameList
     }
 
     /**
