@@ -210,6 +210,18 @@ interface BaseQuery {
     @Throws(QueryException::class)
     fun <T : Any> executeDelete(connection: Connection, collection: Collection<T>, table: String = Constants.String.BLANK): IntArray
 
+
+    /**
+     * Method: execute insert for auto increment by sql and return the auto increment id
+     * @param connection
+     * @param sql
+     * @param parameters
+     * @return int id
+     * @throws QueryException
+     */
+    @Throws(QueryException::class)
+    fun executeInsertForAutoIncrementBySql(connection: Connection, sql: String, parameters: Array<Any>): Int
+
     /**
      *
      * Method: execute update by sql statement

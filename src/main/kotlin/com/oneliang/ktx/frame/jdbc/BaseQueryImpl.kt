@@ -381,7 +381,6 @@ open class BaseQueryImpl : BaseQuery {
     }
 
     /**
-     *
      * Method: execute insert for auto increment by sql and return the auto increment id
      * @param connection
      * @param sql
@@ -390,7 +389,7 @@ open class BaseQueryImpl : BaseQuery {
      * @throws QueryException
      */
     @Throws(QueryException::class)
-    protected fun executeInsertForAutoIncrementBySql(connection: Connection, sql: String, parameters: Array<Any>): Int {
+    override fun executeInsertForAutoIncrementBySql(connection: Connection, sql: String, parameters: Array<Any>): Int {
         var preparedStatement: PreparedStatement? = null
         var id: Int = 0
         var resultSet: ResultSet? = null
