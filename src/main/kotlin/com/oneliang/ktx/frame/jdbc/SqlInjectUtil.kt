@@ -13,10 +13,7 @@ import kotlin.reflect.KClass
 object SqlInjectUtil {
 
     /**
-     *
-     *
      * Method: for database use,make the insert sql stringparameterList
-     *
      * @param <T>
      * @param instance
      * @param table
@@ -61,10 +58,7 @@ object SqlInjectUtil {
     }
 
     /**
-     *
-     *
      * Method: for database use,make the insert sql string
-     *
      * @param <T>
      * @param clazz
      * @param table
@@ -104,10 +98,7 @@ object SqlInjectUtil {
     }
 
     /**
-     *
-     *
      * Method: for database use,make the update sql string
-     *
      * @param <T>
      * @param instance
      * @param table
@@ -173,10 +164,7 @@ object SqlInjectUtil {
     }
 
     /**
-     *
-     *
      * Method: for database use,make the update sql string
-     *
      * @param <T>
      * @param clazz
      * @param table
@@ -230,23 +218,19 @@ object SqlInjectUtil {
     }
 
     /**
-     *
-     *
      * Method: for database use make the delete sql string,can delete one row
      * not the many rows
-     *
-     *
      * @param <T>
      * @param instance
      * @param table
      * @param otherCondition
      * @param byId
      * @param mappingBean
-     * @param parameterList
-     * @return String
+     * @return Pair<String,List<Any>>
     </T> */
-    fun <T : Any> objectToDeleteSql(instance: T, table: String, otherCondition: String, byId: Boolean, mappingBean: MappingBean, parameterList: MutableList<Any>): String {
+    fun <T : Any> objectToDeleteSql(instance: T, table: String, otherCondition: String, byId: Boolean, mappingBean: MappingBean): Pair<String, List<Any>> {
         val sql: String
+        val parameterList = mutableListOf<Any>()
         try {
             val methods = instance.javaClass.methods
             val condition = StringBuilder()
@@ -278,15 +262,14 @@ object SqlInjectUtil {
             } else {
                 table
             }
-            sql = SqlUtil.deleteSql(tempTable, condition.toString() + " " + otherCondition)
+            sql = SqlUtil.deleteSql(tempTable, "$condition $otherCondition")
         } catch (e: Exception) {
             throw SqlInjectUtilException(e)
         }
-        return sql
+        return sql to parameterList
     }
 
     /**
-     *
      * Method: for database use make the delete sql string,sql binding
      * @param <T>
      * @param clazz
@@ -294,11 +277,11 @@ object SqlInjectUtil {
      * @param otherCondition
      * @param byId
      * @param mappingBean
-     * @param fieldNameList
-     * @return String
+     * @return Pair<String,List<String>>
     </T> */
-    fun <T : Any> classToDeleteSql(clazz: KClass<T>, table: String, otherCondition: String, byId: Boolean, mappingBean: MappingBean, fieldNameList: MutableList<String>): String {
+    fun <T : Any> classToDeleteSql(clazz: KClass<T>, table: String, otherCondition: String, byId: Boolean, mappingBean: MappingBean): Pair<String, List<String>> {
         val methods = clazz.java.methods
+        val fieldNameList = mutableListOf<String>()
         val condition = StringBuilder()
         for (method in methods) {
             val methodName = method.name
@@ -322,7 +305,8 @@ object SqlInjectUtil {
         } else {
             table
         }
-        return SqlUtil.deleteSql(tempTable, condition.toString() + " " + otherCondition)
+        val sql = SqlUtil.deleteSql(tempTable, "$condition $otherCondition")
+        return sql to fieldNameList
     }
 
     class SqlInjectUtilException(cause: Throwable) : RuntimeException(cause)

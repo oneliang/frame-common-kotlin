@@ -226,9 +226,8 @@ open class BaseQueryImpl : BaseQuery {
         try {
             val clazz = instance::class
             val mappingBean = ConfigurationFactory.singletonConfigurationContext.findMappingBean(clazz) ?: throw MappingNotFoundException("Mapping is not found, class:$clazz")
-            val parameters = mutableListOf<Any>()
-            val sql = SqlInjectUtil.objectToInsertSql(instance, table, mappingBean, parameters)
-            id = this.executeInsertForAutoIncrementBySql(connection, sql, parameters.toTypedArray())
+            val (sql, parameterList) = SqlInjectUtil.objectToInsertSql(instance, table, mappingBean)
+            id = this.executeInsertForAutoIncrementBySql(connection, sql, parameterList.toTypedArray())
         } catch (e: Exception) {
             throw QueryException(e)
         }
@@ -444,15 +443,14 @@ open class BaseQueryImpl : BaseQuery {
         try {
             val clazz = instance::class
             val mappingBean = ConfigurationFactory.singletonConfigurationContext.findMappingBean(clazz) ?: throw MappingNotFoundException("Mapping is not found, class:$clazz")
-            val parameters = mutableListOf<Any>()
-            val sql = when (executeType) {
-                BaseQuery.ExecuteType.INSERT -> SqlInjectUtil.objectToInsertSql(instance, table, mappingBean, parameters)
-                BaseQuery.ExecuteType.UPDATE_BY_ID -> SqlInjectUtil.objectToUpdateSql(instance, table, condition, true, mappingBean, parameters)
-                BaseQuery.ExecuteType.UPDATE_NOT_BY_ID -> SqlInjectUtil.objectToUpdateSql(instance, table, condition, false, mappingBean, parameters)
-                BaseQuery.ExecuteType.DELETE_BY_ID -> SqlInjectUtil.objectToDeleteSql(instance, table, condition, true, mappingBean, parameters)
-                BaseQuery.ExecuteType.DELETE_NOT_BY_ID -> SqlInjectUtil.objectToDeleteSql(instance, table, condition, false, mappingBean, parameters)
+            val (sql, parameterList) = when (executeType) {
+                BaseQuery.ExecuteType.INSERT -> SqlInjectUtil.objectToInsertSql(instance, table, mappingBean)
+                BaseQuery.ExecuteType.UPDATE_BY_ID -> SqlInjectUtil.objectToUpdateSql(instance, table, condition, true, mappingBean)
+                BaseQuery.ExecuteType.UPDATE_NOT_BY_ID -> SqlInjectUtil.objectToUpdateSql(instance, table, condition, false, mappingBean)
+                BaseQuery.ExecuteType.DELETE_BY_ID -> SqlInjectUtil.objectToDeleteSql(instance, table, condition, true, mappingBean)
+                BaseQuery.ExecuteType.DELETE_NOT_BY_ID -> SqlInjectUtil.objectToDeleteSql(instance, table, condition, false, mappingBean)
             }
-            rows = this.executeUpdateBySql(connection, sql, parameters.toTypedArray())
+            rows = this.executeUpdateBySql(connection, sql, parameterList.toTypedArray())
         } catch (e: Exception) {
             throw QueryException(e)
         }
@@ -523,13 +521,12 @@ open class BaseQueryImpl : BaseQuery {
         }
         try {
             val mappingBean = ConfigurationFactory.singletonConfigurationContext.findMappingBean(clazz) ?: throw MappingNotFoundException("Mapping is not found, class:$clazz")
-            val fieldNameList = mutableListOf<String>()
-            var sql = when (executeType) {
-                BaseQuery.ExecuteType.INSERT -> SqlInjectUtil.classToInsertSql(clazz, table, mappingBean, fieldNameList)
-                BaseQuery.ExecuteType.UPDATE_BY_ID -> SqlInjectUtil.classToUpdateSql(clazz, table, Constants.String.BLANK, true, mappingBean, fieldNameList)
-                BaseQuery.ExecuteType.UPDATE_NOT_BY_ID -> SqlInjectUtil.classToUpdateSql(clazz, table, Constants.String.BLANK, false, mappingBean, fieldNameList)
-                BaseQuery.ExecuteType.DELETE_BY_ID -> SqlInjectUtil.classToDeleteSql(clazz, table, Constants.String.BLANK, true, mappingBean, fieldNameList)
-                BaseQuery.ExecuteType.DELETE_NOT_BY_ID -> SqlInjectUtil.classToDeleteSql(clazz, table, Constants.String.BLANK, false, mappingBean, fieldNameList)
+            var (sql, fieldNameList) = when (executeType) {
+                BaseQuery.ExecuteType.INSERT -> SqlInjectUtil.classToInsertSql(clazz, table, mappingBean)
+                BaseQuery.ExecuteType.UPDATE_BY_ID -> SqlInjectUtil.classToUpdateSql(clazz, table, Constants.String.BLANK, true, mappingBean)
+                BaseQuery.ExecuteType.UPDATE_NOT_BY_ID -> SqlInjectUtil.classToUpdateSql(clazz, table, Constants.String.BLANK, false, mappingBean)
+                BaseQuery.ExecuteType.DELETE_BY_ID -> SqlInjectUtil.classToDeleteSql(clazz, table, Constants.String.BLANK, true, mappingBean)
+                BaseQuery.ExecuteType.DELETE_NOT_BY_ID -> SqlInjectUtil.classToDeleteSql(clazz, table, Constants.String.BLANK, false, mappingBean)
             }
             sql = DatabaseMappingUtil.parseSql(sql)
             logger.info(sql)
