@@ -1,6 +1,7 @@
 package com.oneliang.ktx.frame.context
 
 import com.oneliang.ktx.Constants
+import com.oneliang.ktx.util.common.nullToBlank
 import com.oneliang.ktx.util.jar.JarClassLoader
 import java.util.concurrent.ConcurrentHashMap
 
@@ -13,10 +14,10 @@ abstract class AbstractContext : Context {
     internal var classLoader: ClassLoader = Thread.currentThread().contextClassLoader
         set(value) {
             field = value
-            classesRealPath = field.getResource(Constants.String.BLANK).path
+            classesRealPath = field.getResource(Constants.String.BLANK)?.path.nullToBlank()
         }
 
-    var classesRealPath: String = this.classLoader.getResource(Constants.String.BLANK).path
+    var classesRealPath: String = this.classLoader.getResource(Constants.String.BLANK)?.path.nullToBlank()
         set(value) {
             if (value.isNotBlank()) {
                 field = value

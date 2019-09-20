@@ -3,6 +3,7 @@ package com.oneliang.ktx.frame.servlet
 import com.oneliang.ktx.Constants
 import com.oneliang.ktx.frame.ConfigurationFactory
 import com.oneliang.ktx.frame.configuration.ConfigurationContext
+import com.oneliang.ktx.util.common.nullToBlank
 import com.oneliang.ktx.util.logging.LoggerManager
 import java.io.File
 import java.util.*
@@ -33,7 +34,7 @@ abstract class AbstractServletContextListener : ServletContextListener {
         if (configFile.isNotBlank()) {
             try {
                 val configurationContext = ConfigurationFactory.singletonConfigurationContext
-                var classesRealPath = Thread.currentThread().contextClassLoader.getResource(Constants.String.BLANK).path
+                var classesRealPath = Thread.currentThread().contextClassLoader.getResource(Constants.String.BLANK)?.path.nullToBlank()
                 classesRealPath = File(classesRealPath).absolutePath
                 configurationContext.classesRealPath = classesRealPath
                 configurationContext.projectRealPath = projectRealPath

@@ -2,10 +2,12 @@ package com.oneliang.ktx.frame.context
 
 import com.oneliang.ktx.Constants
 import com.oneliang.ktx.exception.FileLoadException
+import com.oneliang.ktx.util.common.nullToBlank
 import com.oneliang.ktx.util.jar.JarClassLoader
 import com.oneliang.ktx.util.jar.JarUtil
 import com.oneliang.ktx.util.logging.LoggerManager
 import java.io.File
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.reflect.KClass
 
@@ -22,6 +24,8 @@ object AnnotationContextUtil {
         const val CLASSES_DIRECTORY = "classes_directory"
     }
 
+    private val classCacheMap = ConcurrentHashMap<String, List<KClass<*>>>()
+
     /**
      * Method:use for AnnotationActionContext,AnnotationIocContext,AnnotationInterceptorContext,AnnotationMappingContext
      * @param parameters
@@ -37,7 +41,7 @@ object AnnotationContextUtil {
     fun parseAnnotationContextParameterAndSearchClass(parameters: String, classLoader: ClassLoader, classesRealPath: String, jarClassLoader: JarClassLoader, annotationClass: KClass<out Annotation>): List<KClass<*>> {
         val parameterArray = parameters.split(Constants.Symbol.COMMA)
         val mainClassesRealPath = if (classesRealPath.isBlank()) {
-            classLoader.getResource(Constants.String.BLANK).path
+            classLoader.getResource(Constants.String.BLANK)?.path.nullToBlank()
         } else {
             classesRealPath
         }
@@ -78,15 +82,21 @@ object AnnotationContextUtil {
     }
 
     /**
-     * search class list
+     * search all class list
      * @param classesRealPath
      * @param searchClassPath
-     * @param annotationClass
      * @return List<Class></Class>>
      * @throws ClassNotFoundException
      */
     @Throws(ClassNotFoundException::class)
-    fun searchClassList(classesRealPath: String, searchClassPath: String, annotationClass: KClass<out Annotation>): List<KClass<*>> {
+    private fun searchAllClassList(classesRealPath: String, searchClassPath: String): List<KClass<*>> {
+        val classCacheKey = generateClassCacheKey(classesRealPath, searchClassPath)
+        if (this.classCacheMap.containsKey(classCacheKey)) {
+            val classList = classCacheMap[classCacheKey]
+            if (classList != null) {
+                return classList
+            }
+        }
         val classList = mutableListOf<KClass<*>>()
         val classesRealPathFile = File(classesRealPath)
         val searchClassPathFile = File(searchClassPath)
@@ -107,12 +117,35 @@ object AnnotationContextUtil {
                     val filePath = file.absolutePath
                     val className = filePath.substring(classesRealPathFile.absolutePath.length + 1, filePath.length - (Constants.Symbol.DOT + Constants.File.CLASS).length).replace(File.separator, Constants.Symbol.DOT)
                     val clazz = Thread.currentThread().contextClassLoader.loadClass(className)
-                    if (clazz.isAnnotationPresent(annotationClass.java)) {
-                        classList.add(clazz.kotlin)
-                    }
+                    classList.add(clazz.kotlin)
                 }
             }
         }
+        this.classCacheMap[classCacheKey] = classList
         return classList
+    }
+
+    /**
+     * search class list
+     * @param classesRealPath
+     * @param searchClassPath
+     * @param annotationClass
+     * @return List<Class></Class>>
+     * @throws ClassNotFoundException
+     */
+    @Throws(ClassNotFoundException::class)
+    fun searchClassList(classesRealPath: String, searchClassPath: String, annotationClass: KClass<out Annotation>): List<KClass<*>> {
+        val classList = mutableListOf<KClass<*>>()
+        val allClassList = searchAllClassList(classesRealPath, searchClassPath)
+        for (clazz in allClassList) {
+            if (clazz.java.isAnnotationPresent(annotationClass.java)) {
+                classList.add(clazz)
+            }
+        }
+        return classList
+    }
+
+    private fun generateClassCacheKey(classesRealPath: String, searchClassPath: String): String {
+        return classesRealPath + Constants.Symbol.COMMA + searchClassPath
     }
 }
