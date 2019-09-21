@@ -1,5 +1,6 @@
 package com.oneliang.ktx.frame.servlet.filter
 
+import com.oneliang.ktx.Constants
 import com.oneliang.ktx.util.file.FileUtil
 import com.oneliang.ktx.util.http.HttpUtil
 import com.oneliang.ktx.util.json.JsonArray
@@ -7,6 +8,7 @@ import com.oneliang.ktx.util.logging.LoggerManager
 import java.io.ByteArrayInputStream
 import java.io.IOException
 import javax.servlet.*
+import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 
@@ -16,9 +18,11 @@ class HeaderFilter : Filter {
         private const val RESPONSE_HEADER_JSON = "responseHeaderJson"
         private const val HEADER_KEY = "key"
         private const val HEADER_VALUE = "value"
+        private const val ACCESS_CONTROL = "accessControl"
     }
 
     private val headerList = mutableListOf<HttpUtil.HttpNameValue>()
+    private val accessControlSet = mutableSetOf<String>()
 
     /**
      *
@@ -30,8 +34,8 @@ class HeaderFilter : Filter {
     @Throws(ServletException::class)
     override fun init(filterConfig: FilterConfig) {
         logger.info("initialize filter:${this::class}")
-        val responseHeaderJson = filterConfig.getInitParameter(RESPONSE_HEADER_JSON)
-        if (responseHeaderJson != null) {
+        val responseHeaderJson = filterConfig.getInitParameter(RESPONSE_HEADER_JSON) ?: Constants.String.BLANK
+        if (responseHeaderJson.isNotBlank()) {
             val responseHeaderJsonAfterTrim = StringBuilder()
             FileUtil.readInputStreamContentIgnoreLine(ByteArrayInputStream(responseHeaderJson.toByteArray(Charsets.UTF_8)), readFileContentProcessor = object : FileUtil.ReadFileContentProcessor {
                 override fun afterReadLine(line: String): Boolean {
@@ -50,8 +54,15 @@ class HeaderFilter : Filter {
                     }
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
                 logger.error("init exception", e)
+            }
+        }
+
+        val accessControl = filterConfig.getInitParameter(ACCESS_CONTROL) ?: Constants.String.BLANK
+        if (accessControl.isNotBlank()) {
+            this.accessControlSet.clear()
+            accessControl.split(Constants.Symbol.COMMA).forEach {
+                this.accessControlSet += it.trim()
             }
         }
     }
@@ -71,11 +82,20 @@ class HeaderFilter : Filter {
         headerList.forEach {
             httpServletResponse.setHeader(it.name, it.value)
         }
+        if (accessControlSet.isNotEmpty()) {
+            val httpServletRequest = servletRequest as HttpServletRequest
+            val httpHeaderOrigin = httpServletRequest.getHeader(Constants.Http.HeaderKey.ORIGIN) ?: Constants.String.BLANK
+            if (httpHeaderOrigin.isNotBlank() && accessControlSet.contains(httpHeaderOrigin)) {
+                httpServletResponse.setHeader(Constants.Http.HeaderKey.ACCESS_CONTROL_ALLOW_ORIGIN, httpHeaderOrigin)
+            } else {
+                logger.error("header[Origin] is not support for ${if (httpHeaderOrigin.isBlank()) "blank" else httpHeaderOrigin}")
+            }
+        }
         filterChain.doFilter(servletRequest, servletResponse)
     }
 
     /**
-     * Method: public void destory()
+     * Method: public void destroy()
      */
     override fun destroy() {
         headerList.clear()

@@ -93,6 +93,5 @@ class AnnotationActionContext : ActionContext() {
         } catch (e: Exception) {
             throw InitializeException(parameters, e)
         }
-
     }
 }

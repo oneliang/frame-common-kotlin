@@ -80,7 +80,7 @@ class EncodingFilter : Filter {
 
     /**
      *
-     * Method: public void destory()
+     * Method: public void destroy()
      * This method will be reset the encoding=null and filterconfig=null
      */
     override fun destroy() {
