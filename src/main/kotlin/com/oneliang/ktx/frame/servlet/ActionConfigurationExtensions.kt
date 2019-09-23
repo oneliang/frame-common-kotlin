@@ -73,33 +73,3 @@ fun ConfigurationContext.findActionBeanList(uri: String): List<ActionBean>? {
     val actionContext = ConfigurationFactory.singletonConfigurationContext.findContext(ActionContext::class)
     return actionContext?.findActionBeanList(uri)
 }
-
-/**
- * output action map
- */
-fun ConfigurationContext.outputActionMap(outputFilename: String) {
-    val sortedActionBeanMap = ActionContext.actionBeanMap.toSortedMap()
-    val bufferedWriter = BufferedWriter(FileWriter(File(this.projectRealPath, outputFilename)))
-    bufferedWriter.use {
-        sortedActionBeanMap.forEach { (_, actionBean) ->
-            it.newLine()
-            it.write("uri:${actionBean.path}")
-            it.newLine()
-            it.write("\tmethods:${actionBean.httpRequestMethods}")
-            it.newLine()
-            if (actionBean is AnnotationActionBean) {
-                val annotationActionBeanMethod = actionBean.method!!
-                val classes = annotationActionBeanMethod.parameterTypes
-                val parameterAnnotations = annotationActionBeanMethod.parameterAnnotations
-                parameterAnnotations.forEachIndexed { index, annotationArray ->
-                    if (annotationArray.isNotEmpty() && annotationArray[0] is Action.RequestMapping.RequestParameter) {
-                        val parameterAnnotation = annotationArray[0] as Action.RequestMapping.RequestParameter
-                        it.write("\tparameter$index(${parameterAnnotation.value}):${classes[index].name}")
-                        it.newLine()
-                    }
-                }
-            }
-            it.flush()
-        }
-    }
-}

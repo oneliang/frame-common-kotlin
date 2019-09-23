@@ -311,63 +311,54 @@ class ActionListener : HttpServlet() {
      */
     @Throws(ActionExecuteException::class, ServletException::class, IOException::class)
     private fun doAction(actionBean: ActionBean, request: HttpServletRequest, response: HttpServletResponse, httpRequestMethod: ActionInterface.HttpRequestMethod): Boolean {
-        var result = false
         val actionInstance = actionBean.actionInstance
-        if (actionInstance is ActionInterface) {
-            val forward: String
-            logger.info("Action implements ($actionInstance) is executing")
-            //judge is it contain static file page
-            val parameterMap = request.parameterMap as Map<String, Array<String>>
-            val actionForwardBean = actionBean.findActionForwardBeanByStaticParameter(parameterMap)
-            var normalExecute = true//default normal execute
-            var needToStaticExecute = false
-            if (actionForwardBean != null) {//static file page
-                normalExecute = false
-                val staticFilePathKey = actionForwardBean.staticFilePath
-                if (!StaticFilePathUtil.isContainsStaticFilePath(staticFilePathKey)) {
-                    needToStaticExecute = true
-                }
-            }//else normal execute
-            if (normalExecute || needToStaticExecute) {
-                if (normalExecute) {
-                    logger.info("Normal executing")
-                } else if (needToStaticExecute) {
-                    logger.info("Need to static execute,first time executing original action")
-                }
-                forward = actionInstance.execute(request, response)
-            } else {
-                logger.info("Static execute,not the first time execute")
-                forward = actionForwardBean!!.name
-            }
-            val afterActionBeanInterceptorList = actionBean.afterActionInterceptorBeanList
-            val afterActionInterceptorSign = doActionInterceptorBeanList(afterActionBeanInterceptorList, request, response)
-            if (afterActionInterceptorSign) {
-                logger.info("Through the after action interceptors!")
-                val afterGlobalInterceptorList = ConfigurationFactory.singletonConfigurationContext.afterGlobalInterceptorList
-                val afterGlobalInterceptorSign = doGlobalInterceptorList(afterGlobalInterceptorList, request, response)
-                if (afterGlobalInterceptorSign) {
-                    logger.info("Through the after global interceptors!")
-                    if (forward.isNotBlank()) {
-                        var path = actionBean.findForwardPath(forward)
-                        if (path.isNotBlank()) {
-                            logger.info("The forward name in configFile is--:actionPath:" + actionBean.path + "--forward:" + forward + "--path:" + path)
-                        } else {
-                            path = ConfigurationFactory.singletonConfigurationContext.findGlobalForwardPath(forward)
-                            logger.info("The forward name in global forward configFile is--:forward:$forward--path:$path")
-                        }
-                        this.doForward(normalExecute, needToStaticExecute, actionForwardBean, path, request, response, false)
-                    } else {
-                        logger.info("The forward name--:$forward is not exist,may be ajax use if not please config the name and entity page or class")
-                    }
-                } else {
-                    logger.info("Can not through the after global interceptors")
-                }
-            } else {
-                logger.info("Can not through the after action interceptors")
-            }
-            result = true
+        if (actionInstance !is ActionInterface) {
+            logger.error("It is not ActionInterface, actionBean:$actionBean, it is impossible")
+            return false
         }
-        return result
+        logger.info("Action implements ($actionInstance) is executing")
+        //judge is it contain static file page
+        val parameterMap = request.parameterMap as Map<String, Array<String>>
+        val actionForwardBean = actionBean.findActionForwardBeanByStaticParameter(parameterMap)
+        val (normalExecute, needToStaticExecute) = this.getExecuteType(actionForwardBean)
+        val forward = if (normalExecute || needToStaticExecute) {
+            if (normalExecute) {
+                logger.info("Normal executing")
+            } else if (needToStaticExecute) {
+                logger.info("Need to static execute,first time executing original action")
+            }
+            actionInstance.execute(request, response)
+        } else {
+            logger.info("Static execute,not the first time execute")
+            actionForwardBean!!.name
+        }
+        val afterActionBeanInterceptorList = actionBean.afterActionInterceptorBeanList
+        val afterActionInterceptorSign = doActionInterceptorBeanList(afterActionBeanInterceptorList, request, response)
+        if (!afterActionInterceptorSign) {
+            logger.error("Can not through the after action interceptors")
+            return false
+        }
+        logger.info("Through the after action interceptors!")
+        val afterGlobalInterceptorList = ConfigurationFactory.singletonConfigurationContext.afterGlobalInterceptorList
+        val afterGlobalInterceptorSign = doGlobalInterceptorList(afterGlobalInterceptorList, request, response)
+        if (!afterGlobalInterceptorSign) {
+            logger.error("Can not through the after global interceptors")
+            return false
+        }
+        logger.info("Through the after global interceptors!")
+        if (forward.isNotBlank()) {
+            var path = actionBean.findForwardPath(forward)
+            if (path.isNotBlank()) {
+                logger.info("The forward name in configFile is--:actionPath:" + actionBean.path + "--forward:" + forward + "--path:" + path)
+            } else {
+                path = ConfigurationFactory.singletonConfigurationContext.findGlobalForwardPath(forward)
+                logger.info("The forward name in global forward configFile is--:forward:$forward--path:$path")
+            }
+            this.doForward(normalExecute, needToStaticExecute, actionForwardBean, path, request, response, false)
+        } else {
+            logger.info("The forward name--:$forward is not exist,may be ajax use if not please config the name and entity page or class")
+        }
+        return true
     }
 
     /**
@@ -429,51 +420,65 @@ class ActionListener : HttpServlet() {
      */
     @Throws(IllegalArgumentException::class, InstantiationException::class, IllegalAccessException::class, InvocationTargetException::class, ServletException::class, IOException::class)
     private fun doAnnotationAction(actionBean: ActionBean, request: HttpServletRequest, response: HttpServletResponse, httpRequestMethod: ActionInterface.HttpRequestMethod): Boolean {
-        var result = false
-        if (actionBean is AnnotationActionBean) {
-            val actionInstance = actionBean.actionInstance
-            val parameterMap = request.parameterMap as Map<String, Array<String>>
-            val actionForwardBean = actionBean.findActionForwardBeanByStaticParameter(parameterMap)
-            var normalExecute = true//default normal execute
-            var needToStaticExecute = false
-            var path: String = Constants.String.BLANK
-            if (actionForwardBean != null) {//static file page
-                normalExecute = false
-                val staticFilePathKey = actionForwardBean.staticFilePath
-                if (!StaticFilePathUtil.isContainsStaticFilePath(staticFilePathKey)) {
-                    needToStaticExecute = true
-                }
-            }
-            if (normalExecute || needToStaticExecute) {
-                if (normalExecute) {
-                    logger.info("Common bean action ($actionInstance) is executing.")
-                } else if (needToStaticExecute) {
-                    logger.info("Need to static execute,first time executing original action")
-                }
-                val parameterValues = this.annotationActionMethodParameterValues(actionBean, request, response)
-                val methodInvokeValue = actionBean.method?.invoke(actionInstance, *parameterValues)
-                if (methodInvokeValue != null && methodInvokeValue is String) {
-                    path = methodInvokeValue.toString()
-                } else {
-                    logger.error("Common bean action $actionInstance is execute error, method is null or method return value is not String")
-                }
-            } else {
-                logger.info("Static execute,not the first time execute")
-            }
-            val afterActionBeanInterceptorList = actionBean.afterActionInterceptorBeanList
-            val afterActionInterceptorSign = doActionInterceptorBeanList(afterActionBeanInterceptorList, request, response)
-            if (afterActionInterceptorSign) {
-                logger.info("Through the after action interceptors!")
-                val afterGlobalInterceptorList = ConfigurationFactory.singletonConfigurationContext.afterGlobalInterceptorList
-                val afterGlobalInterceptorSign = doGlobalInterceptorList(afterGlobalInterceptorList, request, response)
-                if (afterGlobalInterceptorSign) {
-                    logger.info("Through the after global interceptors!")
-                    this.doForward(normalExecute, needToStaticExecute, actionForwardBean, path, request, response, true)
-                }
-            }
-            result = true
+        if (actionBean !is AnnotationActionBean) {
+            logger.error("It is not AnnotationActionBean, actionBean:$actionBean, it is impossible")
+            return false
         }
-        return result
+        val actionInstance = actionBean.actionInstance
+        val parameterMap = request.parameterMap as Map<String, Array<String>>
+        val actionForwardBean = actionBean.findActionForwardBeanByStaticParameter(parameterMap)
+        val (normalExecute, needToStaticExecute) = this.getExecuteType(actionForwardBean)
+        var path: String = Constants.String.BLANK
+        if (normalExecute || needToStaticExecute) {
+            if (normalExecute) {
+                logger.info("Common bean action ($actionInstance) is executing.")
+            } else if (needToStaticExecute) {
+                logger.info("Need to static execute,first time executing original action")
+            }
+            val parameterValues = this.annotationActionMethodParameterValues(actionBean, request, response)
+            val methodInvokeValue = actionBean.method?.invoke(actionInstance, *parameterValues)
+            if (methodInvokeValue != null && methodInvokeValue is String) {
+                path = methodInvokeValue.toString()
+            } else {
+                logger.error("Common bean action $actionInstance is execute error, method is null or method return value is not String")
+            }
+        } else {
+            logger.info("Static execute,not the first time execute")
+        }
+        val afterActionBeanInterceptorList = actionBean.afterActionInterceptorBeanList
+        val afterActionInterceptorSign = doActionInterceptorBeanList(afterActionBeanInterceptorList, request, response)
+        if (!afterActionInterceptorSign) {
+            logger.error("Can not through the after action interceptors")
+            return false
+        }
+        logger.info("Through the after action interceptors!")
+        val afterGlobalInterceptorList = ConfigurationFactory.singletonConfigurationContext.afterGlobalInterceptorList
+        val afterGlobalInterceptorSign = doGlobalInterceptorList(afterGlobalInterceptorList, request, response)
+        if (!afterGlobalInterceptorSign) {
+            logger.error("Can not through the after global interceptors")
+            return false
+        }
+        logger.info("Through the after global interceptors!")
+        this.doForward(normalExecute, needToStaticExecute, actionForwardBean, path, request, response, true)
+        return true
+    }
+
+    /**
+     * get execute type
+     * @param actionForwardBean
+     * @return Pair<Boolean, Boolean>
+     */
+    private fun getExecuteType(actionForwardBean: ActionForwardBean?): Pair<Boolean, Boolean> {
+        var normalExecute = true//default normal execute
+        var needToStaticExecute = false
+        if (actionForwardBean != null) {//static file page
+            normalExecute = false
+            val staticFilePathKey = actionForwardBean.staticFilePath
+            if (!StaticFilePathUtil.isContainsStaticFilePath(staticFilePathKey)) {
+                needToStaticExecute = true
+            }
+        }
+        return normalExecute to needToStaticExecute
     }
 
     /**
