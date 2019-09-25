@@ -15,11 +15,19 @@ import kotlin.reflect.KClass
  */
 fun ConfigurationContext.outputActionAndApi(outputFilename: String) {
     val apiClassList = AnnotationApiContext.apiClassList
-    val apiClassMap = mutableMapOf<String, KClass<*>>()
+    val apiClassListMap = mutableMapOf<String, MutableList<Pair<Api, KClass<*>>>>()
     apiClassList.forEach {
         if (it.java.isAnnotationPresent(Api::class.java)) {
             val api = it.java.getAnnotation(Api::class.java)!!
-            apiClassMap[api.requestMapping] = it
+            val uri = api.requestMapping
+            val uriApiClassList = if (apiClassListMap.containsKey(uri)) {
+                apiClassListMap[uri]!!
+            } else {
+                val list = mutableListOf<Pair<Api, KClass<*>>>()
+                apiClassListMap[uri] = list
+                list
+            }
+            uriApiClassList += api to it
         } else {
             error("$it is not api class, it is impossible.")
         }
@@ -46,11 +54,17 @@ fun ConfigurationContext.outputActionAndApi(outputFilename: String) {
                     }
                 }
             }
-            if (apiClassMap.containsKey(uri)) {
-                val apiClass = apiClassMap[uri] ?: error("uri:$uri is not exists, it is impossible.")
-                val instance = apiClass.java.newInstance()
-                val apiJson = JsonUtil.objectToJson(instance, emptyArray())
-                it.write("api json:$apiJson")
+            if (apiClassListMap.containsKey(uri)) {
+                val uriApiClassList = apiClassListMap[uri] ?: error("uri:$uri is not exists, it is impossible.")
+                uriApiClassList.forEach { (api, apiClass) ->
+                    val instance = apiClass.java.newInstance()
+                    val apiJson = JsonUtil.objectToJson(instance, emptyArray())
+                    if (api.mode == Api.Mode.REQUEST) {
+                        it.write("api request json:$apiJson")
+                    } else {
+                        it.write("api response json:$apiJson")
+                    }
+                }
             }
             it.newLine()
             it.flush()
