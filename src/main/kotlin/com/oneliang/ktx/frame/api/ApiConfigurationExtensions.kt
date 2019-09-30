@@ -61,12 +61,13 @@ fun ConfigurationContext.outputActionAndApi(outputFilename: String) {
                     val apiJson = JsonUtil.objectToJson(instance, emptyArray())
                     if (api.mode == Api.Mode.REQUEST) {
                         it.write("api request json:$apiJson")
+                        it.newLine()
                     } else {
                         it.write("api response json:$apiJson")
+                        it.newLine()
                     }
                 }
             }
-            it.newLine()
             it.flush()
         }
     }
