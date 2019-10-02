@@ -18,7 +18,7 @@ class AnnotationApiContext : AbstractContext() {
             val classList = AnnotationContextUtil.parseAnnotationContextParameterAndSearchClass(parameters, classLoader, classesRealPath, jarClassLoader, Api::class)
             apiClassList += classList
             for (clazz in apiClassList) {
-                logger.info(clazz)
+                logger.info(clazz.toString())
             }
         } catch (e: Exception) {
             throw InitializeException(parameters, e)
