@@ -1,5 +1,6 @@
 package com.oneliang.ktx.frame.api
 
+import com.oneliang.ktx.Constants
 import com.oneliang.ktx.frame.configuration.ConfigurationContext
 import com.oneliang.ktx.frame.servlet.action.Action
 import com.oneliang.ktx.frame.servlet.action.ActionContext
@@ -54,8 +55,17 @@ fun ConfigurationContext.outputActionAndApi(outputFilename: String) {
                     }
                 }
             }
-            if (apiClassListMap.containsKey(uri)) {
-                val uriApiClassList = apiClassListMap[uri] ?: error("uri:$uri is not exists, it is impossible.")
+            val suitableUri = if (apiClassListMap.containsKey(uri)) {
+                uri
+            } else {
+                if (apiClassListMap.containsKey(Api.DEFAULT_REQUEST_MAPPING)) {
+                    Api.DEFAULT_REQUEST_MAPPING
+                } else {
+                    Constants.String.BLANK
+                }
+            }
+            if (suitableUri.isNotBlank()) {
+                val uriApiClassList = apiClassListMap[suitableUri] ?: error("uri:$suitableUri is not exists, it is impossible.")
                 uriApiClassList.forEach { (api, apiClass) ->
                     val instance = apiClass.java.newInstance()
                     val apiJson = JsonUtil.objectToJson(instance, emptyArray())
