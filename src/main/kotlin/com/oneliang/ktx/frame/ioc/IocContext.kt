@@ -378,7 +378,7 @@ open class IocContext : AbstractContext() {
             for (iocAfterInjectBean in iocAfterInjectBeanList) {
                 val instance = iocBean.proxyInstance!!
                 val method = instance.javaClass.getMethod(iocAfterInjectBean.method)
-                logger.info("After inject, proxyInstance:$instance, method:$iocAfterInjectBean.method")
+                logger.info("After inject, proxyInstance:$instance, method:${iocAfterInjectBean.method}")
                 method.invoke(instance)
             }
         }
