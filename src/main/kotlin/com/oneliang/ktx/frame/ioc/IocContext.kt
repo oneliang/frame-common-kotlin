@@ -224,7 +224,7 @@ open class IocContext : AbstractContext() {
                     iocBean.proxyInstance = beanInstance
                 }
             }
-            logger.info(iocBean.type + "<->id:" + iocBeanId + "<->proxy:" + iocBean.proxyInstance + "<->instance:" + iocBean.beanInstance)
+            logger.info("Instantiating, " + iocBean.type + "<->id:" + iocBeanId + "<->proxy:" + iocBean.proxy + "<->proxyInstance:" + iocBean.proxyInstance + "<->instance:" + iocBean.beanInstance)
         }
     }
 
@@ -271,28 +271,30 @@ open class IocContext : AbstractContext() {
         val objectMethods = instance.javaClass.methods
         for (method in objectMethods) {
             val methodName = method.name
-            if (methodName.startsWith(Constants.Method.PREFIX_SET)) {
-                val types = method.parameterTypes
-                if (types != null && types.size == 1) {
-                    val parameterClass = types[0]
-                    val parameterClassName = parameterClass.name
-                    iocBeanMap.forEach { (_, iocBean) ->
-                        val beanInstance = iocBean.beanInstance
-                        val proxyInstance = iocBean.proxyInstance
-                        val beanInstanceClassName = beanInstance!!.javaClass.name
-                        if (parameterClassName == beanInstanceClassName) {
-                            logger.info(instance.javaClass.name + "<-" + beanInstance.javaClass.name)
-                            method.invoke(instance, proxyInstance)
-                        } else {
-                            val interfaces = beanInstance.javaClass.interfaces
-                            if (interfaces != null) {
-                                for (interfaceClass in interfaces) {
-                                    val beanInstanceClassInterfaceName = interfaceClass.name
-                                    if (parameterClassName == beanInstanceClassInterfaceName) {
-                                        logger.info(instance.javaClass.name + "<-" + beanInstance.javaClass.name)
-                                        method.invoke(instance, proxyInstance)
-                                    }
-                                }
+            if (!methodName.startsWith(Constants.Method.PREFIX_SET)) {
+                continue
+            }
+            val types = method.parameterTypes
+            if (types == null || types.size != 1) {
+                continue
+            }
+            val parameterClass = types[0]
+            val parameterClassName = parameterClass.name
+            iocBeanMap.forEach { (_, iocBean) ->
+                val beanInstance = iocBean.beanInstance
+                val proxyInstance = iocBean.proxyInstance
+                val beanInstanceClassName = beanInstance!!.javaClass.name
+                if (parameterClassName == beanInstanceClassName) {
+                    logger.info("Auto injecting by type, " + instance.javaClass.name + "<-" + beanInstance.javaClass.name)
+                    method.invoke(instance, proxyInstance)
+                } else {
+                    val interfaces = beanInstance.javaClass.interfaces
+                    if (interfaces != null) {
+                        for (interfaceClass in interfaces) {
+                            val beanInstanceClassInterfaceName = interfaceClass.name
+                            if (parameterClassName == beanInstanceClassInterfaceName) {
+                                logger.info("Auto injecting by type, " + instance.javaClass.name + "<-" + beanInstance.javaClass.name)
+                                method.invoke(instance, proxyInstance)
                             }
                         }
                     }
@@ -317,7 +319,7 @@ open class IocContext : AbstractContext() {
                     val iocBean = iocBeanMap[fieldName]
                     if (iocBean != null) {
                         val proxyInstance = iocBean.proxyInstance
-                        logger.info(instance.javaClass.name + "<-" + iocBean.type)
+                        logger.info("Auto injecting by id, " + instance.javaClass.name + "<-" + iocBean.type)
                         method.invoke(instance, proxyInstance)
                     }
                 }
@@ -341,18 +343,20 @@ open class IocContext : AbstractContext() {
                 val objectMethods = beanInstance!!.javaClass.methods
                 for (method in objectMethods) {
                     val methodName = method.name
-                    if (methodName.startsWith(Constants.Method.PREFIX_SET)) {
-                        val fieldName = ObjectUtil.methodNameToFieldName(Constants.Method.PREFIX_SET, methodName)
-                        if (propertyName == fieldName) {
-                            val types = method.parameterTypes
-                            if (types != null && types.size == 1) {
-                                val referenceObject = iocBeanMap[referenceBeanId]
-                                if (referenceObject != null) {
-                                    val proxyInstance = referenceObject.proxyInstance
-                                    logger.info(iocBean.type + "<-" + referenceObject.type)
-                                    method.invoke(beanInstance, proxyInstance)
-                                }
-                            }
+                    if (!methodName.startsWith(Constants.Method.PREFIX_SET)) {
+                        continue
+                    }
+                    val fieldName = ObjectUtil.methodNameToFieldName(Constants.Method.PREFIX_SET, methodName)
+                    if (propertyName == fieldName) {
+                        val types = method.parameterTypes
+                        if (types == null || types.size != 1) {
+                            continue
+                        }
+                        val referenceObject = iocBeanMap[referenceBeanId]
+                        if (referenceObject != null) {
+                            val proxyInstance = referenceObject.proxyInstance
+                            logger.info("Manual injecting, " + iocBean.type + "<-" + referenceObject.type)
+                            method.invoke(beanInstance, proxyInstance)
                         }
                     }
                 }
@@ -374,6 +378,7 @@ open class IocContext : AbstractContext() {
             for (iocAfterInjectBean in iocAfterInjectBeanList) {
                 val instance = iocBean.proxyInstance!!
                 val method = instance.javaClass.getMethod(iocAfterInjectBean.method)
+                logger.info("After inject, proxyInstance:$instance, method:$iocAfterInjectBean.method")
                 method.invoke(instance)
             }
         }
