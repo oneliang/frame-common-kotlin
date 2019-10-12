@@ -59,7 +59,7 @@ class Message {
         return this.map[key] as T ?: error("key:$key does not exist")
     }
 
-    fun containsKey(key: String): Boolean {
+    fun containsObjectKey(key: String): Boolean {
         return this.map.containsKey(key)
     }
 }
