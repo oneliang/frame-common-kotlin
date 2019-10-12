@@ -628,36 +628,18 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
     </T> */
     @Throws(QueryException::class)
     override fun <T : Any> totalRows(clazz: KClass<T>?, table: String, condition: String, parameters: Array<Any>): Int {
-        var totalRows = 0
-        var resultSet: ResultSet? = null
-        var connection: Connection? = null
-        try {
-            connection = this.connectionPool.resource!!
-            val sql = if (clazz != null) {
-                val mappingBean = ConfigurationFactory.singletonConfigurationContext.findMappingBean(clazz)
-                SqlUtil.selectSql<Any>(arrayOf("COUNT(0) AS " + Constants.Database.COLUMN_NAME_TOTAL), table, condition, mappingBean)
-            } else {
-                SqlUtil.selectSql<Any>(arrayOf("COUNT(0) AS " + Constants.Database.COLUMN_NAME_TOTAL), table, condition, null)
-            }
-            resultSet = super.executeQueryBySql(connection, sql, parameters)
-            if (resultSet.next()) {
-                totalRows = resultSet.getInt(Constants.Database.COLUMN_NAME_TOTAL)
-            }
-        } catch (e: Exception) {
-            throw QueryException(e)
-        } finally {
-            try {
-                if (resultSet != null) {
-                    resultSet.statement.close()
-                    resultSet.close()
-                }
-            } catch (e: Exception) {
-                throw QueryException(e)
-            } finally {
-                this.connectionPool.releaseResource(connection)
-            }
+        val sql = if (clazz != null) {
+            val mappingBean = ConfigurationFactory.singletonConfigurationContext.findMappingBean(clazz)
+            SqlUtil.selectSql<Any>(arrayOf("COUNT(0) AS " + Constants.Database.COLUMN_NAME_TOTAL), table, condition, mappingBean)
+        } else {
+            SqlUtil.selectSql<Any>(arrayOf("COUNT(0) AS " + Constants.Database.COLUMN_NAME_TOTAL), table, condition, null)
         }
-        return totalRows
+        val totalList = this.selectObjectListBySql(Total::class, sql, parameters)
+        return if (totalList.isNotEmpty()) {
+            totalList[0].total
+        } else {
+            0
+        }
     }
 
     /**

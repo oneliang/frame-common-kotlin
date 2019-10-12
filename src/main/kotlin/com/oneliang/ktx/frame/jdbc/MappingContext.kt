@@ -1,6 +1,5 @@
 package com.oneliang.ktx.frame.jdbc
 
-import com.oneliang.ktx.Constants
 import com.oneliang.ktx.exception.InitializeException
 import com.oneliang.ktx.frame.context.AbstractContext
 import com.oneliang.ktx.util.common.JavaXmlUtil
@@ -10,6 +9,13 @@ open class MappingContext : AbstractContext() {
     companion object {
         internal val classNameMappingBeanMap = mutableMapOf<String, MappingBean>()
         internal val simpleNameMappingBeanMap = mutableMapOf<String, MappingBean>()
+
+        init {
+            val totalMappingBean = Total.toMappingBean()
+            val totalClassName = totalMappingBean.type
+            classNameMappingBeanMap[totalClassName] = totalMappingBean
+            simpleNameMappingBeanMap[Total::class.java.simpleName] = totalMappingBean
+        }
     }
 
     /**
