@@ -40,15 +40,15 @@ object AnnotationContextUtil {
     @Throws(ClassNotFoundException::class, FileLoadException::class)
     fun parseAnnotationContextParameterAndSearchClass(parameters: String, classLoader: ClassLoader, classesRealPath: String, jarClassLoader: JarClassLoader, annotationClass: KClass<out Annotation>): List<KClass<*>> {
         val parameterArray = parameters.split(Constants.Symbol.COMMA)
-        val mainClassesRealPath = if (classesRealPath.isBlank()) {
+        val fixedClassesRealPath = if (classesRealPath.isBlank()) {
             classLoader.getResource(Constants.String.BLANK)?.path.nullToBlank()
         } else {
             classesRealPath
         }
         return if (parameterArray.size == 1) {
-            val path = File(mainClassesRealPath, parameters).absolutePath
+            val path = File(fixedClassesRealPath, parameters).absolutePath
             logger.debug("search class path:$path")
-            searchClassList(mainClassesRealPath, path, annotationClass)
+            searchClassList(fixedClassesRealPath, path, annotationClass)
         } else {
             var type: String = Constants.String.BLANK
             var packageName: String = Constants.String.BLANK
@@ -64,14 +64,14 @@ object AnnotationContextUtil {
             val searchClassList = mutableListOf<KClass<*>>()
             if (type.equals(Type.JAR, ignoreCase = true)) {
                 for (filePath in filePathList) {
-                    val jarFileRealPath = File(mainClassesRealPath, filePath).absolutePath
+                    val jarFileRealPath = File(fixedClassesRealPath, filePath).absolutePath
                     logger.debug("search jar file real path:$jarFileRealPath")
                     searchClassList.addAll(JarUtil.searchClassList(jarClassLoader, jarFileRealPath, packageName, annotationClass))
                 }
             } else if (type.equals(Type.CLASSES_DIRECTORY, ignoreCase = true)) {
                 val packageToPath = packageName.replace(Constants.Symbol.DOT, Constants.Symbol.SLASH_LEFT)
                 for (filePath in filePathList) {
-                    val otherClassesRealPath = File(mainClassesRealPath, filePath).absolutePath
+                    val otherClassesRealPath = File(fixedClassesRealPath, filePath).absolutePath
                     val searchClassPath = File(otherClassesRealPath, Constants.Symbol.SLASH_LEFT + packageToPath).absolutePath
                     logger.debug("search classes real path:$otherClassesRealPath, search class path:$searchClassPath")
                     searchClassList.addAll(searchClassList(otherClassesRealPath, searchClassPath, annotationClass))
