@@ -65,7 +65,7 @@ fun ConfigurationContext.outputActionAndApi(outputFilename: String) {
                 }
             }
             if (suitableUri.isNotBlank()) {
-                val uriApiClassList = apiClassListMap[suitableUri] ?: error("uri:$suitableUri is not exists, it is impossible.")
+                val uriApiClassList = apiClassListMap[suitableUri] ?: error("uri:$suitableUri does not exist, it is impossible.")
                 uriApiClassList.forEach { (api, apiClass) ->
                     val instance = apiClass.java.newInstance()
                     val apiJson = JsonUtil.objectToJson(instance, emptyArray())

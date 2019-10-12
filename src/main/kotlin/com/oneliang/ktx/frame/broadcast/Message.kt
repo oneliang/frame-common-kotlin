@@ -49,12 +49,17 @@ class Message {
     }
 
     /**
-     * get instance
+     * get object
      *
      * @param key
      * @return instance
      */
-    fun getObject(key: String): Any {
-        return this.map[key] ?: Any()
+    @Suppress("UNCHECKED_CAST")
+    fun <T> getObject(key: String): T {
+        return this.map[key] as T ?: error("key:$key does not exist")
+    }
+
+    fun containsKey(key: String): Boolean {
+        return this.map.containsKey(key)
     }
 }

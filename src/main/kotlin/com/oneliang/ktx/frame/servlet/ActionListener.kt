@@ -230,7 +230,7 @@ class ActionListener : HttpServlet() {
         try {
             val actionBeanList = ConfigurationFactory.singletonConfigurationContext.findActionBeanList(uri)
             if (actionBeanList.isNullOrEmpty()) {
-                logger.info("The request name:$uri. It is not exist,please config the name and entity class")
+                logger.info("The request name:$uri. It does not exist,please config the name and entity class")
                 response.sendError(Constants.Http.StatusCode.NOT_FOUND)
                 return
             }
@@ -264,7 +264,7 @@ class ActionListener : HttpServlet() {
         } catch (e: Exception) {
             e.printStackTrace()
             logger.error(Constants.Base.EXCEPTION, e)
-            logger.info("The request name:$uri. Action or page is not exist")
+            logger.info("The request name:$uri. Action or page does not exist")
             val exceptionPath = ConfigurationFactory.singletonConfigurationContext.globalExceptionForwardPath
             if (exceptionPath != null) {
                 logger.info("Forward to exception path:$exceptionPath")
@@ -356,7 +356,7 @@ class ActionListener : HttpServlet() {
             }
             this.doForward(normalExecute, needToStaticExecute, actionForwardBean, path, request, response, false)
         } else {
-            logger.info("The forward name--:$forward is not exist,may be ajax use if not please config the name and entity page or class")
+            logger.info("The forward name--:$forward does not exist,may be ajax use if not please config the name and entity page or class")
         }
         return true
     }
