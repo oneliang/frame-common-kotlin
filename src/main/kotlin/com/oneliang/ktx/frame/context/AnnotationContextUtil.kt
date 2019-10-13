@@ -53,7 +53,8 @@ object AnnotationContextUtil {
             var type: String = Constants.String.BLANK
             var packageName: String = Constants.String.BLANK
             var path: String = Constants.String.BLANK
-            for (parameter in parameterArray) {
+            parameterArray.forEach {
+                val parameter = it.trim()
                 when {
                     parameter.startsWith(PARAMETER_TYPE) -> type = parameter.replaceFirst(PARAMETER_TYPE, Constants.String.BLANK)
                     parameter.startsWith(PARAMETER_PACKAGE) -> packageName = parameter.replaceFirst(PARAMETER_PACKAGE, Constants.String.BLANK)
@@ -63,7 +64,8 @@ object AnnotationContextUtil {
             val filePathList = path.split(Constants.Symbol.COLON)
             val searchClassList = mutableListOf<KClass<*>>()
             if (type.equals(Type.JAR, ignoreCase = true)) {
-                for (filePath in filePathList) {
+                filePathList.forEach {
+                    val filePath = it.trim()
                     val jarFileRealPath = File(fixedClassesRealPath, filePath).absolutePath
                     logger.debug("search jar file real path:$jarFileRealPath")
                     searchClassList.addAll(JarUtil.searchClassList(jarClassLoader, jarFileRealPath, packageName, annotationClass))
