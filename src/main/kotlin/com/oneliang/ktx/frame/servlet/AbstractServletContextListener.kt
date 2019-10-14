@@ -28,7 +28,7 @@ abstract class AbstractServletContextListener : ServletContextListener {
         //		String dbConfig=servletContextEvent.getServletContext().getInitParameter(CONTEXT_PARAMETER_DBCONFIG)
         val configFile = servletContextEvent.servletContext.getInitParameter(CONTEXT_PARAMETER_CONFIGFILE)
         //real path
-        val projectRealPath = servletContextEvent.servletContext.getRealPath(Constants.String.BLANK)
+        var projectRealPath = servletContextEvent.servletContext.getRealPath(Constants.String.BLANK)
 
         //config file
         if (configFile.isNotBlank()) {
@@ -37,6 +37,7 @@ abstract class AbstractServletContextListener : ServletContextListener {
                 var classesRealPath = Thread.currentThread().contextClassLoader.getResource(Constants.String.BLANK)?.path.nullToBlank()
                 classesRealPath = File(classesRealPath).absolutePath
                 configurationContext.classesRealPath = classesRealPath
+                projectRealPath = File(projectRealPath).absolutePath
                 configurationContext.projectRealPath = projectRealPath
                 configurationContext.initialize(configFile)
                 afterConfigurationInitialize(configurationContext)
