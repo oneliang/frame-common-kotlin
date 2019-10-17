@@ -21,7 +21,7 @@ class JsonTree<T : Any> : Tree<T>() {
      * @return String
      */
     fun generateJsonTree(keyValueMap: Map<String, String>): String {
-        return generateJsonTree(this.root!!, keyValueMap, JsonUtil.DEFAULT_JSON_PROCESSOR)
+        return generateJsonTree(this.root, keyValueMap, JsonUtil.DEFAULT_JSON_PROCESSOR)
     }
 
     /**
@@ -31,7 +31,7 @@ class JsonTree<T : Any> : Tree<T>() {
      * @return String
      */
     fun generateJsonTree(keyValueMap: Map<String, String>, jsonProcessor: JsonUtil.JsonProcessor): String {
-        return generateJsonTree(this.root!!, keyValueMap, jsonProcessor)
+        return generateJsonTree(this.root, keyValueMap, jsonProcessor)
     }
 
     /**
