@@ -57,7 +57,7 @@ class Page {
      */
     val pageFirstRow: Int
         get() {
-            if (this.page < 1) {
+            if (this.page < 1 || this.totalPages <= 0) {
                 this.page = 1
             } else if (this.page > this.totalPages) {
                 this.page = this.totalPages
@@ -75,6 +75,5 @@ class Page {
         } else {
             this.totalPages = this.totalRows / this.rowsPerPage + 1
         }
-
     }
 }
