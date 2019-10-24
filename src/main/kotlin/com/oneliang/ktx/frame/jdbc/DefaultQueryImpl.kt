@@ -630,9 +630,9 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
     override fun <T : Any> totalRows(clazz: KClass<T>?, table: String, condition: String, parameters: Array<Any>): Int {
         val sql = if (clazz != null) {
             val mappingBean = ConfigurationFactory.singletonConfigurationContext.findMappingBean(clazz)
-            SqlUtil.selectSql<Any>(arrayOf("COUNT(0) AS " + Constants.Database.COLUMN_NAME_TOTAL), table, condition, mappingBean)
+            SqlUtil.selectSql(arrayOf("COUNT(0) AS " + Constants.Database.COLUMN_NAME_TOTAL), table, condition, mappingBean)
         } else {
-            SqlUtil.selectSql<Any>(arrayOf("COUNT(0) AS " + Constants.Database.COLUMN_NAME_TOTAL), table, condition, null)
+            SqlUtil.selectSql(arrayOf("COUNT(0) AS " + Constants.Database.COLUMN_NAME_TOTAL), table, condition, null)
         }
         val totalList = this.selectObjectListBySql(Total::class, sql, parameters)
         return if (totalList.isNotEmpty()) {

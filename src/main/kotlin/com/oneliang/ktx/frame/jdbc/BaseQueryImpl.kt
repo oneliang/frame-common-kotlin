@@ -72,7 +72,7 @@ open class BaseQueryImpl : BaseQuery {
         val list: List<T>
         try {
             val mappingBean = ConfigurationFactory.singletonConfigurationContext.findMappingBean(clazz) ?: throw MappingNotFoundException("Mapping is not found, class:$clazz")
-            val sql = SqlUtil.selectSql<Any>(selectColumns, table, condition, mappingBean)
+            val sql = SqlUtil.selectSql(selectColumns, table, condition, mappingBean)
             resultSet = this.executeQueryBySql(connection, sql, parameters)
             list = SqlUtil.resultSetToObjectList(resultSet, clazz, mappingBean, this.sqlProcessor)
         } catch (e: Exception) {

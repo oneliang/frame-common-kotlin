@@ -97,7 +97,7 @@ object SqlUtil {
      * @param mappingBean
      * @return String
     </T> */
-    fun <T : Any> selectSql(columns: Array<String>, table: String, condition: String = Constants.String.BLANK, mappingBean: MappingBean?): String {
+    fun selectSql(columns: Array<String>, table: String, condition: String = Constants.String.BLANK, mappingBean: MappingBean?): String {
         val sql: String
         if (table.isNotBlank() || mappingBean != null) {
             val tempTable = if (table.isBlank() && mappingBean != null) {
