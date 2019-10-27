@@ -72,7 +72,8 @@ object AnnotationContextUtil {
                 }
             } else if (type.equals(Type.CLASSES_DIRECTORY, ignoreCase = true)) {
                 val packageToPath = packageName.replace(Constants.Symbol.DOT, Constants.Symbol.SLASH_LEFT)
-                for (filePath in filePathList) {
+                filePathList.forEach {
+                    val filePath = it.trim()
                     val otherClassesRealPath = File(fixedClassesRealPath, filePath).absolutePath
                     val searchClassPath = File(otherClassesRealPath, Constants.Symbol.SLASH_LEFT + packageToPath).absolutePath
                     logger.debug("search classes real path:$otherClassesRealPath, search class path:$searchClassPath")
