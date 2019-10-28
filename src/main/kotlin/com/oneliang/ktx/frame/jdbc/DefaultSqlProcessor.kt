@@ -23,7 +23,7 @@ class DefaultSqlProcessor : AbstractSqlProcessor() {
             when (clazz) {
                 Boolean::class -> value.toString()
                 Date::class -> "'" + (value as Date).toFormatString() + "'"
-                else -> "'" + value.toString() + "'"
+                else -> "'$value'"
             }
         } else {
             Constants.String.NULL
@@ -37,13 +37,13 @@ class DefaultSqlProcessor : AbstractSqlProcessor() {
      */
     override fun <T : Any> beforeUpdateProcess(clazz: KClass<T>, isId: Boolean, columnName: String, value: Any?): String {
         return if (isId) {
-            " AND $columnName='$value'"
+            " AND " + Constants.Symbol.ACCENT + columnName + Constants.Symbol.ACCENT + "='$value'"
         } else {
             if (value != null) {
                 when (clazz) {
-                    Boolean::class -> "$columnName=$value,"
-                    Date::class -> columnName + "='" + (value as Date).toFormatString() + "',"
-                    else -> "$columnName='$value',"
+                    Boolean::class -> Constants.Symbol.ACCENT + columnName + Constants.Symbol.ACCENT + "=$value,"
+                    Date::class -> Constants.Symbol.ACCENT + columnName + Constants.Symbol.ACCENT + "='" + (value as Date).toFormatString() + "',"
+                    else -> Constants.Symbol.ACCENT + columnName + Constants.Symbol.ACCENT + "='$value',"
                 }
             } else {
                 Constants.String.BLANK
@@ -62,13 +62,13 @@ class DefaultSqlProcessor : AbstractSqlProcessor() {
     </T> */
     override fun <T : Any> beforeDeleteProcess(clazz: KClass<T>, isId: Boolean, columnName: String, value: Any?): String {
         return if (isId) {
-            " AND $columnName='$value'"
+            " AND " + Constants.Symbol.ACCENT + columnName + Constants.Symbol.ACCENT + "='$value'"
         } else {
             if (value != null) {
                 when (clazz) {
-                    Boolean::class -> " AND $columnName=$value"
-                    Date::class -> " AND " + columnName + "='" + (value as Date).toFormatString() + "'"
-                    else -> " AND $columnName='$value'"
+                    Boolean::class -> " AND " + Constants.Symbol.ACCENT + columnName + Constants.Symbol.ACCENT + "=$value"
+                    Date::class -> " AND " + Constants.Symbol.ACCENT + columnName + Constants.Symbol.ACCENT + "='" + (value as Date).toFormatString() + "'"
+                    else -> " AND " + Constants.Symbol.ACCENT + columnName + Constants.Symbol.ACCENT + "='$value'"
                 }
             } else {
                 Constants.String.BLANK

@@ -37,7 +37,7 @@ object SqlInjectUtil {
                 if (columnName.isBlank()) {
                     continue
                 }
-                columnNameStringBuilder.append(columnName + Constants.Symbol.COMMA)
+                columnNameStringBuilder.append(Constants.Symbol.ACCENT + columnName + Constants.Symbol.ACCENT + Constants.Symbol.COMMA)
                 val value = method.invoke(instance)
                 values.append(Constants.Symbol.QUESTION_MARK + Constants.Symbol.COMMA)
                 parameterList.add(value)
@@ -81,7 +81,7 @@ object SqlInjectUtil {
             if (columnName.isBlank()) {
                 continue
             }
-            columnNameStringBuilder.append(columnName + Constants.Symbol.COMMA)
+            columnNameStringBuilder.append(Constants.Symbol.ACCENT + columnName + Constants.Symbol.ACCENT + Constants.Symbol.COMMA)
             valueStringBuilder.append(Constants.Symbol.QUESTION_MARK + Constants.Symbol.COMMA)
             fieldNameList.add(fieldName)
         }
@@ -131,16 +131,16 @@ object SqlInjectUtil {
                 if (byId && isId) {
                     val result: String
                     if (value != null) {
-                        result = " AND $columnName=?"
+                        result = " AND " + Constants.Symbol.ACCENT + columnName + Constants.Symbol.ACCENT + "=?"
                         idList.add(value)
                         condition.append(result)
                     } else {
-                        result = " AND " + columnName + " is " + Constants.String.NULL
+                        result = " AND " + Constants.Symbol.ACCENT + columnName + Constants.Symbol.ACCENT + " is " + Constants.String.NULL
                         condition.append(result)
                     }
                 } else {
                     if (value != null) {
-                        val result = "$columnName=?,"
+                        val result = Constants.Symbol.ACCENT + columnName + Constants.Symbol.ACCENT + "=?,"
                         valueList.add(value)
                         columnsAndValues.append(result)
                     }
@@ -194,11 +194,11 @@ object SqlInjectUtil {
             val isId = mappingBean.isId(fieldName)
             val result: String
             if (byId && isId) {
-                result = " AND $columnName=?"
+                result = " AND " + Constants.Symbol.ACCENT + columnName + Constants.Symbol.ACCENT + "=?"
                 idList.add(fieldName)
                 condition.append(result)
             } else {
-                result = "$columnName=?,"
+                result = Constants.Symbol.ACCENT + columnName + Constants.Symbol.ACCENT + "=?,"
                 valueList.add(fieldName)
                 columnsAndValues.append(result)
             }
@@ -248,11 +248,11 @@ object SqlInjectUtil {
                 if ((byId && isId) || (!byId && !isId)) {
                     val value = method.invoke(instance)
                     if (value != null) {
-                        condition.append(" AND $columnName=?")
+                        condition.append(" AND " + Constants.Symbol.ACCENT + columnName + Constants.Symbol.ACCENT + "=?")
                         parameterList.add(value)
                     } else {
                         if (byId && isId) {
-                            condition.append(" AND " + columnName + " is " + Constants.String.NULL)
+                            condition.append(" AND " + Constants.Symbol.ACCENT + columnName + Constants.Symbol.ACCENT + " is " + Constants.String.NULL)
                         }
                     }
                 }
@@ -296,7 +296,7 @@ object SqlInjectUtil {
             }
             val isId = mappingBean.isId(fieldName)
             if (byId && isId || !byId && !isId) {
-                condition.append(" AND $columnName=?")
+                condition.append(" AND " + Constants.Symbol.ACCENT + columnName + Constants.Symbol.ACCENT + "=?")
                 fieldNameList.add(fieldName)
             }
         }

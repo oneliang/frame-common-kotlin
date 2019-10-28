@@ -173,18 +173,15 @@ object SqlUtil {
             if (!isId) {
                 continue
             }
-            condition.append(" AND $columnName = ?")
+            condition.append(" AND " + Constants.Symbol.ACCENT + columnName + Constants.Symbol.ACCENT + " = ?")
         }
         val table = mappingBean.table
         return selectSql(emptyArray(), table, condition.toString())
     }
 
     /**
-     *
-     *
      * Method: for database use make the delete sql string,can delete one row
      * not the many rows,support single id
-     *
      * @param <T>
      * @param clazz
      * @param id
@@ -198,10 +195,7 @@ object SqlUtil {
     }
 
     /**
-     *
-     *
      * Method: for database use make the delete sql string,can delete multiple row
-     *
      * @param <T>
      * @param clazz
      * @param ids
@@ -229,7 +223,6 @@ object SqlUtil {
         if (ids.isEmpty()) {
             throw NullPointerException("ids can not be null or empty.")
         }
-        val methods = clazz.java.methods
         val condition = StringBuilder()
         for (mappingColumnBean in mappingBean.mappingColumnBeanList) {
             val fieldName = mappingColumnBean.field
@@ -243,11 +236,11 @@ object SqlUtil {
             }
             if (isId) {
                 when (deleteType) {
-                    SqlUtil.DeleteType.ONE_ROW -> condition.append(" AND " + columnName + "='" + ids[0] + "'")
+                    SqlUtil.DeleteType.ONE_ROW -> condition.append(" AND " + Constants.Symbol.ACCENT + columnName + Constants.Symbol.ACCENT + "='" + ids[0] + "'")
                     SqlUtil.DeleteType.MULTIPLE_ROW -> {
                         var id = ids.toJson()
                         id = id.replace(("^\\" + Constants.Symbol.MIDDLE_BRACKET_LEFT).toRegex(), "").replace(("\\" + Constants.Symbol.MIDDLE_BRACKET_RIGHT + "$").toRegex(), "")
-                        condition.append(" AND $columnName IN ($id)")
+                        condition.append(" AND " + Constants.Symbol.ACCENT + columnName + Constants.Symbol.ACCENT + " IN ($id)")
                     }
                 }
             }
@@ -257,10 +250,7 @@ object SqlUtil {
     }
 
     /**
-     *
-     *
      * Method: object to select sql
-     *
      * @param <T>
      * @param instance
      * @param table
@@ -287,7 +277,7 @@ object SqlUtil {
                     continue
                 }
                 val value = method.invoke(instance)
-                condition.append(" AND $columnName='$value'")
+                condition.append(" AND " + Constants.Symbol.ACCENT + columnName + Constants.Symbol.ACCENT + "='$value'")
             }
             val tempTable = if (table.isBlank()) {
                 mappingBean.table
@@ -302,10 +292,7 @@ object SqlUtil {
     }
 
     /**
-     *
-     *
      * Method: for database use,make the update sql string
-     *
      * @param <T>
      * @param instance
      * @param table
@@ -329,7 +316,7 @@ object SqlUtil {
                 if (columnName.isBlank()) {
                     continue
                 }
-                columnNames.append(columnName + Constants.Symbol.COMMA)
+                columnNames.append(Constants.Symbol.ACCENT + columnName + Constants.Symbol.ACCENT + Constants.Symbol.COMMA)
                 val type = method.returnType
                 val value = method.invoke(instance)
                 if (sqlProcessor != null) {
@@ -361,10 +348,7 @@ object SqlUtil {
     }
 
     /**
-     *
-     *
      * Method: for database use,make the update sql string
-     *
      * @param <T>
      * @param instance
      * @param table
@@ -394,7 +378,7 @@ object SqlUtil {
                 val type = method.returnType
                 val value = method.invoke(instance)
                 val result = sqlProcessor?.beforeUpdateProcess(type.kotlin, isId, columnName, value) ?: if (value != null) {
-                    "$columnName='$value',"
+                    Constants.Symbol.ACCENT + columnName + Constants.Symbol.ACCENT + "='$value',"
                 } else {
                     Constants.String.BLANK
                 }
@@ -424,12 +408,8 @@ object SqlUtil {
     }
 
     /**
-     *
-     *
      * Method: for database use make the delete sql string,can delete one row
      * not the many rows
-     *
-     *
      * @param <T>
      * @param instance
      * @param table
@@ -461,7 +441,7 @@ object SqlUtil {
                         condition.append(result)
                     } else {
                         if (value != null) {
-                            condition.append(" AND $columnName='$value'")
+                            condition.append(" AND " + Constants.Symbol.ACCENT + columnName + Constants.Symbol.ACCENT + "='$value'")
                         }
                     }
                 }
@@ -492,10 +472,10 @@ object SqlUtil {
         val createTableSql = StringBuilder()
         createTableSql.append("CREATE TABLE $table (")
         val mappingColumnBeanList = annotationMappingBean.mappingColumnBeanList
-        if (!mappingColumnBeanList.isEmpty()) {
+        if (mappingColumnBeanList.isNotEmpty()) {
             for (mappingColumnBean in mappingColumnBeanList) {
                 if (mappingColumnBean is AnnotationMappingColumnBean) {
-                    createTableSql.append(mappingColumnBean.column)
+                    createTableSql.append(Constants.Symbol.ACCENT + mappingColumnBean.column + Constants.Symbol.ACCENT)
                     createTableSql.append(" " + mappingColumnBean.condition + Constants.Symbol.COMMA)
                     if (mappingColumnBean.isId) {
                         createTableSql.append("PRIMARY KEY (" + mappingColumnBean.column + ")")
