@@ -36,9 +36,9 @@ object DatabaseMappingUtil {
                 val fieldName = string.substring(pos + 1, string.length)
                 val mappingBean = ConfigurationFactory.singletonConfigurationContext.findMappingBean(className)
                 if (mappingBean != null) {
-                    val column = mappingBean.getColumn(fieldName)
-                    if (column.isNotBlank()) {
-                        parsedSql = parsedSql.replaceFirst(REGEX.toRegex(), column)
+                    val columnName = mappingBean.getColumn(fieldName)
+                    if (columnName.isNotBlank()) {
+                        parsedSql = parsedSql.replaceFirst(REGEX.toRegex(), Constants.Symbol.ACCENT + columnName + Constants.Symbol.ACCENT)
                     } else {
                         throw MappingNotFoundException("can not find the mapping field: " + className + Constants.Symbol.DOT + fieldName)
                     }
