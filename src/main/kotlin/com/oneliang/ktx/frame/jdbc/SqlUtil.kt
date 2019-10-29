@@ -112,6 +112,19 @@ object SqlUtil {
         return sql
     }
 
+    fun insertSql(table: String, columnNameArray: Array<String>, valueArray: Array<String>): String {
+        return insertSql(table, columnNameArray.joinToString(), valueArray.joinToString(prefix = Constants.Symbol.SINGLE_QUOTES, postfix = Constants.Symbol.SINGLE_QUOTES))
+    }
+
+    private fun insertSql(table: String, columnNames: String, values: String): String {
+        val sql = StringBuilder()
+        sql.append("INSERT INTO ")
+        sql.append(table)
+        sql.append("($columnNames)")
+        sql.append(" VALUES ($values)")
+        return sql.toString()
+    }
+
     /**
      * delete sql
      * @param table can not be null
@@ -335,12 +348,7 @@ object SqlUtil {
             } else {
                 table
             }
-            val stringBuilder = StringBuilder()
-            stringBuilder.append("INSERT INTO ")
-            stringBuilder.append(tempTable)
-            stringBuilder.append("(" + columnNames.substring(0, columnNames.length - 1) + ")")
-            stringBuilder.append(" VALUES (" + values.substring(0, values.length - 1) + ")")
-            sql = stringBuilder.toString()
+            sql = insertSql(tempTable, columnNames.substring(0, columnNames.length - 1), values.substring(0, values.length - 1))
         } catch (e: Exception) {
             throw SqlUtilException(e)
         }
