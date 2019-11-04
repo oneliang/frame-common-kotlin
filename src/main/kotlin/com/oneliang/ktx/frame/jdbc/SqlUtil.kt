@@ -113,7 +113,7 @@ object SqlUtil {
     }
 
     fun insertSql(table: String, columnNameArray: Array<String>, valueArray: Array<String>): String {
-        return insertSql(table, columnNameArray.joinToString(), valueArray.joinToString(prefix = Constants.Symbol.SINGLE_QUOTES, postfix = Constants.Symbol.SINGLE_QUOTES))
+        return insertSql(table, columnNameArray.joinToString(), valueArray.joinToString(separator = Constants.Symbol.SINGLE_QUOTES + Constants.Symbol.COMMA + Constants.Symbol.SINGLE_QUOTES, prefix = Constants.Symbol.SINGLE_QUOTES, postfix = Constants.Symbol.SINGLE_QUOTES))
     }
 
     private fun insertSql(table: String, columnNames: String, values: String): String {
