@@ -17,7 +17,6 @@ open class BaseQueryImpl : BaseQuery {
     private var sqlProcessor: SqlUtil.SqlProcessor = DEFAULT_SQL_PROCESSOR
 
     /**
-     *
      * Method: execute by sql,for all sql
      * @param connection
      * @param sql
@@ -25,7 +24,7 @@ open class BaseQueryImpl : BaseQuery {
      * @throws QueryException
      */
     @Throws(QueryException::class)
-    override fun executeBySql(connection: Connection, sql: String, parameters: Array<Any>) {
+    override fun executeBySql(connection: Connection, sql: String, parameters: Array<*>) {
         var parsedSql = sql
         var preparedStatement: PreparedStatement? = null
         try {
@@ -52,9 +51,7 @@ open class BaseQueryImpl : BaseQuery {
     }
 
     /**
-     *
      * Through the class generate the sql
-     *
      * Method: execute query base on connection and  class and selectColumns and table and condition
      * @param <T>
      * @param connection
@@ -67,7 +64,7 @@ open class BaseQueryImpl : BaseQuery {
      * @throws QueryException
     </T></T> */
     @Throws(QueryException::class)
-    override fun <T : Any> executeQuery(connection: Connection, clazz: KClass<T>, selectColumns: Array<String>, table: String, condition: String, parameters: Array<Any>): List<T> {
+    override fun <T : Any> executeQuery(connection: Connection, clazz: KClass<T>, selectColumns: Array<String>, table: String, condition: String, parameters: Array<*>): List<T> {
         var resultSet: ResultSet? = null
         val list: List<T>
         try {
@@ -92,7 +89,6 @@ open class BaseQueryImpl : BaseQuery {
     }
 
     /**
-     *
      * Method: execute query by id
      * @param <T>
      * @param connection
@@ -131,9 +127,7 @@ open class BaseQueryImpl : BaseQuery {
     }
 
     /**
-     *
      * The base sql query
-     *
      * Method: execute query base on the connection and sql command
      * @param connection
      * @param clazz
@@ -143,7 +137,7 @@ open class BaseQueryImpl : BaseQuery {
      * @throws QueryException
      */
     @Throws(QueryException::class)
-    override fun <T : Any> executeQueryBySql(connection: Connection, clazz: KClass<T>, sql: String, parameters: Array<Any>): List<T> {
+    override fun <T : Any> executeQueryBySql(connection: Connection, clazz: KClass<T>, sql: String, parameters: Array<*>): List<T> {
         var resultSet: ResultSet? = null
         val list: List<T>
         try {
@@ -167,9 +161,7 @@ open class BaseQueryImpl : BaseQuery {
     }
 
     /**
-     *
      * Method: execute query base on the connection and sql command
-     *
      * Caution: use this method must get Statement from the ResultSet and close it and close the ResultSet
      * @param connection
      * @param sql
@@ -178,7 +170,7 @@ open class BaseQueryImpl : BaseQuery {
      * @throws QueryException
      */
     @Throws(QueryException::class)
-    override fun executeQueryBySql(connection: Connection, sql: String, parameters: Array<Any>): ResultSet {
+    override fun executeQueryBySql(connection: Connection, sql: String, parameters: Array<*>): ResultSet {
         val resultSet: ResultSet
         try {
             val parsedSql = DatabaseMappingUtil.parseSql(sql)
@@ -199,7 +191,6 @@ open class BaseQueryImpl : BaseQuery {
     }
 
     /**
-     *
      * Method: execute insert
      * @param connection
      * @param instance
@@ -213,7 +204,6 @@ open class BaseQueryImpl : BaseQuery {
     }
 
     /**
-     *
      * Method: execute insert for auto increment and return the auto increment id
      * @param connection
      * @param <T>
@@ -351,7 +341,7 @@ open class BaseQueryImpl : BaseQuery {
      * @throws QueryException
     </T> */
     @Throws(QueryException::class)
-    override fun <T : Any> executeDelete(connection: Connection, clazz: KClass<T>, condition: String, parameters: Array<Any>): Int {
+    override fun <T : Any> executeDelete(connection: Connection, clazz: KClass<T>, condition: String, parameters: Array<*>): Int {
         val result: Int
         try {
             val mappingBean = ConfigurationFactory.singletonConfigurationContext.findMappingBean(clazz) ?: throw MappingNotFoundException("Mapping is not found, class:$clazz")
@@ -388,7 +378,7 @@ open class BaseQueryImpl : BaseQuery {
      * @throws QueryException
      */
     @Throws(QueryException::class)
-    override fun executeInsertForAutoIncrementBySql(connection: Connection, sql: String, parameters: Array<Any>): Int {
+    override fun executeInsertForAutoIncrementBySql(connection: Connection, sql: String, parameters: Array<*>): Int {
         var preparedStatement: PreparedStatement? = null
         var id: Int = 0
         var resultSet: ResultSet? = null
@@ -581,7 +571,7 @@ open class BaseQueryImpl : BaseQuery {
      * @throws QueryException
      */
     @Throws(QueryException::class)
-    override fun executeUpdateBySql(connection: Connection, sql: String, parameters: Array<Any>): Int {
+    override fun executeUpdateBySql(connection: Connection, sql: String, parameters: Array<*>): Int {
         var preparedStatement: PreparedStatement? = null
         val updateResult: Int
         try {

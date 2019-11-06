@@ -21,7 +21,7 @@ interface BaseQuery {
      * @throws QueryException
      */
     @Throws(QueryException::class)
-    fun executeBySql(connection: Connection, sql: String, parameters: Array<Any> = emptyArray())
+    fun executeBySql(connection: Connection, sql: String, parameters: Array<*> = emptyArray<Any>())
 
     /**
      *
@@ -39,7 +39,7 @@ interface BaseQuery {
      * @throws QueryException
     </T></T> */
     @Throws(QueryException::class)
-    fun <T : Any> executeQuery(connection: Connection, clazz: KClass<T>, selectColumns: Array<String> = emptyArray(), table: String = Constants.String.BLANK, condition: String = Constants.String.BLANK, parameters: Array<Any> = emptyArray()): List<T>
+    fun <T : Any> executeQuery(connection: Connection, clazz: KClass<T>, selectColumns: Array<String> = emptyArray(), table: String = Constants.String.BLANK, condition: String = Constants.String.BLANK, parameters: Array<*> = emptyArray<Any>()): List<T>
 
     /**
      *
@@ -65,7 +65,7 @@ interface BaseQuery {
      * @throws QueryException
      */
     @Throws(QueryException::class)
-    fun <T : Any> executeQueryBySql(connection: Connection, clazz: KClass<T>, sql: String, parameters: Array<Any> = emptyArray()): List<T>
+    fun <T : Any> executeQueryBySql(connection: Connection, clazz: KClass<T>, sql: String, parameters: Array<*> = emptyArray<Any>()): List<T>
 
     /**
      *
@@ -79,7 +79,7 @@ interface BaseQuery {
      * @throws QueryException
      */
     @Throws(QueryException::class)
-    fun executeQueryBySql(connection: Connection, sql: String, parameters: Array<Any> = emptyArray()): ResultSet
+    fun executeQueryBySql(connection: Connection, sql: String, parameters: Array<*> = emptyArray<Any>()): ResultSet
 
     /**
      *
@@ -195,7 +195,7 @@ interface BaseQuery {
      * @throws QueryException
     </T> */
     @Throws(QueryException::class)
-    fun <T : Any> executeDelete(connection: Connection, clazz: KClass<T>, condition: String = Constants.String.BLANK, parameters: Array<Any> = emptyArray()): Int
+    fun <T : Any> executeDelete(connection: Connection, clazz: KClass<T>, condition: String = Constants.String.BLANK, parameters: Array<*> = emptyArray<Any>()): Int
 
     /**
      *
@@ -220,7 +220,7 @@ interface BaseQuery {
      * @throws QueryException
      */
     @Throws(QueryException::class)
-    fun executeInsertForAutoIncrementBySql(connection: Connection, sql: String, parameters: Array<Any>): Int
+    fun executeInsertForAutoIncrementBySql(connection: Connection, sql: String, parameters: Array<*>): Int
 
     /**
      *
@@ -232,7 +232,7 @@ interface BaseQuery {
      * @throws QueryException
      */
     @Throws(QueryException::class)
-    fun executeUpdateBySql(connection: Connection, sql: String, parameters: Array<Any> = emptyArray()): Int
+    fun executeUpdateBySql(connection: Connection, sql: String, parameters: Array<*> = emptyArray<Any>()): Int
 
     /**
      *
