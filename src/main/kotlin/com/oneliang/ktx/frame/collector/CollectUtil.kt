@@ -35,14 +35,9 @@ object CollectUtil {
                 if (needToUnzip) {
                     newInputStream = GZIPInputStream(inputStream)
                 }
-                val buffer = ByteArray(Constants.Capacity.BYTES_PER_KB)
-                var dataLength = newInputStream.read(buffer, 0, buffer.size)
-                while (dataLength != -1) {
-                    byteArrayOutputStream.write(buffer, 0, dataLength)
-                    byteArrayOutputStream.flush()
-                    dataLength = newInputStream.read(buffer, 0, buffer.size)
+                byteArrayOutputStream.use {
+                    FileUtil.copyStream(newInputStream, it)
                 }
-                byteArrayOutputStream.close()
             }
 
             override fun exceptionCallback(exception: Exception) {
