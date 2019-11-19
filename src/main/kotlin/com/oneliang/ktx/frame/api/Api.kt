@@ -11,6 +11,6 @@ annotation class Api(val requestMapping: String, val mode: Mode = Mode.REQUEST) 
     }
 
     enum class Mode {
-        REQUEST, RESPONSE
+        REQUEST, RESPONSE, RESPONSE_DATA
     }
 }

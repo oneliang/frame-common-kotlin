@@ -72,8 +72,11 @@ fun ConfigurationContext.outputActionAndApi(outputFilename: String) {
                     if (api.mode == Api.Mode.REQUEST) {
                         it.write("api request json:$apiJson")
                         it.newLine()
-                    } else {
+                    } else if (api.mode == Api.Mode.RESPONSE) {
                         it.write("api response json:$apiJson")
+                        it.newLine()
+                    } else if (api.mode == Api.Mode.RESPONSE_DATA) {
+                        it.write("api data json:$apiJson")
                         it.newLine()
                     }
                 }
