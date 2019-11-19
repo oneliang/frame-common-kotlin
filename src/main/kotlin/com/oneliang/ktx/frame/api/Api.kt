@@ -7,7 +7,7 @@ import com.oneliang.ktx.Constants
 @Retention(AnnotationRetention.RUNTIME)
 annotation class Api(val requestMapping: String, val mode: Mode = Mode.REQUEST) {
     companion object {
-        const val DEFAULT_REQUEST_MAPPING = Constants.Symbol.WILDCARD
+        const val DEFAULT_URI = Constants.Symbol.WILDCARD
     }
 
     enum class Mode {

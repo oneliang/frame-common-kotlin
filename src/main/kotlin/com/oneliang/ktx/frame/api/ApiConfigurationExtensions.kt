@@ -58,8 +58,8 @@ fun ConfigurationContext.outputActionAndApi(outputFilename: String) {
             val suitableUri = if (apiClassListMap.containsKey(uri)) {
                 uri
             } else {
-                if (apiClassListMap.containsKey(Api.DEFAULT_REQUEST_MAPPING)) {
-                    Api.DEFAULT_REQUEST_MAPPING
+                if (apiClassListMap.containsKey(Api.DEFAULT_URI)) {
+                    Api.DEFAULT_URI
                 } else {
                     Constants.String.BLANK
                 }
