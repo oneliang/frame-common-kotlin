@@ -5,12 +5,15 @@ import com.oneliang.ktx.Constants
 @MustBeDocumented
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FILE)
 @Retention(AnnotationRetention.RUNTIME)
-annotation class Api(val requestMapping: String, val mode: Mode = Mode.REQUEST) {
-    companion object {
-        const val DEFAULT_URI = Constants.Symbol.WILDCARD
-    }
+annotation class Api {
 
-    enum class Mode {
-        REQUEST, RESPONSE, RESPONSE_DATA
-    }
+    @MustBeDocumented
+    @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER)
+    @Retention(AnnotationRetention.RUNTIME)
+    annotation class Document(val key: String, val inputObjectKey: String = Constants.String.BLANK, val outputObjectKey: String = Constants.String.BLANK)
+
+    @MustBeDocumented
+    @Target(AnnotationTarget.CLASS, AnnotationTarget.FILE)
+    @Retention(AnnotationRetention.RUNTIME)
+    annotation class DocumentObjectMap
 }

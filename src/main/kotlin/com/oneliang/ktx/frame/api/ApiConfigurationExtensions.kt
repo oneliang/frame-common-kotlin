@@ -1,87 +1,51 @@
 package com.oneliang.ktx.frame.api
 
-import com.oneliang.ktx.Constants
 import com.oneliang.ktx.frame.configuration.ConfigurationContext
-import com.oneliang.ktx.frame.servlet.action.Action
-import com.oneliang.ktx.frame.servlet.action.ActionContext
-import com.oneliang.ktx.frame.servlet.action.AnnotationActionBean
 import com.oneliang.ktx.util.json.JsonUtil
 import java.io.BufferedWriter
 import java.io.File
 import java.io.FileWriter
-import kotlin.reflect.KClass
 
 /**
  * output action map
  */
-fun ConfigurationContext.outputActionAndApi(outputFilename: String) {
+fun ConfigurationContext.outputApi(outputFilename: String) {
     val apiClassList = AnnotationApiContext.apiClassList
-    val apiClassListMap = mutableMapOf<String, MutableList<Pair<Api, KClass<*>>>>()
-    apiClassList.forEach {
-        if (it.java.isAnnotationPresent(Api::class.java)) {
-            val api = it.java.getAnnotation(Api::class.java)!!
-            val uri = api.requestMapping
-            val uriApiClassList = if (apiClassListMap.containsKey(uri)) {
-                apiClassListMap[uri]!!
-            } else {
-                val list = mutableListOf<Pair<Api, KClass<*>>>()
-                apiClassListMap[uri] = list
-                list
-            }
-            uriApiClassList += api to it
-        } else {
-            error("$it is not api class, it is impossible.")
-        }
-    }
-    val sortedActionBeanMap = ActionContext.actionBeanMap.toSortedMap()
-    val bufferedWriter = BufferedWriter(FileWriter(File(this.projectRealPath, outputFilename)))
-    bufferedWriter.use {
-        sortedActionBeanMap.forEach { (_, actionBean) ->
-            it.newLine()
-            val uri = actionBean.path
-            it.write("uri:$uri")
-            it.newLine()
-            it.write("\tmethods:${actionBean.httpRequestMethods}")
-            it.newLine()
-            if (actionBean is AnnotationActionBean) {
-                val annotationActionBeanMethod = actionBean.method!!
-                val classes = annotationActionBeanMethod.parameterTypes
-                val parameterAnnotations = annotationActionBeanMethod.parameterAnnotations
-                parameterAnnotations.forEachIndexed { index, annotationArray ->
-                    if (annotationArray.isNotEmpty() && annotationArray[0] is Action.RequestMapping.RequestParameter) {
-                        val parameterAnnotation = annotationArray[0] as Action.RequestMapping.RequestParameter
-                        it.write("\tparameter$index(${parameterAnnotation.value}):${classes[index].name}")
+    val apiDocumentObjectMap = AnnotationApiContext.apiDocumentObjectMap
+    apiClassList.forEach { apiClass ->
+        if (apiClass.java.isAnnotationPresent(Api::class.java)) {
+            val api = apiClass.java.getAnnotation(Api::class.java)!!
+            val methods = apiClass.java.methods
+            for (method in methods) {
+                if (method.isAnnotationPresent(Api.Document::class.java)) {
+                    val apiDocumentAnnotation = method.getAnnotation(Api.Document::class.java)
+                    val apiDocumentKey = apiDocumentAnnotation.key
+                    val apiDocumentInputObjectKey = apiDocumentAnnotation.inputObjectKey
+                    val apiDocumentOutputObjectKey = apiDocumentAnnotation.outputObjectKey
+                    val bufferedWriter = BufferedWriter(FileWriter(File(this.projectRealPath, outputFilename)))
+                    bufferedWriter.use {
+                        it.write("key:\t$apiDocumentKey")
                         it.newLine()
+                        if (apiDocumentInputObjectKey.isNotBlank()) {
+                            val inputObject = apiDocumentObjectMap[apiDocumentInputObjectKey]
+                            if (inputObject != null) {
+                                val inputObjectJson = JsonUtil.objectToJson(inputObject, emptyArray())
+                                it.write("input:\t$inputObjectJson")
+                                it.newLine()
+                            }
+                        }
+                        if (apiDocumentOutputObjectKey.isNotBlank()) {
+                            val outputObject = apiDocumentObjectMap[apiDocumentOutputObjectKey]
+                            if (outputObject != null) {
+                                val outputObjectJson = JsonUtil.objectToJson(outputObject, emptyArray())
+                                it.write("output:\t$outputObjectJson")
+                                it.newLine()
+                            }
+                        }
+                        it.flush()
                     }
                 }
             }
-            val suitableUri = if (apiClassListMap.containsKey(uri)) {
-                uri
-            } else {
-                if (apiClassListMap.containsKey(Api.DEFAULT_URI)) {
-                    Api.DEFAULT_URI
-                } else {
-                    Constants.String.BLANK
-                }
-            }
-            if (suitableUri.isNotBlank()) {
-                val uriApiClassList = apiClassListMap[suitableUri] ?: error("uri:$suitableUri does not exist, it is impossible.")
-                uriApiClassList.forEach { (api, apiClass) ->
-                    val instance = apiClass.java.newInstance()
-                    val apiJson = JsonUtil.objectToJson(instance, emptyArray())
-                    if (api.mode == Api.Mode.REQUEST) {
-                        it.write("api request json:$apiJson")
-                        it.newLine()
-                    } else if (api.mode == Api.Mode.RESPONSE) {
-                        it.write("api response json:$apiJson")
-                        it.newLine()
-                    } else if (api.mode == Api.Mode.RESPONSE_DATA) {
-                        it.write("api data json:$apiJson")
-                        it.newLine()
-                    }
-                }
-            }
-            it.flush()
         }
     }
 }
