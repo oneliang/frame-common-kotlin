@@ -20,30 +20,37 @@ fun ConfigurationContext.outputApi(outputFilename: String) {
                 if (method.isAnnotationPresent(Api.Document::class.java)) {
                     val apiDocumentAnnotation = method.getAnnotation(Api.Document::class.java)
                     val apiDocumentKey = apiDocumentAnnotation.key
-                    val apiDocumentInputObjectKey = apiDocumentAnnotation.inputObjectKey
-                    val apiDocumentOutputObjectKey = apiDocumentAnnotation.outputObjectKey
                     val bufferedWriter = BufferedWriter(FileWriter(File(this.projectRealPath, outputFilename)))
                     bufferedWriter.use {
                         it.write("key:\t$apiDocumentKey")
                         it.newLine()
-                        if (apiDocumentInputObjectKey.isNotBlank()) {
-                            val inputObject = apiDocumentObjectMap[apiDocumentInputObjectKey]
-                            if (inputObject != null) {
-                                val inputObjectJson = JsonUtil.objectToJson(inputObject, emptyArray())
-                                it.write("input:\t$inputObjectJson")
-                                it.newLine()
+                        val caseArray = apiDocumentAnnotation.cases
+                        caseArray.forEach { case ->
+                            val caseKey = case.key
+                            val caseInputObjectKey = case.inputObjectKey
+                            val caseOutputObjectKey = case.outputObjectKey
+                            it.write("\tcase key:\t$apiDocumentKey")
+                            it.newLine()
+                            if (caseInputObjectKey.isNotBlank()) {
+                                val inputObject = apiDocumentObjectMap[caseInputObjectKey]
+                                if (inputObject != null) {
+                                    val inputObjectJson = JsonUtil.objectToJson(inputObject, emptyArray())
+                                    it.write("\t\tcase input:\t$inputObjectJson")
+                                    it.newLine()
+                                }
                             }
-                        }
-                        if (apiDocumentOutputObjectKey.isNotBlank()) {
-                            val outputObject = apiDocumentObjectMap[apiDocumentOutputObjectKey]
-                            if (outputObject != null) {
-                                val outputObjectJson = JsonUtil.objectToJson(outputObject, emptyArray())
-                                it.write("output:\t$outputObjectJson")
-                                it.newLine()
+                            if (caseOutputObjectKey.isNotBlank()) {
+                                val outputObject = apiDocumentObjectMap[caseOutputObjectKey]
+                                if (outputObject != null) {
+                                    val outputObjectJson = JsonUtil.objectToJson(outputObject, emptyArray())
+                                    it.write("\t\tcase output:\t$outputObjectJson")
+                                    it.newLine()
+                                }
                             }
+                            it.flush()
                         }
-                        it.flush()
                     }
+
                 }
             }
         }
