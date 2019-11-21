@@ -23,70 +23,72 @@ class AnnotationActionContext : ActionContext() {
                 }
                 val methods = clazz.java.methods
                 for (method in methods) {
-                    if (method.isAnnotationPresent(Action.RequestMapping::class.java)) {
-                        val returnType = method.returnType
-                        if (returnType != null && returnType == String::class.java) {
-                            val annotationActionBean = AnnotationActionBean()
-                            val requestMappingAnnotation = method.getAnnotation(Action.RequestMapping::class.java)
-                            annotationActionBean.type = clazz.java.name
-                            val annotationHttpRequestMethods = requestMappingAnnotation.httpRequestMethods
-                            val httpRequestMethods = if (annotationHttpRequestMethods.isNotEmpty()) {
-                                annotationHttpRequestMethods
-                            } else {
-                                arrayOf(Constants.Http.RequestMethod.GET, Constants.Http.RequestMethod.POST)
-                            }
-                            if (httpRequestMethods.isNotEmpty()) {
-                                val stringBuilder = StringBuilder()
-                                for (i in httpRequestMethods.indices) {
-                                    stringBuilder.append(httpRequestMethods[i].value)
-                                    if (i < httpRequestMethods.size - 1) {
-                                        stringBuilder.append(Constants.Symbol.COMMA)
-                                    }
-                                }
-                                annotationActionBean.httpRequestMethods = stringBuilder.toString()
-                            }
-                            val httpRequestMethodsCode = annotationActionBean.httpRequestMethodsCode
-                            val id = classId + Constants.Symbol.DOT + method.name + Constants.Symbol.COMMA + httpRequestMethodsCode
-                            annotationActionBean.id = id
-                            val requestPath = requestMappingAnnotation.value
-                            annotationActionBean.path = requestPath
-                            annotationActionBean.method = method
-                            annotationActionBean.actionInstance = actionInstance
-                            ActionContext.actionBeanMap[id] = annotationActionBean
-                            val actionBeanList: MutableList<ActionBean>
-                            if (ActionContext.pathActionBeanMap.containsKey(requestPath)) {
-                                actionBeanList = ActionContext.pathActionBeanMap[requestPath]!!
-                            } else {
-                                actionBeanList = mutableListOf()
-                                ActionContext.pathActionBeanMap[requestPath] = actionBeanList
-                            }
-                            actionBeanList.add(annotationActionBean)
-                            //interceptor
-                            val interceptors = requestMappingAnnotation.interceptors
-                            for (interceptor in interceptors) {
-                                val interceptorId = interceptor.id
-                                val interceptorMode = interceptor.mode
-                                if (interceptorId.isNotBlank()) {
-                                    val actionInterceptorBean = ActionInterceptorBean()
-                                    actionInterceptorBean.id = interceptorId
-                                    when (interceptorMode) {
-                                        Action.RequestMapping.Interceptor.Mode.BEFORE -> actionInterceptorBean.mode = ActionInterceptorBean.Mode.BEFORE
-                                        Action.RequestMapping.Interceptor.Mode.AFTER -> actionInterceptorBean.mode = ActionInterceptorBean.Mode.AFTER
-                                    }
-                                    annotationActionBean.addActionBeanInterceptor(actionInterceptorBean)
-                                }
-                            }
-                            //static
-                            val statics = requestMappingAnnotation.statics
-                            for (staticAnnotation in statics) {
-                                val actionForwardBean = ActionForwardBean()
-                                actionForwardBean.staticParameters = staticAnnotation.parameters
-                                actionForwardBean.staticFilePath = staticAnnotation.filePath
-                                annotationActionBean.addActionForwardBean(actionForwardBean)
-                            }
+                    if (!method.isAnnotationPresent(Action.RequestMapping::class.java)) {
+                        continue
+                    }
+                    val returnType = method.returnType
+                    if (returnType != null && returnType == String::class.java) {
+                        val annotationActionBean = AnnotationActionBean()
+                        val requestMappingAnnotation = method.getAnnotation(Action.RequestMapping::class.java)
+                        annotationActionBean.type = clazz.java.name
+                        val annotationHttpRequestMethods = requestMappingAnnotation.httpRequestMethods
+                        val httpRequestMethods = if (annotationHttpRequestMethods.isNotEmpty()) {
+                            annotationHttpRequestMethods
                         } else {
-                            throw InitializeException("@" + Action.RequestMapping::class.java.simpleName + "class:" + clazz.java.name + ", method:" + method.name + " which the return type must be String.class,current is:" + returnType)
+                            arrayOf(Constants.Http.RequestMethod.GET, Constants.Http.RequestMethod.POST)
                         }
+                        if (httpRequestMethods.isNotEmpty()) {
+                            val stringBuilder = StringBuilder()
+                            for (i in httpRequestMethods.indices) {
+                                stringBuilder.append(httpRequestMethods[i].value)
+                                if (i < httpRequestMethods.size - 1) {
+                                    stringBuilder.append(Constants.Symbol.COMMA)
+                                }
+                            }
+                            annotationActionBean.httpRequestMethods = stringBuilder.toString()
+                        }
+                        val httpRequestMethodsCode = annotationActionBean.httpRequestMethodsCode
+                        val id = classId + Constants.Symbol.DOT + method.name + Constants.Symbol.COMMA + httpRequestMethodsCode
+                        annotationActionBean.id = id
+                        val requestPath = requestMappingAnnotation.value
+                        annotationActionBean.path = requestPath
+                        annotationActionBean.method = method
+                        annotationActionBean.actionInstance = actionInstance
+                        ActionContext.actionBeanMap[id] = annotationActionBean
+                        val actionBeanList: MutableList<ActionBean>
+                        if (ActionContext.pathActionBeanMap.containsKey(requestPath)) {
+                            actionBeanList = ActionContext.pathActionBeanMap[requestPath]!!
+                        } else {
+                            actionBeanList = mutableListOf()
+                            ActionContext.pathActionBeanMap[requestPath] = actionBeanList
+                        }
+                        actionBeanList.add(annotationActionBean)
+                        //interceptor
+                        val interceptors = requestMappingAnnotation.interceptors
+                        for (interceptor in interceptors) {
+                            val interceptorId = interceptor.id
+                            val interceptorMode = interceptor.mode
+                            if (interceptorId.isBlank()) {
+                                continue
+                            }
+                            val actionInterceptorBean = ActionInterceptorBean()
+                            actionInterceptorBean.id = interceptorId
+                            when (interceptorMode) {
+                                Action.RequestMapping.Interceptor.Mode.BEFORE -> actionInterceptorBean.mode = ActionInterceptorBean.Mode.BEFORE
+                                Action.RequestMapping.Interceptor.Mode.AFTER -> actionInterceptorBean.mode = ActionInterceptorBean.Mode.AFTER
+                            }
+                            annotationActionBean.addActionBeanInterceptor(actionInterceptorBean)
+                        }
+                        //static
+                        val statics = requestMappingAnnotation.statics
+                        for (staticAnnotation in statics) {
+                            val actionForwardBean = ActionForwardBean()
+                            actionForwardBean.staticParameters = staticAnnotation.parameters
+                            actionForwardBean.staticFilePath = staticAnnotation.filePath
+                            annotationActionBean.addActionForwardBean(actionForwardBean)
+                        }
+                    } else {
+                        throw InitializeException("@" + Action.RequestMapping::class.java.simpleName + "class:" + clazz.java.name + ", method:" + method.name + " which the return type must be String.class,current is:" + returnType)
                     }
                 }
             }
