@@ -41,7 +41,7 @@ fun ConfigurationContext.iocAutoInjectObjectById(id: String, instance: Any) {
         iocBean.beanInstance = instance
         iocBean.type = instance.javaClass.name
         iocContext.putToIocBeanMap(id, iocBean)
-        iocContext.autoInjectObjectById(instance)
+        iocContext.autoInjectObjectById(id, instance)
     }
 }
 
