@@ -12,7 +12,7 @@ interface InterceptorInterface {
      * @exception InterceptException
      */
     @Throws(InterceptorInterface.InterceptException::class)
-    fun doIntercept(request: ServletRequest, response: ServletResponse): Boolean
+    fun intercept(request: ServletRequest, response: ServletResponse): Boolean
 
     class InterceptException : Exception {
 
