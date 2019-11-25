@@ -3,8 +3,13 @@ package com.oneliang.ktx.frame.servlet.action
 import com.oneliang.ktx.exception.InitializeException
 import com.oneliang.ktx.frame.context.AnnotationContextUtil
 import com.oneliang.ktx.util.common.ObjectUtil
+import com.oneliang.ktx.util.logging.LoggerManager
 
 class AnnotationInterceptorContext : InterceptorContext() {
+
+    companion object {
+        private val logger = LoggerManager.getLogger(AnnotationInterceptorContext::class)
+    }
 
     /**
      * initialize
@@ -13,7 +18,9 @@ class AnnotationInterceptorContext : InterceptorContext() {
         try {
             val kClassList = AnnotationContextUtil.parseAnnotationContextParameterAndSearchClass(parameters, classLoader, classesRealPath, jarClassLoader, Interceptor::class)
             for (kClass in kClassList) {
+                logger.info("Annotation interceptor class:%s", kClass.toString())
                 if (!ObjectUtil.isInheritanceOrInterfaceImplement(kClass.java, InterceptorInterface::class.java)) {
+                    logger.error("Annotation interceptor:%s, is not InterceptorInterface")
                     continue
                 }
                 val interceptorAnnotation = kClass.java.getAnnotation(Interceptor::class.java)

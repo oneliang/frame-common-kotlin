@@ -5,6 +5,7 @@ import com.oneliang.ktx.frame.context.AnnotationContextUtil
 import com.oneliang.ktx.util.logging.LoggerManager
 
 class AnnotationMappingContext : MappingContext() {
+
     companion object {
         private val logger = LoggerManager.getLogger(AnnotationMappingContext::class)
     }
@@ -16,7 +17,7 @@ class AnnotationMappingContext : MappingContext() {
         try {
             val classList = AnnotationContextUtil.parseAnnotationContextParameterAndSearchClass(parameters, classLoader, classesRealPath, jarClassLoader, Table::class)
             for (kClass in classList) {
-                logger.info("Table mapping class:%s", kClass.toString())
+                logger.info("Annotation table mapping class:%s", kClass.toString())
                 val className = kClass.java.name
                 val classSimpleName = kClass.java.simpleName
                 val tableAnnotation = kClass.java.getAnnotation(Table::class.java)
