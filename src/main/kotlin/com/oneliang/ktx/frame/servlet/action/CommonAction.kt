@@ -24,7 +24,6 @@ abstract class CommonAction : BaseAction(), ActionInterface {
     protected val classProcessor = KotlinClassUtil.DEFAULT_KOTLIN_CLASS_PROCESSOR
 
     /**
-     *
      * Method: get page
      * @return Page
      */
@@ -35,11 +34,7 @@ abstract class CommonAction : BaseAction(), ActionInterface {
         }
 
     /**
-     *
-     *
      * Method: set the instance object to the request
-     *
-     *
      * @param request
      */
     protected fun <T : Any> setObjectToRequest(request: ServletRequest, key: String, value: T) {
@@ -47,8 +42,6 @@ abstract class CommonAction : BaseAction(), ActionInterface {
     }
 
     /**
-     *
-     *
      * Method: set the request values to object
      *
      * @param <T>
@@ -60,11 +53,7 @@ abstract class CommonAction : BaseAction(), ActionInterface {
     }
 
     /**
-     *
-     *
      * Method: set the request values to object
-     *
-     *
      * @param <T>
      * @param request
      * @param object
@@ -86,11 +75,7 @@ abstract class CommonAction : BaseAction(), ActionInterface {
     }
 
     /**
-     *
-     *
      * Method: get the instance object to the session by key
-     *
-     *
      * @param request
      * @param key
      * @return Object
@@ -119,10 +104,7 @@ abstract class CommonAction : BaseAction(), ActionInterface {
     }
 
     /**
-     *
-     *
      * Method:get the parameter values from request
-     *
      * @param request
      * @param parameter
      * @return String[]
@@ -165,7 +147,6 @@ abstract class CommonAction : BaseAction(), ActionInterface {
     }
 
     /**
-     *
      * Method: get page
      * @param request
      * @return Page
