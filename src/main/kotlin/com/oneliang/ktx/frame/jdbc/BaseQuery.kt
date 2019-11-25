@@ -30,7 +30,7 @@ interface BaseQuery {
      * Method: execute query base on connection and  class and selectColumns and table and condition
      * @param <T>
      * @param connection
-     * @param clazz
+     * @param kClass
      * @param selectColumns
      * @param table
      * @param condition
@@ -39,33 +39,33 @@ interface BaseQuery {
      * @throws QueryException
     </T></T> */
     @Throws(QueryException::class)
-    fun <T : Any> executeQuery(connection: Connection, clazz: KClass<T>, selectColumns: Array<String> = emptyArray(), table: String = Constants.String.BLANK, condition: String = Constants.String.BLANK, parameters: Array<*> = emptyArray<Any>()): List<T>
+    fun <T : Any> executeQuery(connection: Connection, kClass: KClass<T>, selectColumns: Array<String> = emptyArray(), table: String = Constants.String.BLANK, condition: String = Constants.String.BLANK, parameters: Array<*> = emptyArray<Any>()): List<T>
 
     /**
      *
      * Method: execute query with id
      * @param <T>
      * @param connection
-     * @param clazz
+     * @param kClass
      * @param id
      * @return T
      * @throws QueryException
     </T> */
     @Throws(QueryException::class)
-    fun <T : Any, IdType : Any> executeQueryById(connection: Connection, clazz: KClass<T>, id: IdType): T?
+    fun <T : Any, IdType : Any> executeQueryById(connection: Connection, kClass: KClass<T>, id: IdType): T?
 
     /**
      *
      * Method: execute query base on the connection and sql command
      * @param connection
-     * @param clazz
+     * @param kClass
      * @param sql
      * @param parameters
      * @return List
      * @throws QueryException
      */
     @Throws(QueryException::class)
-    fun <T : Any> executeQueryBySql(connection: Connection, clazz: KClass<T>, sql: String, parameters: Array<*> = emptyArray<Any>()): List<T>
+    fun <T : Any> executeQueryBySql(connection: Connection, kClass: KClass<T>, sql: String, parameters: Array<*> = emptyArray<Any>()): List<T>
 
     /**
      *
@@ -149,26 +149,26 @@ interface BaseQuery {
      * Method: execute delete by id
      * @param <T>
      * @param connection
-     * @param clazz
+     * @param kClass
      * @param id
      * @return int
      * @throws QueryException
     </T> */
     @Throws(QueryException::class)
-    fun <T : Any, IdType : Any> executeDeleteById(connection: Connection, clazz: KClass<T>, id: IdType): Int
+    fun <T : Any, IdType : Any> executeDeleteById(connection: Connection, kClass: KClass<T>, id: IdType): Int
 
     /**
      *
      * Method: execute delete with multi id,transaction
      * @param <T>
      * @param connection
-     * @param clazz
+     * @param kClass
      * @param ids
      * @return int
      * @throws QueryException
     </T> */
     @Throws(QueryException::class)
-    fun <T : Any, IdType : Any> executeDeleteByIds(connection: Connection, clazz: KClass<T>, ids: Array<IdType>): Int
+    fun <T : Any, IdType : Any> executeDeleteByIds(connection: Connection, kClass: KClass<T>, ids: Array<IdType>): Int
 
     /**
      *
@@ -188,14 +188,14 @@ interface BaseQuery {
      * Method: execute delete
      * @param <T>
      * @param connection
-     * @param clazz
+     * @param kClass
      * @param condition
      * @param parameters
      * @return int
      * @throws QueryException
     </T> */
     @Throws(QueryException::class)
-    fun <T : Any> executeDelete(connection: Connection, clazz: KClass<T>, condition: String = Constants.String.BLANK, parameters: Array<*> = emptyArray<Any>()): Int
+    fun <T : Any> executeDelete(connection: Connection, kClass: KClass<T>, condition: String = Constants.String.BLANK, parameters: Array<*> = emptyArray<Any>()): Int
 
     /**
      *

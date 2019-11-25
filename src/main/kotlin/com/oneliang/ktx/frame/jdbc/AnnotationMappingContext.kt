@@ -2,8 +2,12 @@ package com.oneliang.ktx.frame.jdbc
 
 import com.oneliang.ktx.exception.InitializeException
 import com.oneliang.ktx.frame.context.AnnotationContextUtil
+import com.oneliang.ktx.util.logging.LoggerManager
 
 class AnnotationMappingContext : MappingContext() {
+    companion object {
+        private val logger = LoggerManager.getLogger(AnnotationMappingContext::class)
+    }
 
     /**
      * initialize
@@ -11,10 +15,11 @@ class AnnotationMappingContext : MappingContext() {
     override fun initialize(parameters: String) {
         try {
             val classList = AnnotationContextUtil.parseAnnotationContextParameterAndSearchClass(parameters, classLoader, classesRealPath, jarClassLoader, Table::class)
-            for (clazz in classList) {
-                val className = clazz.java.name
-                val classSimpleName = clazz.java.simpleName
-                val tableAnnotation = clazz.java.getAnnotation(Table::class.java)
+            for (kClass in classList) {
+                logger.info("Table mapping class:%s", kClass.toString())
+                val className = kClass.java.name
+                val classSimpleName = kClass.java.simpleName
+                val tableAnnotation = kClass.java.getAnnotation(Table::class.java)
                 val annotationMappingBean = AnnotationMappingBean()
                 annotationMappingBean.isDropIfExist = tableAnnotation.dropIfExist
                 annotationMappingBean.table = tableAnnotation.table
@@ -29,7 +34,7 @@ class AnnotationMappingContext : MappingContext() {
                     annotationMappingColumnBean.condition = columnAnnotation.condition
                     annotationMappingBean.addMappingColumnBean(annotationMappingColumnBean)
                 }
-                val fields = clazz.java.declaredFields
+                val fields = kClass.java.declaredFields
                 if (fields != null) {
                     for (field in fields) {
                         if (field.isAnnotationPresent(Table.Column::class.java)) {
@@ -44,8 +49,8 @@ class AnnotationMappingContext : MappingContext() {
                     }
                 }
                 annotationMappingBean.createTableSqls = SqlUtil.createTableSqls(annotationMappingBean)
-                MappingContext.classNameMappingBeanMap[className] = annotationMappingBean
-                MappingContext.simpleNameMappingBeanMap[classSimpleName] = annotationMappingBean
+                classNameMappingBeanMap[className] = annotationMappingBean
+                simpleNameMappingBeanMap[classSimpleName] = annotationMappingBean
             }
         } catch (e: Exception) {
             throw InitializeException(parameters, e)

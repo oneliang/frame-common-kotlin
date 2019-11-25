@@ -19,19 +19,19 @@ object SqlUtil {
      * Method: for database use,ResultSet to object list
      * @param <T>
      * @param resultSet
-     * @param clazz
+     * @param kClass
      * @param mappingBean
      * @return List<T>
     </T></T> */
-    fun <T : Any> resultSetToObjectList(resultSet: ResultSet, clazz: KClass<T>, mappingBean: MappingBean, sqlProcessor: SqlProcessor): List<T> {
+    fun <T : Any> resultSetToObjectList(resultSet: ResultSet, kClass: KClass<T>, mappingBean: MappingBean, sqlProcessor: SqlProcessor): List<T> {
         val list = mutableListOf<T>()
         try {
             var instance: T?
-            //			Field[] field = clazz.getDeclaredFields()// get the fields one
-            val methods = clazz.java.methods
+            //			Field[] field = kClass.getDeclaredFields()// get the fields one
+            val methods = kClass.java.methods
             // time is ok
             while (resultSet.next()) {
-                instance = clazz.java.newInstance()// more instance
+                instance = kClass.java.newInstance()// more instance
                 for (method in methods) {
                     val methodName = method.name
                     val fieldName = if (methodName.startsWith(Constants.Method.PREFIX_SET)) {
@@ -166,12 +166,12 @@ object SqlUtil {
      *
      * Method: class to select sql with id
      * @param <T>
-     * @param clazz
+     * @param kClass
      * @param mappingBean
      * @return String
     </T> */
-    fun <T : Any> classToSelectIdSql(clazz: KClass<T>, mappingBean: MappingBean): String {
-        val methods = clazz.java.methods
+    fun <T : Any> classToSelectIdSql(kClass: KClass<T>, mappingBean: MappingBean): String {
+        val methods = kClass.java.methods
         val condition = StringBuilder()
         for (mappingColumnBean in mappingBean.mappingColumnBeanList) {
             val fieldName = mappingColumnBean.field
@@ -196,35 +196,35 @@ object SqlUtil {
      * Method: for database use make the delete sql string,can delete one row
      * not the many rows,support single id
      * @param <T>
-     * @param clazz
+     * @param kClass
      * @param id
      * @param mappingBean
      * @return String
      * @throws Exception
     </T> */
     @Throws(Exception::class)
-    fun <T : Any, IdType : Any> classToDeleteOneRowSql(clazz: KClass<T>, id: IdType, mappingBean: MappingBean): String {
-        return classToDeleteSql(clazz, arrayOf<Any>(id), mappingBean, DeleteType.ONE_ROW)
+    fun <T : Any, IdType : Any> classToDeleteOneRowSql(kClass: KClass<T>, id: IdType, mappingBean: MappingBean): String {
+        return classToDeleteSql(kClass, arrayOf<Any>(id), mappingBean, DeleteType.ONE_ROW)
     }
 
     /**
      * Method: for database use make the delete sql string,can delete multiple row
      * @param <T>
-     * @param clazz
+     * @param kClass
      * @param ids
      * @param mappingBean
      * @return String
      * @throws Exception
     </T> */
     @Throws(Exception::class)
-    fun <T : Any, IdType : Any> classToDeleteMultipleRowSql(clazz: KClass<T>, ids: Array<IdType>, mappingBean: MappingBean): String {
-        return classToDeleteSql(clazz, ids, mappingBean, DeleteType.MULTIPLE_ROW)
+    fun <T : Any, IdType : Any> classToDeleteMultipleRowSql(kClass: KClass<T>, ids: Array<IdType>, mappingBean: MappingBean): String {
+        return classToDeleteSql(kClass, ids, mappingBean, DeleteType.MULTIPLE_ROW)
     }
 
     /**
      * Method: for database use make the delete sql string,can delete one row and multi row
      * @param <T>
-     * @param clazz
+     * @param kClass
      * @param ids
      * @param mappingBean
      * @param deleteType
@@ -232,7 +232,7 @@ object SqlUtil {
      * @throws Exception
     </T> */
     @Throws(Exception::class)
-    private fun <T : Any, IdType : Any> classToDeleteSql(clazz: KClass<T>, ids: Array<IdType>, mappingBean: MappingBean, deleteType: DeleteType): String {
+    private fun <T : Any, IdType : Any> classToDeleteSql(kClass: KClass<T>, ids: Array<IdType>, mappingBean: MappingBean, deleteType: DeleteType): String {
         if (ids.isEmpty()) {
             throw NullPointerException("ids can not be null or empty.")
         }
@@ -522,33 +522,33 @@ object SqlUtil {
         /**
          * before insert process,for generate insert sql
          * @param <T>
-         * @param clazz
+         * @param kClass
          * @param value
          * @return String
         </T> */
-        fun <T : Any> beforeInsertProcess(clazz: KClass<T>, value: Any?): String
+        fun <T : Any> beforeInsertProcess(kClass: KClass<T>, value: Any?): String
 
         /**
          * before update process,for generate update sql
          * @param <T>
-         * @param clazz
+         * @param kClass
          * @param isId
          * @param columnName
          * @param value
          * @return String
         </T> */
-        fun <T : Any> beforeUpdateProcess(clazz: KClass<T>, isId: Boolean, columnName: String, value: Any?): String
+        fun <T : Any> beforeUpdateProcess(kClass: KClass<T>, isId: Boolean, columnName: String, value: Any?): String
 
         /**
          * before delete process,for generate delete sql
          * @param <T>
-         * @param clazz
+         * @param kClass
          * @param isId
          * @param columnName
          * @param value
          * @return String
         </T> */
-        fun <T : Any> beforeDeleteProcess(clazz: KClass<T>, isId: Boolean, columnName: String, value: Any?): String
+        fun <T : Any> beforeDeleteProcess(kClass: KClass<T>, isId: Boolean, columnName: String, value: Any?): String
     }
 
     private enum class DeleteType {

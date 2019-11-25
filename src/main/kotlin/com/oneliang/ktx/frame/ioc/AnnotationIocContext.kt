@@ -16,27 +16,27 @@ class AnnotationIocContext : IocContext() {
     override fun initialize(parameters: String) {
         try {
             val classList = AnnotationContextUtil.parseAnnotationContextParameterAndSearchClass(parameters, classLoader, classesRealPath, jarClassLoader, Ioc::class)
-            for (clazz in classList) {
-                logger.debug("found class:$clazz")
-                val iocAnnotation = clazz.java.getAnnotation(Ioc::class.java)
+            for (kClass in classList) {
+                logger.debug("found class:$kClass")
+                val iocAnnotation = kClass.java.getAnnotation(Ioc::class.java)
                 val iocBean = IocBean()
                 var id = iocAnnotation.id
                 if (id.isBlank()) {
-                    val classes = clazz.java.interfaces
+                    val classes = kClass.java.interfaces
                     if (classes != null && classes.isNotEmpty()) {
                         id = classes[0].simpleName
                     } else {
-                        id = clazz.java.simpleName
+                        id = kClass.java.simpleName
                     }
                     id = id.substring(0, 1).toLowerCase() + id.substring(1)
                 }
                 iocBean.id = id
-                iocBean.type = clazz.java.name
+                iocBean.type = kClass.java.name
                 iocBean.injectType = iocAnnotation.injectType
                 iocBean.proxy = iocAnnotation.proxy
-                iocBean.beanClass = clazz.java
+                iocBean.beanClass = kClass.java
                 //after inject
-                val methods = clazz.java.methods
+                val methods = kClass.java.methods
                 for (method in methods) {
                     if (method.isAnnotationPresent(Ioc.AfterInject::class.java)) {
                         val iocAfterInjectBean = IocAfterInjectBean()

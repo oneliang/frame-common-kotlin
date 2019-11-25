@@ -105,16 +105,16 @@ class ConfigurationContext : AbstractContext() {
     /**
      * find context
      * @param <T>
-     * @param clazz
+     * @param kClass
      * @return T
     </T> */
     @Suppress("UNCHECKED_CAST")
-    fun <T : Context> findContext(clazz: KClass<T>): T? {
+    fun <T : Context> findContext(kClass: KClass<T>): T? {
         var instance: T? = null
         run loop@{
             configurationBeanMap.forEach { (_, value) ->
                 val context = value.contextInstance
-                if (ObjectUtil.isEntity(context as Any, clazz.java)) {
+                if (ObjectUtil.isEntity(context as Any, kClass.java)) {
                     instance = context as T
                     return@loop
                 }

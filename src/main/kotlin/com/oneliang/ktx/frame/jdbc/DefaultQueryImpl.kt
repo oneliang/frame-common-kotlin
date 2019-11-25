@@ -51,18 +51,18 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
      *
      * Method: delete class,by condition
      * @param <T>
-     * @param clazz
+     * @param kClass
      * @param condition
      * @return int
      * @throws QueryException
     </T> */
     @Throws(QueryException::class)
-    override fun <T : Any> deleteObject(clazz: KClass<T>, condition: String, parameters: Array<*>): Int {
+    override fun <T : Any> deleteObject(kClass: KClass<T>, condition: String, parameters: Array<*>): Int {
         val result: Int
         var connection: Connection? = null
         try {
             connection = this.connectionPool.resource!!
-            result = this.executeDelete(connection, clazz, condition, parameters)
+            result = this.executeDelete(connection, kClass, condition, parameters)
         } catch (e: Exception) {
             throw QueryException(e)
         } finally {
@@ -91,32 +91,32 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
      * @param <T>
      * @param <M>
      * @param collection
-     * @param clazz
+     * @param kClass
      * @param table
      * @return int[]
      * @throws QueryException
     </M></T> */
     @Throws(QueryException::class)
-    override fun <T : Any, M : Any> deleteObject(collection: Collection<T>, clazz: KClass<M>, table: String): IntArray {
-        return this.executeUpdate(collection, clazz, table, BaseQuery.ExecuteType.DELETE_BY_ID)
+    override fun <T : Any, M : Any> deleteObject(collection: Collection<T>, kClass: KClass<M>, table: String): IntArray {
+        return this.executeUpdate(collection, kClass, table, BaseQuery.ExecuteType.DELETE_BY_ID)
     }
 
     /**
      *
      * Method: delete object by id,not sql binding
      * @param <T>
-     * @param clazz
+     * @param kClass
      * @param id
      * @return int
      * @throws QueryException
     </T> */
     @Throws(QueryException::class)
-    override fun <T : Any, IdType : Any> deleteObjectById(clazz: KClass<T>, id: IdType): Int {
+    override fun <T : Any, IdType : Any> deleteObjectById(kClass: KClass<T>, id: IdType): Int {
         val updateResult: Int
         var connection: Connection? = null
         try {
             connection = this.connectionPool.resource!!
-            updateResult = this.executeDeleteById(connection, clazz, id)
+            updateResult = this.executeDeleteById(connection, kClass, id)
         } catch (e: Exception) {
             throw QueryException(e)
         } finally {
@@ -129,18 +129,18 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
      *
      * Method: delete object by multiple id,transaction,not sql binding
      * @param <T>
-     * @param clazz
+     * @param kClass
      * @param ids
      * @return int
      * @throws QueryException
     </T> */
     @Throws(QueryException::class)
-    override fun <T : Any, IdType : Any> deleteObjectByIds(clazz: KClass<T>, ids: Array<IdType>): Int {
+    override fun <T : Any, IdType : Any> deleteObjectByIds(kClass: KClass<T>, ids: Array<IdType>): Int {
         val updateResult: Int
         var connection: Connection? = null
         try {
             connection = this.connectionPool.resource!!
-            updateResult = this.executeDeleteByIds(connection, clazz, ids)
+            updateResult = this.executeDeleteByIds(connection, kClass, ids)
         } catch (e: Exception) {
             throw QueryException(e)
         } finally {
@@ -196,14 +196,14 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
      * @param <T>
      * @param <M>
      * @param collection
-     * @param clazz mapping class
+     * @param kClass mapping class
      * @param table
      * @return int[]
      * @throws QueryException
     </M></T> */
     @Throws(QueryException::class)
-    override fun <T : Any, M : Any> insertObject(collection: Collection<T>, clazz: KClass<M>, table: String): IntArray {
-        return this.executeUpdate(collection, clazz, table, BaseQuery.ExecuteType.INSERT)
+    override fun <T : Any, M : Any> insertObject(collection: Collection<T>, kClass: KClass<M>, table: String): IntArray {
+        return this.executeUpdate(collection, kClass, table, BaseQuery.ExecuteType.INSERT)
     }
 
     /**
@@ -256,32 +256,32 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
      * @param <T>
      * @param <M>
      * @param collection
-     * @param clazz mapping class
+     * @param kClass mapping class
      * @param table
      * @return int[]
      * @throws QueryException
     </M></T> */
     @Throws(QueryException::class)
-    override fun <T : Any, M : Any> updateObject(collection: Collection<T>, clazz: KClass<M>, table: String): IntArray {
-        return this.executeUpdate(collection, clazz, table, BaseQuery.ExecuteType.UPDATE_BY_ID)
+    override fun <T : Any, M : Any> updateObject(collection: Collection<T>, kClass: KClass<M>, table: String): IntArray {
+        return this.executeUpdate(collection, kClass, table, BaseQuery.ExecuteType.UPDATE_BY_ID)
     }
 
     /**
      *
      * Method: select object by id
      * @param <T>
-     * @param clazz
+     * @param kClass
      * @param id
      * @return T
      * @throws QueryException
     </T> */
     @Throws(QueryException::class)
-    override fun <T : Any, IdType : Any> selectObjectById(clazz: KClass<T>, id: IdType): T? {
+    override fun <T : Any, IdType : Any> selectObjectById(kClass: KClass<T>, id: IdType): T? {
         val instance: T?
         var connection: Connection? = null
         try {
             connection = this.connectionPool.resource!!
-            instance = this.executeQueryById(connection, clazz, id)
+            instance = this.executeQueryById(connection, kClass, id)
         } catch (e: Exception) {
             throw QueryException(e)
         } finally {
@@ -294,7 +294,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
      *
      * Method: select object list,by column,table,condition,parameters,it is sql binding
      * @param <T>
-     * @param clazz
+     * @param kClass
      * @param selectColumns
      * @param table
      * @param condition
@@ -303,12 +303,12 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
      * @throws QueryException
     </T></T> */
     @Throws(QueryException::class)
-    override fun <T : Any> selectObjectList(clazz: KClass<T>, selectColumns: Array<String>, table: String, condition: String, parameters: Array<*>): List<T> {
+    override fun <T : Any> selectObjectList(kClass: KClass<T>, selectColumns: Array<String>, table: String, condition: String, parameters: Array<*>): List<T> {
         val list: List<T>
         var connection: Connection? = null
         try {
             connection = this.connectionPool.resource!!
-            list = this.executeQuery(connection, clazz, selectColumns, table, condition, parameters)
+            list = this.executeQuery(connection, kClass, selectColumns, table, condition, parameters)
         } catch (e: Exception) {
             throw QueryException(e)
         } finally {
@@ -321,19 +321,19 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
      *
      * Method: select object list by sql,it is sql binding
      * @param <T>
-     * @param clazz
+     * @param kClass
      * @param sql
      * @param parameters
      * @return List<T>
      * @throws QueryException
     </T></T> */
     @Throws(QueryException::class)
-    override fun <T : Any> selectObjectListBySql(clazz: KClass<T>, sql: String, parameters: Array<*>): List<T> {
+    override fun <T : Any> selectObjectListBySql(kClass: KClass<T>, sql: String, parameters: Array<*>): List<T> {
         val list: List<T>
         var connection: Connection? = null
         try {
             connection = this.connectionPool.resource!!
-            list = this.executeQueryBySql(connection, clazz, sql, parameters)
+            list = this.executeQueryBySql(connection, kClass, sql, parameters)
         } catch (e: Exception) {
             throw QueryException(e)
         } finally {
@@ -346,7 +346,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
      *
      * Method: select object pagination list,has implement,it is sql binding
      * @param <T>
-     * @param clazz
+     * @param kClass
      * @param page
      * @param selectColumns
      * @param table
@@ -356,8 +356,8 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
      * @throws QueryException
     </T></T> */
     @Throws(QueryException::class)
-    override fun <T : Any> selectObjectPaginationList(clazz: KClass<T>, page: Page, selectColumns: Array<String>, table: String, condition: String, parameters: Array<*>): List<T> {
-        val totalRows = this.totalRows(clazz, table, condition, parameters)
+    override fun <T : Any> selectObjectPaginationList(kClass: KClass<T>, page: Page, selectColumns: Array<String>, table: String, condition: String, parameters: Array<*>): List<T> {
+        val totalRows = this.totalRows(kClass, table, condition, parameters)
         val rowsPerPage = page.rowsPerPage
         page.initialize(totalRows, rowsPerPage)
         val startRow = page.pageFirstRow
@@ -365,7 +365,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
         sqlConditions.append(condition)
         sqlConditions.append(" " + Constants.Database.MySql.PAGINATION + " ")
         sqlConditions.append(startRow.toString() + Constants.Symbol.COMMA + rowsPerPage)
-        return this.selectObjectList(clazz, selectColumns, table, sqlConditions.toString(), parameters)
+        return this.selectObjectList(kClass, selectColumns, table, sqlConditions.toString(), parameters)
     }
 
     /**
@@ -489,19 +489,19 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
      * @param <T>
      * @param <M>
      * @param collection
-     * @param clazz
+     * @param kClass
      * @param table
      * @param executeType
      * @return int[]
      * @throws QueryException
     </M></T> */
     @Throws(QueryException::class)
-    protected fun <T : Any, M : Any> executeUpdate(collection: Collection<T>, clazz: KClass<M>, table: String, executeType: BaseQuery.ExecuteType): IntArray {
+    protected fun <T : Any, M : Any> executeUpdate(collection: Collection<T>, kClass: KClass<M>, table: String, executeType: BaseQuery.ExecuteType): IntArray {
         val rows: IntArray
         var connection: Connection? = null
         try {
             connection = this.connectionPool.resource!!
-            rows = this.executeUpdate(connection, collection, clazz, table, executeType)
+            rows = this.executeUpdate(connection, collection, kClass, table, executeType)
         } catch (e: Exception) {
             throw QueryException(e)
         } finally {
@@ -619,7 +619,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
      *
      * Method: get the total size
      * @param <T>
-     * @param clazz
+     * @param kClass
      * @param table
      * @param condition
      * @param parameters
@@ -627,9 +627,9 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
      * @throws QueryException
     </T> */
     @Throws(QueryException::class)
-    override fun <T : Any> totalRows(clazz: KClass<T>?, table: String, condition: String, parameters: Array<*>): Int {
-        val sql = if (clazz != null) {
-            val mappingBean = ConfigurationFactory.singletonConfigurationContext.findMappingBean(clazz)
+    override fun <T : Any> totalRows(kClass: KClass<T>?, table: String, condition: String, parameters: Array<*>): Int {
+        val sql = if (kClass != null) {
+            val mappingBean = ConfigurationFactory.singletonConfigurationContext.findMappingBean(kClass)
             SqlUtil.selectSql(arrayOf("COUNT(0) AS " + Constants.Database.COLUMN_NAME_TOTAL), table, condition, mappingBean)
         } else {
             SqlUtil.selectSql(arrayOf("COUNT(0) AS " + Constants.Database.COLUMN_NAME_TOTAL), table, condition, null)

@@ -18,9 +18,9 @@ class DefaultSqlProcessor : AbstractSqlProcessor() {
      * default sql insert processor
      * promiss:if value is null return null,if it is not null return the new value
      */
-    override fun <T : Any> beforeInsertProcess(clazz: KClass<T>, value: Any?): String {
+    override fun <T : Any> beforeInsertProcess(kClass: KClass<T>, value: Any?): String {
         return if (value != null) {
-            when (clazz) {
+            when (kClass) {
                 Boolean::class -> value.toString()
                 Date::class -> "'" + (value as Date).toFormatString() + "'"
                 else -> "'$value'"
@@ -35,12 +35,12 @@ class DefaultSqlProcessor : AbstractSqlProcessor() {
      * default sql update processor
      * promiss:if value is null,return the blank,if it is not null return the new value
      */
-    override fun <T : Any> beforeUpdateProcess(clazz: KClass<T>, isId: Boolean, columnName: String, value: Any?): String {
+    override fun <T : Any> beforeUpdateProcess(kClass: KClass<T>, isId: Boolean, columnName: String, value: Any?): String {
         return if (isId) {
             " AND " + Constants.Symbol.ACCENT + columnName + Constants.Symbol.ACCENT + "='$value'"
         } else {
             if (value != null) {
-                when (clazz) {
+                when (kClass) {
                     Boolean::class -> Constants.Symbol.ACCENT + columnName + Constants.Symbol.ACCENT + "=$value,"
                     Date::class -> Constants.Symbol.ACCENT + columnName + Constants.Symbol.ACCENT + "='" + (value as Date).toFormatString() + "',"
                     else -> Constants.Symbol.ACCENT + columnName + Constants.Symbol.ACCENT + "='$value',"
@@ -54,18 +54,18 @@ class DefaultSqlProcessor : AbstractSqlProcessor() {
     /**
      * before delete process,for generate delete sql
      * @param <T>
-     * @param clazz
+     * @param kClass
      * @param isId
      * @param columnName
      * @param value
      * @return String
     </T> */
-    override fun <T : Any> beforeDeleteProcess(clazz: KClass<T>, isId: Boolean, columnName: String, value: Any?): String {
+    override fun <T : Any> beforeDeleteProcess(kClass: KClass<T>, isId: Boolean, columnName: String, value: Any?): String {
         return if (isId) {
             " AND " + Constants.Symbol.ACCENT + columnName + Constants.Symbol.ACCENT + "='$value'"
         } else {
             if (value != null) {
-                when (clazz) {
+                when (kClass) {
                     Boolean::class -> " AND " + Constants.Symbol.ACCENT + columnName + Constants.Symbol.ACCENT + "=$value"
                     Date::class -> " AND " + Constants.Symbol.ACCENT + columnName + Constants.Symbol.ACCENT + "='" + (value as Date).toFormatString() + "'"
                     else -> " AND " + Constants.Symbol.ACCENT + columnName + Constants.Symbol.ACCENT + "='$value'"

@@ -6,6 +6,7 @@ import com.oneliang.ktx.util.common.JavaXmlUtil
 import com.oneliang.ktx.util.jxl.JxlMappingBean
 import com.oneliang.ktx.util.jxl.JxlMappingColumnBean
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.reflect.KClass
 
 class JxlMappingContext : AbstractContext() {
     companion object {
@@ -24,38 +25,37 @@ class JxlMappingContext : AbstractContext() {
             path = classesRealPath + path
             val document = JavaXmlUtil.parse(path)
             val root = document.documentElement
-            val beanElementList = root.getElementsByTagName(JxlMappingBean.TAG_BEAN)
-            if (beanElementList != null) {
-                val length = beanElementList.length
-                for (index in 0 until length) {
-                    val beanElement = beanElementList.item(index)
-                    val jxlMappingBean = JxlMappingBean()
-                    val attributeMap = beanElement.getAttributes()
-                    JavaXmlUtil.initializeFromAttributeMap(jxlMappingBean, attributeMap)
-                    //bean column
-                    val childNodeList = beanElement.getChildNodes()
-                    if (childNodeList != null) {
-                        val childNodeLength = childNodeList.length
-                        for (childNodeIndex in 0 until childNodeLength) {
-                            val childNode = childNodeList.item(childNodeIndex)
-                            val nodeName = childNode.nodeName
-                            if (nodeName == JxlMappingColumnBean.TAG_COLUMN) {
-                                val jxlMappingColumnBean = JxlMappingColumnBean()
-                                val childNodeAttributeMap = childNode.attributes
-                                JavaXmlUtil.initializeFromAttributeMap(jxlMappingColumnBean, childNodeAttributeMap)
-                                jxlMappingBean.addJxlMappingColumnBean(jxlMappingColumnBean)
-                            }
+            val beanElementList = root.getElementsByTagName(JxlMappingBean.TAG_BEAN) ?: return
+            val length = beanElementList.length
+            for (index in 0 until length) {
+                val beanElement = beanElementList.item(index)
+                val jxlMappingBean = JxlMappingBean()
+                val attributeMap = beanElement.getAttributes()
+                JavaXmlUtil.initializeFromAttributeMap(jxlMappingBean, attributeMap)
+                //bean column
+                val childNodeList = beanElement.childNodes
+                if (childNodeList != null) {
+                    val childNodeLength = childNodeList.length
+                    for (childNodeIndex in 0 until childNodeLength) {
+                        val childNode = childNodeList.item(childNodeIndex)
+                        val nodeName = childNode.nodeName
+                        if (nodeName != JxlMappingColumnBean.TAG_COLUMN) {
+                            continue
                         }
+                        val jxlMappingColumnBean = JxlMappingColumnBean()
+                        val childNodeAttributeMap = childNode.attributes
+                        JavaXmlUtil.initializeFromAttributeMap(jxlMappingColumnBean, childNodeAttributeMap)
+                        jxlMappingBean.addJxlMappingColumnBean(jxlMappingColumnBean)
                     }
-                    val useFor = jxlMappingBean.useFor
-                    val type = jxlMappingBean.type
-                    if (useFor == JxlMappingBean.USE_FOR_IMPORT) {
-                        typeImportJxlMappingBeanMap[type] = jxlMappingBean
-                        nameImportJxlMappingBeanMap[this.classLoader.loadClass(type).simpleName] = jxlMappingBean
-                    } else if (useFor == JxlMappingBean.USE_FOR_EXPORT) {
-                        typeExportJxlMappingBeanMap[type] = jxlMappingBean
-                        nameExportJxlMappingBeanMap[this.classLoader.loadClass(type).simpleName] = jxlMappingBean
-                    }
+                }
+                val useFor = jxlMappingBean.useFor
+                val type = jxlMappingBean.type
+                if (useFor == JxlMappingBean.USE_FOR_IMPORT) {
+                    typeImportJxlMappingBeanMap[type] = jxlMappingBean
+                    nameImportJxlMappingBeanMap[this.classLoader.loadClass(type).simpleName] = jxlMappingBean
+                } else if (useFor == JxlMappingBean.USE_FOR_EXPORT) {
+                    typeExportJxlMappingBeanMap[type] = jxlMappingBean
+                    nameExportJxlMappingBeanMap[this.classLoader.loadClass(type).simpleName] = jxlMappingBean
                 }
             }
         } catch (e: Exception) {
@@ -77,16 +77,12 @@ class JxlMappingContext : AbstractContext() {
     /**
      * findImportJxlMappingBean
      * @param <T>
-     * @param clazz
+     * @param kClass
      * @return JxlMappingBean
     </T> */
-    fun <T : Any> findImportJxlMappingBean(clazz: Class<T>?): JxlMappingBean? {
-        var bean: JxlMappingBean? = null
-        if (clazz != null) {
-            val className = clazz.name
-            bean = typeImportJxlMappingBeanMap[className]
-        }
-        return bean
+    fun <T : Any> findImportJxlMappingBean(kClass: KClass<T>): JxlMappingBean? {
+        val className = kClass.java.name
+        return typeImportJxlMappingBeanMap[className]
     }
 
     /**
@@ -95,13 +91,10 @@ class JxlMappingContext : AbstractContext() {
      * @throws Exception
      */
     @Throws(Exception::class)
-    fun findImportJxlMappingBean(name: String?): JxlMappingBean? {
-        var bean: JxlMappingBean? = null
-        if (name != null) {
-            bean = typeImportJxlMappingBeanMap[name]
-            if (bean == null) {
-                bean = nameImportJxlMappingBeanMap[name]
-            }
+    fun findImportJxlMappingBean(name: String): JxlMappingBean? {
+        var bean: JxlMappingBean? = typeImportJxlMappingBeanMap[name]
+        if (bean == null) {
+            bean = nameImportJxlMappingBeanMap[name]
         }
         return bean
     }
@@ -109,16 +102,12 @@ class JxlMappingContext : AbstractContext() {
     /**
      * findExportJxlMappingBean
      * @param <T>
-     * @param clazz
+     * @param kClass
      * @return JxlMappingBean
     </T> */
-    fun <T : Any> findExportJxlMappingBean(clazz: Class<T>?): JxlMappingBean? {
-        var bean: JxlMappingBean? = null
-        if (clazz != null) {
-            val className = clazz.name
-            bean = typeExportJxlMappingBeanMap[className]
-        }
-        return bean
+    fun <T : Any> findExportJxlMappingBean(kClass: KClass<T>): JxlMappingBean? {
+        val className = kClass.java.name
+        return typeExportJxlMappingBeanMap[className]
     }
 
     /**
@@ -127,13 +116,10 @@ class JxlMappingContext : AbstractContext() {
      * @throws Exception
      */
     @Throws(Exception::class)
-    fun findExportJxlMappingBean(name: String?): JxlMappingBean? {
-        var bean: JxlMappingBean? = null
-        if (name != null) {
-            bean = typeExportJxlMappingBeanMap[name]
-            if (bean == null) {
-                bean = nameExportJxlMappingBeanMap[name]
-            }
+    fun findExportJxlMappingBean(name: String): JxlMappingBean? {
+        var bean: JxlMappingBean? = typeExportJxlMappingBeanMap[name]
+        if (bean == null) {
+            bean = nameExportJxlMappingBeanMap[name]
         }
         return bean
     }

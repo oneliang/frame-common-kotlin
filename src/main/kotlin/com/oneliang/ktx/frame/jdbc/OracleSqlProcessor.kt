@@ -11,12 +11,12 @@ class OracleSqlProcessor : AbstractSqlProcessor() {
     /**
      * before insert process,for generate insert sql
      * @param <T>
-     * @param clazz
+     * @param kClass
      * @param value
      * @return String
     </T> */
-    override fun <T : Any> beforeInsertProcess(clazz: KClass<T>, value: Any?): String {
-        return if (clazz == Date::class) {
+    override fun <T : Any> beforeInsertProcess(kClass: KClass<T>, value: Any?): String {
+        return if (kClass == Date::class) {
             if (value != null) {
                 "to_date('" + (value as Date).toFormatString() + "','yyyy-mm-dd hh24:mi:ss')"
             } else {
@@ -34,18 +34,18 @@ class OracleSqlProcessor : AbstractSqlProcessor() {
     /**
      * before update process,for generate update sql
      * @param <T>
-     * @param clazz
+     * @param kClass
      * @param isId
      * @param columnName
      * @param value
      * @return String
     </T> */
-    override fun <T : Any> beforeUpdateProcess(clazz: KClass<T>, isId: Boolean, columnName: String, value: Any?): String {
+    override fun <T : Any> beforeUpdateProcess(kClass: KClass<T>, isId: Boolean, columnName: String, value: Any?): String {
         val result: String
         if (isId) {
             result = "AND $columnName='$value'"
         } else {
-            result = if (clazz == java.util.Date::class) {
+            result = if (kClass == java.util.Date::class) {
                 if (value != null) {
                     columnName + "=to_date('" + (value as java.util.Date).toFormatString() + "','yyyy-mm-dd hh24:mi:ss'),"
                 } else {
@@ -65,18 +65,18 @@ class OracleSqlProcessor : AbstractSqlProcessor() {
     /**
      * before delete process,for generate delete sql
      * @param <T>
-     * @param clazz
+     * @param kClass
      * @param isId
      * @param columnName
      * @param value
      * @return String
     </T> */
-    override fun <T : Any> beforeDeleteProcess(clazz: KClass<T>, isId: Boolean, columnName: String, value: Any?): String {
+    override fun <T : Any> beforeDeleteProcess(kClass: KClass<T>, isId: Boolean, columnName: String, value: Any?): String {
         val result: String
         if (isId) {
             result = "AND $columnName='$value'"
         } else {
-            result = if (clazz == java.util.Date::class) {
+            result = if (kClass == java.util.Date::class) {
                 if (value != null) {
                     " AND " + columnName + "=to_date('" + (value as java.util.Date).toFormatString() + "','yyyy-mm-dd hh24:mi:ss')"
                 } else {

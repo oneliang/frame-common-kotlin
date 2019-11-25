@@ -44,14 +44,14 @@ interface Query : BaseQuery {
      *
      * Method: delete class,by condition
      * @param <T>
-     * @param clazz
+     * @param kClass
      * @param condition
      * @param parameters
      * @return int
      * @throws QueryException
     </T> */
     @Throws(QueryException::class)
-    fun <T : Any> deleteObject(clazz: KClass<T>, condition: String = Constants.String.BLANK, parameters: Array<*> = emptyArray<Any>()): Int
+    fun <T : Any> deleteObject(kClass: KClass<T>, condition: String = Constants.String.BLANK, parameters: Array<*> = emptyArray<Any>()): Int
 
     /**
      *
@@ -71,37 +71,37 @@ interface Query : BaseQuery {
      * @param <T>
      * @param <M>
      * @param collection
-     * @param clazz
+     * @param kClass
      * @param table
      * @return int[]
      * @throws QueryException
     </M></T> */
     @Throws(QueryException::class)
-    fun <T : Any, M : Any> deleteObject(collection: Collection<T>, clazz: KClass<M>, table: String = Constants.String.BLANK): IntArray
+    fun <T : Any, M : Any> deleteObject(collection: Collection<T>, kClass: KClass<M>, table: String = Constants.String.BLANK): IntArray
 
     /**
      *
      * Method: delete object by id,not sql binding
      * @param <T>
-     * @param clazz
+     * @param kClass
      * @param id
      * @return int
      * @throws QueryException
     </T> */
     @Throws(QueryException::class)
-    fun <T : Any, IdType : Any> deleteObjectById(clazz: KClass<T>, id: IdType): Int
+    fun <T : Any, IdType : Any> deleteObjectById(kClass: KClass<T>, id: IdType): Int
 
     /**
      *
      * Method: delete object by multiple id,transaction,not sql binding
      * @param <T>
-     * @param clazz
+     * @param kClass
      * @param ids
      * @return int
      * @throws QueryException
     </T> */
     @Throws(QueryException::class)
-    fun <T : Any, IdType : Any> deleteObjectByIds(clazz: KClass<T>, ids: Array<IdType>): Int
+    fun <T : Any, IdType : Any> deleteObjectByIds(kClass: KClass<T>, ids: Array<IdType>): Int
 
     /**
      *
@@ -145,13 +145,13 @@ interface Query : BaseQuery {
      * @param <T>
      * @param <M>
      * @param collection
-     * @param clazz mapping class
+     * @param kClass mapping class
      * @param table
      * @return int[]
      * @throws QueryException
     </M></T> */
     @Throws(QueryException::class)
-    fun <T : Any, M : Any> insertObject(collection: Collection<T>, clazz: KClass<M>, table: String = Constants.String.BLANK): IntArray
+    fun <T : Any, M : Any> insertObject(collection: Collection<T>, kClass: KClass<M>, table: String = Constants.String.BLANK): IntArray
 
     /**
      *
@@ -197,31 +197,31 @@ interface Query : BaseQuery {
      * @param <T>
      * @param <M>
      * @param collection
-     * @param clazz mapping class
+     * @param kClass mapping class
      * @param table
      * @return int[]
      * @throws QueryException
     </M></T> */
     @Throws(QueryException::class)
-    fun <T : Any, M : Any> updateObject(collection: Collection<T>, clazz: KClass<M>, table: String = Constants.String.BLANK): IntArray
+    fun <T : Any, M : Any> updateObject(collection: Collection<T>, kClass: KClass<M>, table: String = Constants.String.BLANK): IntArray
 
     /**
      *
      * Method: select object by id
      * @param <T>
-     * @param clazz
+     * @param kClass
      * @param id
      * @return int
      * @throws QueryException
     </T> */
     @Throws(QueryException::class)
-    fun <T : Any, IdType : Any> selectObjectById(clazz: KClass<T>, id: IdType): T?
+    fun <T : Any, IdType : Any> selectObjectById(kClass: KClass<T>, id: IdType): T?
 
     /**
      *
      * Method: select object list,by column,table,condition,parameters,it is sql binding
      * @param <T>
-     * @param clazz
+     * @param kClass
      * @param selectColumns
      * @param table
      * @param condition
@@ -230,26 +230,26 @@ interface Query : BaseQuery {
      * @throws QueryException
     </T></T> */
     @Throws(QueryException::class)
-    fun <T : Any> selectObjectList(clazz: KClass<T>, selectColumns: Array<String> = emptyArray(), table: String = Constants.String.BLANK, condition: String = Constants.String.BLANK, parameters: Array<*> = emptyArray<Any>()): List<T>
+    fun <T : Any> selectObjectList(kClass: KClass<T>, selectColumns: Array<String> = emptyArray(), table: String = Constants.String.BLANK, condition: String = Constants.String.BLANK, parameters: Array<*> = emptyArray<Any>()): List<T>
 
     /**
      *
      * Method: select object list by sql,it is sql binding
      * @param <T>
-     * @param clazz
+     * @param kClass
      * @param sql
      * @param parameters
      * @return List<T>
      * @throws QueryException
     </T></T> */
     @Throws(QueryException::class)
-    fun <T : Any> selectObjectListBySql(clazz: KClass<T>, sql: String, parameters: Array<*> = emptyArray<Any>()): List<T>
+    fun <T : Any> selectObjectListBySql(kClass: KClass<T>, sql: String, parameters: Array<*> = emptyArray<Any>()): List<T>
 
     /**
      *
      * Method: select object pagination list,has implement,it is sql binding
      * @param <T>
-     * @param clazz
+     * @param kClass
      * @param page
      * @param selectColumns
      * @param table
@@ -259,7 +259,7 @@ interface Query : BaseQuery {
      * @throws QueryException
     </T></T> */
     @Throws(QueryException::class)
-    fun <T : Any> selectObjectPaginationList(clazz: KClass<T>, page: Page, selectColumns: Array<String> = emptyArray(), table: String = Constants.String.BLANK, condition: String = Constants.String.BLANK, parameters: Array<*> = emptyArray<Any>()): List<T>
+    fun <T : Any> selectObjectPaginationList(kClass: KClass<T>, page: Page, selectColumns: Array<String> = emptyArray(), table: String = Constants.String.BLANK, condition: String = Constants.String.BLANK, parameters: Array<*> = emptyArray<Any>()): List<T>
 
     /**
      *
@@ -353,7 +353,7 @@ interface Query : BaseQuery {
      *
      * Method: get the total size
      * @param <T>
-     * @param clazz
+     * @param kClass
      * @param table
      * @param condition
      * @param parameters
@@ -361,7 +361,7 @@ interface Query : BaseQuery {
      * @throws QueryException
     </T> */
     @Throws(QueryException::class)
-    fun <T : Any> totalRows(clazz: KClass<T>? = null, table: String = Constants.String.BLANK, condition: String = Constants.String.BLANK, parameters: Array<*> = emptyArray<Any>()): Int
+    fun <T : Any> totalRows(kClass: KClass<T>? = null, table: String = Constants.String.BLANK, condition: String = Constants.String.BLANK, parameters: Array<*> = emptyArray<Any>()): Int
 
     /**
      *

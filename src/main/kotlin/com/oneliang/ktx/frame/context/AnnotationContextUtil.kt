@@ -138,14 +138,14 @@ object AnnotationContextUtil {
      */
     @Throws(ClassNotFoundException::class)
     fun searchClassList(classesRealPath: String, searchClassPath: String, annotationClass: KClass<out Annotation>): List<KClass<*>> {
-        val classList = mutableListOf<KClass<*>>()
-        val allClassList = searchAllClassList(classesRealPath, searchClassPath)
-        for (clazz in allClassList) {
-            if (clazz.java.isAnnotationPresent(annotationClass.java)) {
-                classList.add(clazz)
+        val kClassList = mutableListOf<KClass<*>>()
+        val allKClassList = searchAllClassList(classesRealPath, searchClassPath)
+        for (kClass in allKClassList) {
+            if (kClass.java.isAnnotationPresent(annotationClass.java)) {
+                kClassList.add(kClass)
             }
         }
-        return classList
+        return kClassList
     }
 
     private fun generateClassCacheKey(classesRealPath: String, searchClassPath: String): String {

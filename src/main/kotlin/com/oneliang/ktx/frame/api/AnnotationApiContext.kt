@@ -17,10 +17,10 @@ class AnnotationApiContext : AbstractContext() {
 
     override fun initialize(parameters: String) {
         try {
-            val classList = AnnotationContextUtil.parseAnnotationContextParameterAndSearchClass(parameters, classLoader, classesRealPath, jarClassLoader, Api::class)
-            apiClassList += classList
-            for (clazz in apiClassList) {
-                logger.info(clazz.toString())
+            val kClassList = AnnotationContextUtil.parseAnnotationContextParameterAndSearchClass(parameters, classLoader, classesRealPath, jarClassLoader, Api::class)
+            apiClassList += kClassList
+            for (kClass in apiClassList) {
+                logger.info(kClass.toString())
             }
             val apiDocumentObjectMapClassList = AnnotationContextUtil.parseAnnotationContextParameterAndSearchClass(parameters, classLoader, classesRealPath, jarClassLoader, Api.DocumentObjectMap::class)
             for (apiDocumentObjectMapClass in apiDocumentObjectMapClassList) {

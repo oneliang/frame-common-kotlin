@@ -7,12 +7,12 @@ import kotlin.reflect.KClass
  * find mappingBean
  *
  * @param <T>
- * @param clazz
+ * @param kClass
  * @return MappingBean
 </T> */
-fun <T : Any> ConfigurationContext.findMappingBean(clazz: KClass<T>): MappingBean? {
+fun <T : Any> ConfigurationContext.findMappingBean(kClass: KClass<T>): MappingBean? {
     val mappingContext = this.findContext(MappingContext::class)
-    return mappingContext?.findMappingBean(clazz)
+    return mappingContext?.findMappingBean(kClass)
 }
 
 /**

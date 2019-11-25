@@ -11,26 +11,26 @@ class AnnotationInterceptorContext : InterceptorContext() {
      */
     override fun initialize(parameters: String) {
         try {
-            val classList = AnnotationContextUtil.parseAnnotationContextParameterAndSearchClass(parameters, classLoader, classesRealPath, jarClassLoader, Interceptor::class)
-            for (clazz in classList) {
-                if (!ObjectUtil.isInheritanceOrInterfaceImplement(clazz.java, InterceptorInterface::class.java)) {
+            val kClassList = AnnotationContextUtil.parseAnnotationContextParameterAndSearchClass(parameters, classLoader, classesRealPath, jarClassLoader, Interceptor::class)
+            for (kClass in kClassList) {
+                if (!ObjectUtil.isInheritanceOrInterfaceImplement(kClass.java, InterceptorInterface::class.java)) {
                     continue
                 }
-                val interceptorAnnotation = clazz.java.getAnnotation(Interceptor::class.java)
+                val interceptorAnnotation = kClass.java.getAnnotation(Interceptor::class.java)
                 val interceptorMode = interceptorAnnotation.mode
                 var id = interceptorAnnotation.id
                 if (id.isBlank()) {
-                    id = clazz.java.simpleName
+                    id = kClass.java.simpleName
                     id = id.substring(0, 1).toLowerCase() + id.substring(1)
                 }
-                val interceptorInstance = clazz.java.newInstance() as InterceptorInterface
+                val interceptorInstance = kClass.java.newInstance() as InterceptorInterface
                 when (interceptorMode) {
                     Interceptor.Mode.GLOBAL_ACTION_BEFORE -> {
                         val globalBeforeInterceptor = GlobalInterceptorBean()
                         globalBeforeInterceptor.id = id
                         globalBeforeInterceptor.mode = GlobalInterceptorBean.INTERCEPTOR_MODE_BEFORE
                         globalBeforeInterceptor.interceptorInstance = interceptorInstance
-                        globalBeforeInterceptor.type = clazz.java.name
+                        globalBeforeInterceptor.type = kClass.java.name
                         globalInterceptorBeanMap[globalBeforeInterceptor.id] = globalBeforeInterceptor
                         beforeGlobalInterceptorList.add(interceptorInstance)
                     }
@@ -39,7 +39,7 @@ class AnnotationInterceptorContext : InterceptorContext() {
                         globalAfterInterceptor.id = id
                         globalAfterInterceptor.mode = GlobalInterceptorBean.INTERCEPTOR_MODE_AFTER
                         globalAfterInterceptor.interceptorInstance = interceptorInstance
-                        globalAfterInterceptor.type = clazz.java.name
+                        globalAfterInterceptor.type = kClass.java.name
                         globalInterceptorBeanMap[globalAfterInterceptor.id] = globalAfterInterceptor
                         afterGlobalInterceptorList.add(interceptorInstance)
                     }
@@ -47,7 +47,7 @@ class AnnotationInterceptorContext : InterceptorContext() {
                         val interceptor = InterceptorBean()
                         interceptor.id = id
                         interceptor.interceptorInstance = interceptorInstance
-                        interceptor.type = clazz.java.name
+                        interceptor.type = kClass.java.name
                         interceptorBeanMap[interceptor.id] = interceptor
                     }
                 }

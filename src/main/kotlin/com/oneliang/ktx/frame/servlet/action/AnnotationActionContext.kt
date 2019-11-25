@@ -11,17 +11,17 @@ class AnnotationActionContext : ActionContext() {
      */
     override fun initialize(parameters: String) {
         try {
-            val classList = AnnotationContextUtil.parseAnnotationContextParameterAndSearchClass(parameters, classLoader, classesRealPath, jarClassLoader, Action::class)
-            for (clazz in classList) {
-                val classId = clazz.java.name
+            val kClassList = AnnotationContextUtil.parseAnnotationContextParameterAndSearchClass(parameters, classLoader, classesRealPath, jarClassLoader, Action::class)
+            for (kClass in kClassList) {
+                val classId = kClass.java.name
                 val actionInstance: Any
                 if (!objectMap.containsKey(classId)) {
-                    actionInstance = clazz.java.newInstance()
+                    actionInstance = kClass.java.newInstance()
                     objectMap[classId] = actionInstance
                 } else {
                     actionInstance = objectMap[classId]!!
                 }
-                val methods = clazz.java.methods
+                val methods = kClass.java.methods
                 for (method in methods) {
                     if (!method.isAnnotationPresent(Action.RequestMapping::class.java)) {
                         continue
@@ -30,7 +30,7 @@ class AnnotationActionContext : ActionContext() {
                     if (returnType != null && returnType == String::class.java) {
                         val annotationActionBean = AnnotationActionBean()
                         val requestMappingAnnotation = method.getAnnotation(Action.RequestMapping::class.java)
-                        annotationActionBean.type = clazz.java.name
+                        annotationActionBean.type = kClass.java.name
                         val annotationHttpRequestMethods = requestMappingAnnotation.httpRequestMethods
                         val httpRequestMethods = if (annotationHttpRequestMethods.isNotEmpty()) {
                             annotationHttpRequestMethods
@@ -88,7 +88,7 @@ class AnnotationActionContext : ActionContext() {
                             annotationActionBean.addActionForwardBean(actionForwardBean)
                         }
                     } else {
-                        throw InitializeException("@" + Action.RequestMapping::class.java.simpleName + "class:" + clazz.java.name + ", method:" + method.name + " which the return type must be String.class,current is:" + returnType)
+                        throw InitializeException("@" + Action.RequestMapping::class.java.simpleName + "class:" + kClass.java.name + ", method:" + method.name + " which the return type must be String.class,current is:" + returnType)
                     }
                 }
             }

@@ -60,15 +60,15 @@ object SqlInjectUtil {
     /**
      * Method: for database use,make the insert sql string
      * @param <T>
-     * @param clazz
+     * @param kClass
      * @param table
      * @param mappingBean
      * @return Pair<String, List<String>>
     </T> */
-    fun <T : Any> classToInsertSql(clazz: KClass<T>, table: String, mappingBean: MappingBean): Pair<String, List<String>> {
+    fun <T : Any> classToInsertSql(kClass: KClass<T>, table: String, mappingBean: MappingBean): Pair<String, List<String>> {
         val sql = StringBuilder()
         val fieldNameList = mutableListOf<String>()
-        val methods = clazz.java.methods
+        val methods = kClass.java.methods
         val columnNameStringBuilder = StringBuilder()
         val valueStringBuilder = StringBuilder()
         for (method in methods) {
@@ -166,19 +166,19 @@ object SqlInjectUtil {
     /**
      * Method: for database use,make the update sql string
      * @param <T>
-     * @param clazz
+     * @param kClass
      * @param table
      * @param otherCondition
      * @param byId
      * @param mappingBean
      * @return Pair<String, List<String>>
     </T> */
-    fun <T : Any> classToUpdateSql(clazz: KClass<T>, table: String, otherCondition: String, byId: Boolean, mappingBean: MappingBean): Pair<String, List<String>> {
+    fun <T : Any> classToUpdateSql(kClass: KClass<T>, table: String, otherCondition: String, byId: Boolean, mappingBean: MappingBean): Pair<String, List<String>> {
         val sql = StringBuilder()
         val fieldNameList = mutableListOf<String>()
         val idList = ArrayList<String>()
         val valueList = ArrayList<String>()
-        val methods = clazz.java.methods
+        val methods = kClass.java.methods
         val columnsAndValues = StringBuilder()
         val condition = StringBuilder()
         for (method in methods) {
@@ -272,15 +272,15 @@ object SqlInjectUtil {
     /**
      * Method: for database use make the delete sql string,sql binding
      * @param <T>
-     * @param clazz
+     * @param kClass
      * @param table
      * @param otherCondition
      * @param byId
      * @param mappingBean
      * @return Pair<String,List<String>>
     </T> */
-    fun <T : Any> classToDeleteSql(clazz: KClass<T>, table: String, otherCondition: String, byId: Boolean, mappingBean: MappingBean): Pair<String, List<String>> {
-        val methods = clazz.java.methods
+    fun <T : Any> classToDeleteSql(kClass: KClass<T>, table: String = Constants.String.BLANK, otherCondition: String = Constants.String.BLANK, byId: Boolean, mappingBean: MappingBean): Pair<String, List<String>> {
+        val methods = kClass.java.methods
         val fieldNameList = mutableListOf<String>()
         val condition = StringBuilder()
         for (method in methods) {

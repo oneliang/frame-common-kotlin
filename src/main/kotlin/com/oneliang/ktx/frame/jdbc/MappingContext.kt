@@ -26,31 +26,29 @@ open class MappingContext : AbstractContext() {
             val path = this.classesRealPath + parameters
             val document = JavaXmlUtil.parse(path)
             val root = document.documentElement
-            val beanElementList = root.getElementsByTagName(MappingBean.TAG_BEAN)
-            if (beanElementList != null) {
-                val length = beanElementList.length
-                for (index in 0 until length) {
-                    val beanElement = beanElementList.item(index)
-                    val mappingBean = MappingBean()
-                    val attributeMap = beanElement.attributes
-                    JavaXmlUtil.initializeFromAttributeMap(mappingBean, attributeMap)
-                    //bean column
-                    val childNodeList = beanElement.childNodes ?: continue
-                    val childNodeLength = childNodeList.length
-                    for (childNodeIndex in 0 until childNodeLength) {
-                        val childNode = childNodeList.item(childNodeIndex)
-                        val nodeName = childNode.nodeName
-                        if (nodeName == MappingColumnBean.TAG_COLUMN) {
-                            val mappingColumnBean = MappingColumnBean()
-                            val childNodeAttributeMap = childNode.attributes
-                            JavaXmlUtil.initializeFromAttributeMap(mappingColumnBean, childNodeAttributeMap)
-                            mappingBean.addMappingColumnBean(mappingColumnBean)
-                        }
+            val beanElementList = root.getElementsByTagName(MappingBean.TAG_BEAN) ?: return
+            val length = beanElementList.length
+            for (index in 0 until length) {
+                val beanElement = beanElementList.item(index)
+                val mappingBean = MappingBean()
+                val attributeMap = beanElement.attributes
+                JavaXmlUtil.initializeFromAttributeMap(mappingBean, attributeMap)
+                //bean column
+                val childNodeList = beanElement.childNodes ?: continue
+                val childNodeLength = childNodeList.length
+                for (childNodeIndex in 0 until childNodeLength) {
+                    val childNode = childNodeList.item(childNodeIndex)
+                    val nodeName = childNode.nodeName
+                    if (nodeName == MappingColumnBean.TAG_COLUMN) {
+                        val mappingColumnBean = MappingColumnBean()
+                        val childNodeAttributeMap = childNode.attributes
+                        JavaXmlUtil.initializeFromAttributeMap(mappingColumnBean, childNodeAttributeMap)
+                        mappingBean.addMappingColumnBean(mappingColumnBean)
                     }
-                    val className = mappingBean.type
-                    classNameMappingBeanMap[className] = mappingBean
-                    simpleNameMappingBeanMap[this.classLoader.loadClass(className).simpleName] = mappingBean
                 }
+                val className = mappingBean.type
+                classNameMappingBeanMap[className] = mappingBean
+                simpleNameMappingBeanMap[this.classLoader.loadClass(className).simpleName] = mappingBean
             }
         } catch (e: Exception) {
             throw InitializeException(parameters, e)
@@ -68,11 +66,11 @@ open class MappingContext : AbstractContext() {
     /**
      * findMappingBean
      * @param <T>
-     * @param clazz
+     * @param kClass
      * @return MappingBean
     </T> */
-    fun <T : Any> findMappingBean(clazz: KClass<T>): MappingBean? {
-        val className = clazz.java.name
+    fun <T : Any> findMappingBean(kClass: KClass<T>): MappingBean? {
+        val className = kClass.java.name
         return classNameMappingBeanMap[className]
     }
 

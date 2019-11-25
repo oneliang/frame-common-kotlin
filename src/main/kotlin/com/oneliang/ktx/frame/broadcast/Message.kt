@@ -23,10 +23,10 @@ class Message {
 
     /**
      * add class
-     * @param clazz
+     * @param kClass
      */
-    fun addClass(clazz: KClass<*>) {
-        this.classList.add(clazz)
+    fun addClass(kClass: KClass<*>) {
+        this.classList.add(kClass)
     }
 
 

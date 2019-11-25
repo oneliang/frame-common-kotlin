@@ -1,10 +1,12 @@
 package com.oneliang.ktx.frame.jdbc
 
 import com.oneliang.ktx.Constants
+import java.lang.annotation.Inherited
 
 @MustBeDocumented
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FILE)
 @Retention(AnnotationRetention.RUNTIME)
+@Inherited
 annotation class Table(val table: String, val dropIfExist: Boolean = false, val condition: String = Constants.String.BLANK, val columns: Array<Column> = []) {
 
     @MustBeDocumented

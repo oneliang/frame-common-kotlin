@@ -13,7 +13,7 @@ class OracleQueryImpl : DefaultQueryImpl() {
      *
      * Method: select object pagination list,has implement,it is sql binding
      * @param <T>
-     * @param clazz
+     * @param kClass
      * @param page
      * @param selectColumns
      * @param table
@@ -23,10 +23,10 @@ class OracleQueryImpl : DefaultQueryImpl() {
      * @throws QueryException
     </T></T> */
     @Throws(QueryException::class)
-    override fun <T : Any> selectObjectPaginationList(clazz: KClass<T>, page: Page, selectColumns: Array<String>, table: String, condition: String, parameters: Array<*>): List<T> {
+    override fun <T : Any> selectObjectPaginationList(kClass: KClass<T>, page: Page, selectColumns: Array<String>, table: String, condition: String, parameters: Array<*>): List<T> {
         var tempSelectColumns = selectColumns
         var tempTable = table
-        val totalRows = this.totalRows(clazz, tempTable, condition, parameters)
+        val totalRows = this.totalRows(kClass, tempTable, condition, parameters)
         val rowsPerPage = page.rowsPerPage
         page.initialize(totalRows, rowsPerPage)
         val startRow = page.pageFirstRow
@@ -41,7 +41,7 @@ class OracleQueryImpl : DefaultQueryImpl() {
         System.arraycopy(tempSelectColumns, 0, newColumns, 0, tempSelectColumns.size)
         newColumns[tempSelectColumns.size] = "rownum $rowNumAlias"
         if (tempTable.isBlank()) {
-            val mappingBean = ConfigurationFactory.singletonConfigurationContext.findMappingBean(clazz) ?: throw MappingNotFoundException("can not find the mapping bean: $clazz")
+            val mappingBean = ConfigurationFactory.singletonConfigurationContext.findMappingBean(kClass) ?: throw MappingNotFoundException("can not find the mapping bean: $kClass")
             tempTable = mappingBean.table
         }
         tempTable = "$tempTable $tableAlias"
@@ -54,7 +54,7 @@ class OracleQueryImpl : DefaultQueryImpl() {
         var connection: Connection? = null
         try {
             connection = this.connectionPool!!.resource!!
-            list = this.executeQuery(connection, clazz, emptyArray(), tempTable, sqlConditions.toString(), parameters)
+            list = this.executeQuery(connection, kClass, emptyArray(), tempTable, sqlConditions.toString(), parameters)
         } catch (e: Exception) {
             throw QueryException(e)
         } finally {
