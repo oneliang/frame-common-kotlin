@@ -1,6 +1,5 @@
 package com.oneliang.ktx.frame.configuration
 
-import com.oneliang.ktx.Constants
 import com.oneliang.ktx.exception.InitializeException
 import com.oneliang.ktx.frame.context.AbstractContext
 import com.oneliang.ktx.frame.context.Context
@@ -53,10 +52,14 @@ class ConfigurationContext : AbstractContext() {
                     val configurationAttributesMap = configurationNode.attributes
                     JavaXmlUtil.initializeFromAttributeMap(configurationBean, configurationAttributesMap)
                     val context = this.classLoader.loadClass(configurationBean.contextClass).newInstance() as Context
-                    logger.info("Context:" + context.javaClass.name + ",id:" + configurationBean.id + " is initializing.")
+                    val configurationBeanId = configurationBean.id
+                    logger.info("Context:" + context.javaClass.name + ",id:" + configurationBeanId + " is initializing.")
                     if (context is AbstractContext) {
                         context.projectRealPath = this.projectRealPath
                         context.classesRealPath = this.classesRealPath
+                    }
+                    if (configurationBeanMap.containsKey(configurationBeanId)) {
+                        throw InitializeException("configuration error, configuration bean id is exist, id:$configurationBeanId")
                     }
                     context.initialize(configurationBean.parameters)
                     configurationBean.contextInstance = context
@@ -79,6 +82,7 @@ class ConfigurationContext : AbstractContext() {
             val entry = iterator.next()
             val configurationBean = entry.value
             configurationBean.contextInstance?.destroy()
+            configurationBeanMap.remove(configurationBean.id)
         }
         this.selfConfigurationBeanMap.clear()
     }
