@@ -230,7 +230,7 @@ class ActionListener : HttpServlet() {
         try {
             val actionBeanList = ConfigurationFactory.singletonConfigurationContext.findActionBeanList(uri)
             if (actionBeanList.isNullOrEmpty()) {
-                logger.info("The request name:$uri. It does not exist,please config the name and entity class")
+                logger.info("The request name:$uri. It does not exist, please config the name and entity class")
                 response.sendError(Constants.Http.StatusCode.NOT_FOUND)
                 return
             }
@@ -242,7 +242,7 @@ class ActionListener : HttpServlet() {
                 }
             }
             if (actionBean == null) {
-                logger.info("The request name:$uri. Method not allowed,http request method:$httpRequestMethod")
+                logger.info("The request name:$uri. Method not allowed, http request method:$httpRequestMethod")
                 response.sendError(Constants.Http.StatusCode.METHOD_NOT_ALLOWED)
                 return
             }

@@ -54,13 +54,13 @@ class AnnotationActionContext : ActionContext() {
                         annotationActionBean.path = requestPath
                         annotationActionBean.method = method
                         annotationActionBean.actionInstance = actionInstance
-                        ActionContext.actionBeanMap[id] = annotationActionBean
+                        actionBeanMap[id] = annotationActionBean
                         val actionBeanList: MutableList<ActionBean>
-                        if (ActionContext.pathActionBeanMap.containsKey(requestPath)) {
-                            actionBeanList = ActionContext.pathActionBeanMap[requestPath]!!
+                        if (pathActionBeanMap.containsKey(requestPath)) {
+                            actionBeanList = pathActionBeanMap[requestPath]!!
                         } else {
                             actionBeanList = mutableListOf()
-                            ActionContext.pathActionBeanMap[requestPath] = actionBeanList
+                            pathActionBeanMap[requestPath] = actionBeanList
                         }
                         actionBeanList.add(annotationActionBean)
                         //interceptor
