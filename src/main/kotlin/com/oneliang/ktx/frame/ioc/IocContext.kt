@@ -321,7 +321,7 @@ open class IocContext : AbstractContext() {
             val instanceClassName = instance.javaClass.name
             val referenceIocBean = iocBeanMap[fieldName]
             if (referenceIocBean == null) {
-                logger.error("Auto injecting by id error, can not find the reference instance, instance id:%s, instance class name:%s, field name:%s", id, instanceClassName, fieldName)
+                logger.warning("Auto injecting by id error, can not find the reference instance, instance id:%s, instance class name:%s, field name:%s", id, instanceClassName, fieldName)
                 continue
             }
             val proxyInstance = referenceIocBean.proxyInstance
@@ -343,6 +343,7 @@ open class IocContext : AbstractContext() {
     open fun manualInject(iocBean: IocBean) {
         val id = iocBean.id
         val iocPropertyBeanList = iocBean.iocPropertyBeanList
+        logger.info("Manual injecting, instance id:%s, instance class name:%s", id, iocBean.type)
         for (iocPropertyBean in iocPropertyBeanList) {
             val propertyName = iocPropertyBean.name
             val referenceBeanId = iocPropertyBean.reference
@@ -367,7 +368,7 @@ open class IocContext : AbstractContext() {
                 }
                 val referenceIocBean = iocBeanMap[referenceBeanId]
                 if (referenceIocBean == null) {
-                    logger.error("Auto injecting by id error, can not find the reference instance, instance id:%s, field name:%s, reference bean id:%s", id, fieldName, referenceBeanId)
+                    logger.warning("Manual injecting by id error, can not find the reference instance, instance id:%s, field name:%s, reference bean id:%s", id, fieldName, referenceBeanId)
                     continue
                 }
                 val instanceClassName = instance.javaClass.name
