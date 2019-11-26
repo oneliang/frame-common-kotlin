@@ -10,7 +10,7 @@ import kotlin.reflect.KClass
 
 class AnnotationApiContext : AbstractContext() {
     companion object {
-        private val logger = LoggerManager.getLogger(AnnotationApiContext::class)
+        internal val logger = LoggerManager.getLogger(AnnotationApiContext::class)
         internal val apiClassList = CopyOnWriteArrayList<KClass<*>>()
         internal val apiDocumentObjectMap = ConcurrentHashMap<String, Any>()
     }
@@ -24,6 +24,7 @@ class AnnotationApiContext : AbstractContext() {
             }
             val apiDocumentObjectMapClassList = AnnotationContextUtil.parseAnnotationContextParameterAndSearchClass(parameters, classLoader, classesRealPath, jarClassLoader, Api.DocumentObjectMap::class)
             for (apiDocumentObjectMapClass in apiDocumentObjectMapClassList) {
+                logger.info(apiDocumentObjectMapClass.toString())
                 val apiDocumentObjectMapInstance = apiDocumentObjectMapClass.java.newInstance()
                 if (apiDocumentObjectMapInstance is ApiDocumentObjectMap) {
                     val instanceObjectMap = apiDocumentObjectMapInstance.generateApiDocumentObjectMap()
