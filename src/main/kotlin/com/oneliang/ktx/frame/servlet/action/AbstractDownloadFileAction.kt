@@ -43,7 +43,7 @@ abstract class AbstractDownloadFileAction : BaseAction() {
         try {
             val file = File(fullFilename)
             val newFilename = String(file.name.toByteArray(Charsets.UTF_8), Charsets.ISO_8859_1)
-            (response as HttpServletResponse).addHeader(Constants.Http.HeaderKey.CONTENT_DISPOSITION, "attachment;fullFilename=$newFilename")
+            (response as HttpServletResponse).addHeader(Constants.Http.HeaderKey.CONTENT_DISPOSITION, "attachment;filenameg=$newFilename")
             val outputStream = response.getOutputStream()
             outputStream.use {
                 val inputStream = FileInputStream(fullFilename)
