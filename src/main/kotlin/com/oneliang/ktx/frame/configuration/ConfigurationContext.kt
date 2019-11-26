@@ -59,7 +59,9 @@ class ConfigurationContext : AbstractContext() {
                         context.classesRealPath = this.classesRealPath
                     }
                     if (configurationBeanMap.containsKey(configurationBeanId)) {
-                        throw InitializeException("configuration error, configuration bean id is exist, id:$configurationBeanId")
+                        val errorMessage = "configuration error, configuration bean id is exist, id:%s".format(configurationBeanId)
+                        logger.error(errorMessage)
+                        throw InitializeException(errorMessage)
                     }
                     context.initialize(configurationBean.parameters)
                     configurationBean.contextInstance = context
