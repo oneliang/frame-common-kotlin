@@ -8,7 +8,7 @@ import com.oneliang.ktx.util.upload.FileUploadResult
 import javax.servlet.ServletRequest
 import javax.servlet.ServletResponse
 
-abstract class AbstractUploadFileAction : CommonAction() {
+abstract class AbstractUploadFileAction : BaseAction() {
 
     /**
      * file upload from request.getInputStream(),for inputStream submit

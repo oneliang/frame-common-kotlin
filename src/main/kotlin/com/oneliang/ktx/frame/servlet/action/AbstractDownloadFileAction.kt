@@ -2,6 +2,7 @@ package com.oneliang.ktx.frame.servlet.action
 
 import com.oneliang.ktx.Constants
 import com.oneliang.ktx.frame.servlet.ActionUtil
+import com.oneliang.ktx.util.logging.LoggerManager
 import java.io.File
 import java.io.FileInputStream
 import javax.servlet.ServletRequest
@@ -9,7 +10,11 @@ import javax.servlet.ServletResponse
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
-abstract class AbstractDownloadFileAction : CommonAction() {
+abstract class AbstractDownloadFileAction : BaseAction() {
+
+    companion object {
+        private val logger = LoggerManager.getLogger(AbstractDownloadFileAction::class)
+    }
 
     /**
      * download file
@@ -33,6 +38,7 @@ abstract class AbstractDownloadFileAction : CommonAction() {
      */
     @Throws(ActionExecuteException::class)
     protected fun download(request: ServletRequest, response: ServletResponse, fullFilename: String): Boolean {
+        logger.info("download full filename:%s", fullFilename)
         response.contentType = Constants.Http.ContentType.APPLICATION_X_DOWNLOAD
         try {
             val file = File(fullFilename)
