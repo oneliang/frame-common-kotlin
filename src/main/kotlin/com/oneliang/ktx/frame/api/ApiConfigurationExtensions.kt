@@ -48,6 +48,7 @@ fun ConfigurationContext.outputApi(outputFilename: String) {
                                     it.newLine()
                                 }
                             }
+                            it.newLine()
                             it.flush()
                         }
                     }
