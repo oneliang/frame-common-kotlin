@@ -4,6 +4,8 @@ import com.oneliang.ktx.Constants
 import com.oneliang.ktx.frame.ConfigurationFactory
 import com.oneliang.ktx.frame.configuration.ConfigurationContext
 import com.oneliang.ktx.util.common.nullToBlank
+import com.oneliang.ktx.util.common.replaceAllLines
+import com.oneliang.ktx.util.common.replaceAllSpace
 import com.oneliang.ktx.util.logging.LoggerManager
 import java.io.File
 import java.util.*
@@ -23,9 +25,9 @@ abstract class AbstractServletContextListener : ServletContextListener {
     override fun contextInitialized(servletContextEvent: ServletContextEvent) {
         TimeZone.setDefault(TimeZone.getTimeZone(Constants.Timezone.ASIA_SHANGHAI))
         Locale.setDefault(Locale.CHINA)
-        val configFile = servletContextEvent.servletContext.getInitParameter(CONTEXT_PARAMETER_CONFIG_FILE)
+        val configFile = servletContextEvent.servletContext.getInitParameter(CONTEXT_PARAMETER_CONFIG_FILE).nullToBlank().replaceAllSpace().replaceAllLines()
         //real path
-        var projectRealPath = servletContextEvent.servletContext.getRealPath(Constants.String.BLANK)
+        var projectRealPath = servletContextEvent.servletContext.getRealPath(Constants.String.BLANK).nullToBlank()
 
         //config file
         if (configFile.isNotBlank()) {

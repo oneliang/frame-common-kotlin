@@ -14,9 +14,10 @@ class AnnotationIocContext : IocContext() {
      * initialize
      */
     override fun initialize(parameters: String) {
+        val fixParameters = fixParameters(parameters)
         try {
-            val classList = AnnotationContextUtil.parseAnnotationContextParameterAndSearchClass(parameters, classLoader, classesRealPath, jarClassLoader, Ioc::class)
-            for (kClass in classList) {
+            val kClassList = AnnotationContextUtil.parseAnnotationContextParameterAndSearchClass(fixParameters, classLoader, classesRealPath, jarClassLoader, Ioc::class)
+            for (kClass in kClassList) {
                 logger.debug("found class:$kClass")
                 val iocAnnotation = kClass.java.getAnnotation(Ioc::class.java)
                 val iocBean = IocBean()
@@ -47,7 +48,7 @@ class AnnotationIocContext : IocContext() {
                 IocContext.iocBeanMap[iocBean.id] = iocBean
             }
         } catch (e: Exception) {
-            throw InitializeException(parameters, e)
+            throw InitializeException(fixParameters, e)
         }
     }
 }

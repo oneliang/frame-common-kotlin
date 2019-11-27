@@ -1,6 +1,5 @@
 package com.oneliang.ktx.frame.servlet.action
 
-import com.oneliang.ktx.Constants
 import com.oneliang.ktx.exception.InitializeException
 import com.oneliang.ktx.frame.context.AbstractContext
 import com.oneliang.ktx.util.common.JavaXmlUtil
@@ -18,8 +17,9 @@ open class InterceptorContext : AbstractContext() {
      * initialize
      */
     override fun initialize(parameters: String) {
+        val fixParameters = fixParameters(parameters)
         try {
-            val path = this.classesRealPath + parameters
+            val path = this.classesRealPath + fixParameters
             val document = JavaXmlUtil.parse(path)
             val root = document.documentElement
             //global interceptor list
@@ -59,7 +59,7 @@ open class InterceptorContext : AbstractContext() {
                 }
             }
         } catch (e: Exception) {
-            throw InitializeException(parameters, e)
+            throw InitializeException(fixParameters, e)
         }
 
     }

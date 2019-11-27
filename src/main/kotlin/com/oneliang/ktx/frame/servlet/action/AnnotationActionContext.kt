@@ -10,8 +10,9 @@ class AnnotationActionContext : ActionContext() {
      * initialize
      */
     override fun initialize(parameters: String) {
+        val fixParameters = fixParameters(parameters)
         try {
-            val kClassList = AnnotationContextUtil.parseAnnotationContextParameterAndSearchClass(parameters, classLoader, classesRealPath, jarClassLoader, Action::class)
+            val kClassList = AnnotationContextUtil.parseAnnotationContextParameterAndSearchClass(fixParameters, classLoader, classesRealPath, jarClassLoader, Action::class)
             for (kClass in kClassList) {
                 val classId = kClass.java.name
                 val actionInstance: Any
@@ -93,7 +94,7 @@ class AnnotationActionContext : ActionContext() {
                 }
             }
         } catch (e: Exception) {
-            throw InitializeException(parameters, e)
+            throw InitializeException(fixParameters, e)
         }
     }
 }

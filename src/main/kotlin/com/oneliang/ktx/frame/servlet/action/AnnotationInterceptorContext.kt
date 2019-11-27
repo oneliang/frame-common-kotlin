@@ -15,8 +15,9 @@ class AnnotationInterceptorContext : InterceptorContext() {
      * initialize
      */
     override fun initialize(parameters: String) {
+        val fixParameters = fixParameters(parameters)
         try {
-            val kClassList = AnnotationContextUtil.parseAnnotationContextParameterAndSearchClass(parameters, classLoader, classesRealPath, jarClassLoader, Interceptor::class)
+            val kClassList = AnnotationContextUtil.parseAnnotationContextParameterAndSearchClass(fixParameters, classLoader, classesRealPath, jarClassLoader, Interceptor::class)
             for (kClass in kClassList) {
                 logger.info("Annotation interceptor class:%s", kClass.toString())
                 if (!ObjectUtil.isInheritanceOrInterfaceImplement(kClass.java, InterceptorInterface::class.java)) {
@@ -61,7 +62,7 @@ class AnnotationInterceptorContext : InterceptorContext() {
                 objectMap[id] = interceptorInstance
             }
         } catch (e: Exception) {
-            throw InitializeException(parameters, e)
+            throw InitializeException(fixParameters, e)
         }
 
     }

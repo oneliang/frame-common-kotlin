@@ -2,6 +2,8 @@ package com.oneliang.ktx.frame.context
 
 import com.oneliang.ktx.Constants
 import com.oneliang.ktx.util.common.nullToBlank
+import com.oneliang.ktx.util.common.replaceAllLines
+import com.oneliang.ktx.util.common.replaceAllSpace
 import com.oneliang.ktx.util.jar.JarClassLoader
 import java.util.concurrent.ConcurrentHashMap
 
@@ -37,5 +39,9 @@ abstract class AbstractContext : Context {
     @Suppress("UNCHECKED_CAST")
     fun <T : Any> findBean(id: String): T? {
         return objectMap[id] as T?
+    }
+
+    protected fun fixParameters(parameters: String): String {
+        return parameters.replaceAllSpace().replaceAllLines()
     }
 }

@@ -14,8 +14,9 @@ class AnnotationMappingContext : MappingContext() {
      * initialize
      */
     override fun initialize(parameters: String) {
+        val fixParameters = fixParameters(parameters)
         try {
-            val classList = AnnotationContextUtil.parseAnnotationContextParameterAndSearchClass(parameters, classLoader, classesRealPath, jarClassLoader, Table::class)
+            val classList = AnnotationContextUtil.parseAnnotationContextParameterAndSearchClass(fixParameters, classLoader, classesRealPath, jarClassLoader, Table::class)
             for (kClass in classList) {
                 logger.info("Annotation table mapping class:%s", kClass.toString())
                 val className = kClass.java.name
@@ -54,7 +55,7 @@ class AnnotationMappingContext : MappingContext() {
                 simpleNameMappingBeanMap[classSimpleName] = annotationMappingBean
             }
         } catch (e: Exception) {
-            throw InitializeException(parameters, e)
+            throw InitializeException(fixParameters, e)
         }
     }
 }

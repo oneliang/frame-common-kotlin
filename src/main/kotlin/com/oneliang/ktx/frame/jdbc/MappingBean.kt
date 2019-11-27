@@ -1,6 +1,7 @@
 package com.oneliang.ktx.frame.jdbc
 
 import com.oneliang.ktx.Constants
+import com.oneliang.ktx.util.common.nullToBlank
 
 open class MappingBean {
     companion object {
@@ -19,7 +20,7 @@ open class MappingBean {
      */
     fun getColumn(field: String): String {
         val mappingColumnBean = mappingColumnBeanMap[field]
-        return mappingColumnBean?.column ?: Constants.String.BLANK
+        return mappingColumnBean?.column.nullToBlank()
     }
 
     /**
@@ -37,7 +38,7 @@ open class MappingBean {
                 break
             }
         }
-        return field ?: Constants.String.BLANK
+        return field.nullToBlank()
     }
 
     /**

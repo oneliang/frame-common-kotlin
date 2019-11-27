@@ -31,8 +31,9 @@ class MessageContext : AbstractContext() {
     }
 
     override fun initialize(parameters: String) {
+        val fixParameters = fixParameters(parameters)
         try {
-            val parameterArray = parameters.split(Constants.Symbol.COMMA)
+            val parameterArray = fixParameters.split(Constants.Symbol.COMMA)
             var isRecursion = false
             var directoryPath: String = Constants.String.BLANK
             var matchPatternName: String = Constants.String.BLANK
@@ -47,7 +48,7 @@ class MessageContext : AbstractContext() {
             val directoryFile = File(fullDirectoryPath)
             loadPropertiesFile(directoryFile, matchPatternName, isRecursion)
         } catch (e: Exception) {
-            throw InitializeException(parameters, e)
+            throw InitializeException(fixParameters, e)
         }
 
     }

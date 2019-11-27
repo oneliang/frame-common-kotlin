@@ -27,8 +27,9 @@ open class ActionContext : AbstractContext() {
      * @param parameters
      */
     override fun initialize(parameters: String) {
+        val fixParameters = fixParameters(parameters)
         try {
-            val path = this.classesRealPath + parameters
+            val path = this.classesRealPath + fixParameters
             val document = JavaXmlUtil.parse(path)
             val root = document.documentElement
             //global forward list
@@ -103,7 +104,7 @@ open class ActionContext : AbstractContext() {
                 }
             }
         } catch (e: Exception) {
-            throw InitializeException(parameters, e)
+            throw InitializeException(fixParameters, e)
         }
 
     }

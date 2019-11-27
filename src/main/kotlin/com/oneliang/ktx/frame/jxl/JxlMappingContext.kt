@@ -20,8 +20,9 @@ class JxlMappingContext : AbstractContext() {
      * initialize
      */
     override fun initialize(parameters: String) {
+        val fixParameters = fixParameters(parameters)
         try {
-            var path = parameters
+            var path = fixParameters
             path = classesRealPath + path
             val document = JavaXmlUtil.parse(path)
             val root = document.documentElement
@@ -59,7 +60,7 @@ class JxlMappingContext : AbstractContext() {
                 }
             }
         } catch (e: Exception) {
-            throw InitializeException(parameters, e)
+            throw InitializeException(fixParameters, e)
         }
 
     }

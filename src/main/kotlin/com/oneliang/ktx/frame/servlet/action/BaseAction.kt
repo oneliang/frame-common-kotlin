@@ -5,6 +5,7 @@ import com.oneliang.ktx.StaticVar
 import com.oneliang.ktx.frame.ConfigurationFactory
 import com.oneliang.ktx.frame.i18n.MessageContext
 import com.oneliang.ktx.frame.servlet.ActionUtil
+import com.oneliang.ktx.util.common.nullToBlank
 import com.oneliang.ktx.util.file.FileUtil
 import com.oneliang.ktx.util.upload.FileUpload
 import com.oneliang.ktx.util.upload.FileUploadResult
@@ -182,7 +183,7 @@ open class BaseAction {
      */
     protected fun getParameter(parameter: String): String {
         val request = ActionUtil.servletRequest
-        return request.getParameter(parameter) ?: Constants.String.BLANK
+        return request.getParameter(parameter).nullToBlank()
     }
 
     /**
@@ -206,7 +207,7 @@ open class BaseAction {
     protected fun getHeader(name: String): String {
         val request = ActionUtil.servletRequest
         val httpServletRequest = request as HttpServletRequest
-        return httpServletRequest.getHeader(name) ?: Constants.String.BLANK
+        return httpServletRequest.getHeader(name).nullToBlank()
     }
 
     /**
@@ -261,7 +262,7 @@ open class BaseAction {
      */
     protected fun getMessage(key: String, locale: String): String {
         val properties = MessageContext.getMessageProperties(locale)
-        return properties?.getProperty(key) ?: Constants.String.BLANK
+        return properties?.getProperty(key).nullToBlank()
     }
 
     /**

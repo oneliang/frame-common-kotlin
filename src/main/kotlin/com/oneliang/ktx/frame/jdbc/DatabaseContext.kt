@@ -37,8 +37,9 @@ class DatabaseContext : AbstractContext() {
      * initialize
      */
     override fun initialize(parameters: String) {
+        val fixParameters = fixParameters(parameters)
         try {
-            val path = this.classesRealPath + parameters
+            val path = this.classesRealPath + fixParameters
             val properties = FileUtil.getProperties(path)
             properties.forEach { (k, v) ->
                 val key = k.toString()
@@ -71,7 +72,7 @@ class DatabaseContext : AbstractContext() {
                 }
             }
         } catch (e: Exception) {
-            throw InitializeException(parameters, e)
+            throw InitializeException(fixParameters, e)
         }
 
     }

@@ -1,6 +1,7 @@
 package com.oneliang.ktx.frame.servlet.filter
 
 import com.oneliang.ktx.Constants
+import com.oneliang.ktx.util.common.nullToBlank
 import com.oneliang.ktx.util.file.FileUtil
 import com.oneliang.ktx.util.http.HttpUtil
 import com.oneliang.ktx.util.json.JsonArray
@@ -34,7 +35,7 @@ class HeaderFilter : Filter {
     @Throws(ServletException::class)
     override fun init(filterConfig: FilterConfig) {
         logger.info("initialize filter:${this::class}")
-        val responseHeaderJson = filterConfig.getInitParameter(RESPONSE_HEADER_JSON) ?: Constants.String.BLANK
+        val responseHeaderJson = filterConfig.getInitParameter(RESPONSE_HEADER_JSON).nullToBlank()
         if (responseHeaderJson.isNotBlank()) {
             val responseHeaderJsonAfterTrim = StringBuilder()
             FileUtil.readInputStreamContentIgnoreLine(ByteArrayInputStream(responseHeaderJson.toByteArray(Charsets.UTF_8)), readFileContentProcessor = object : FileUtil.ReadFileContentProcessor {
@@ -58,7 +59,7 @@ class HeaderFilter : Filter {
             }
         }
 
-        val accessControl = filterConfig.getInitParameter(ACCESS_CONTROL) ?: Constants.String.BLANK
+        val accessControl = filterConfig.getInitParameter(ACCESS_CONTROL).nullToBlank()
         if (accessControl.isNotBlank()) {
             this.accessControlSet.clear()
             accessControl.split(Constants.Symbol.COMMA).forEach {
@@ -84,7 +85,7 @@ class HeaderFilter : Filter {
         }
         if (accessControlSet.isNotEmpty()) {
             val httpServletRequest = servletRequest as HttpServletRequest
-            val httpHeaderOrigin = httpServletRequest.getHeader(Constants.Http.HeaderKey.ORIGIN) ?: Constants.String.BLANK
+            val httpHeaderOrigin = httpServletRequest.getHeader(Constants.Http.HeaderKey.ORIGIN).nullToBlank()
             if (httpHeaderOrigin.isNotBlank() && accessControlSet.contains(httpHeaderOrigin)) {
                 httpServletResponse.setHeader(Constants.Http.HeaderKey.ACCESS_CONTROL_ALLOW_ORIGIN, httpHeaderOrigin)
             } else {

@@ -22,8 +22,9 @@ open class MappingContext : AbstractContext() {
      * initialize
      */
     override fun initialize(parameters: String) {
+        val fixParameters = fixParameters(parameters)
         try {
-            val path = this.classesRealPath + parameters
+            val path = this.classesRealPath + fixParameters
             val document = JavaXmlUtil.parse(path)
             val root = document.documentElement
             val beanElementList = root.getElementsByTagName(MappingBean.TAG_BEAN) ?: return
@@ -51,7 +52,7 @@ open class MappingContext : AbstractContext() {
                 simpleNameMappingBeanMap[this.classLoader.loadClass(className).simpleName] = mappingBean
             }
         } catch (e: Exception) {
-            throw InitializeException(parameters, e)
+            throw InitializeException(fixParameters, e)
         }
     }
 

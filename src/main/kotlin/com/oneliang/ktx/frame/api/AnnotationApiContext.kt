@@ -16,13 +16,14 @@ class AnnotationApiContext : AbstractContext() {
     }
 
     override fun initialize(parameters: String) {
+        val fixParameters = fixParameters(parameters)
         try {
-            val kClassList = AnnotationContextUtil.parseAnnotationContextParameterAndSearchClass(parameters, classLoader, classesRealPath, jarClassLoader, Api::class)
+            val kClassList = AnnotationContextUtil.parseAnnotationContextParameterAndSearchClass(fixParameters, classLoader, classesRealPath, jarClassLoader, Api::class)
             apiClassList += kClassList
             for (kClass in apiClassList) {
                 logger.info(kClass.toString())
             }
-            val apiDocumentObjectMapClassList = AnnotationContextUtil.parseAnnotationContextParameterAndSearchClass(parameters, classLoader, classesRealPath, jarClassLoader, Api.DocumentObjectMap::class)
+            val apiDocumentObjectMapClassList = AnnotationContextUtil.parseAnnotationContextParameterAndSearchClass(fixParameters, classLoader, classesRealPath, jarClassLoader, Api.DocumentObjectMap::class)
             for (apiDocumentObjectMapClass in apiDocumentObjectMapClassList) {
                 logger.info(apiDocumentObjectMapClass.toString())
                 val apiDocumentObjectMapInstance = apiDocumentObjectMapClass.java.newInstance()
@@ -32,7 +33,7 @@ class AnnotationApiContext : AbstractContext() {
                 }
             }
         } catch (e: Exception) {
-            throw InitializeException(parameters, e)
+            throw InitializeException(fixParameters, e)
         }
     }
 

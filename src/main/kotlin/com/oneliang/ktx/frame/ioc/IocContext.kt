@@ -27,8 +27,9 @@ open class IocContext : AbstractContext() {
      * @param parameters
      */
     override fun initialize(parameters: String) {
+        val fixParameters = fixParameters(parameters)
         try {
-            val path = this.classesRealPath + parameters
+            val path = this.classesRealPath + fixParameters
             val document = JavaXmlUtil.parse(path)
             val root = document.documentElement
             //configuration
@@ -81,7 +82,7 @@ open class IocContext : AbstractContext() {
                 }
             }
         } catch (e: Exception) {
-            throw InitializeException(parameters, e)
+            throw InitializeException(fixParameters, e)
         }
 
     }

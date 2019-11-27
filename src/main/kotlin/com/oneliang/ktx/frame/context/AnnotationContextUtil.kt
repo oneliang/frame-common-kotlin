@@ -3,6 +3,8 @@ package com.oneliang.ktx.frame.context
 import com.oneliang.ktx.Constants
 import com.oneliang.ktx.exception.FileLoadException
 import com.oneliang.ktx.util.common.nullToBlank
+import com.oneliang.ktx.util.common.replaceAllLines
+import com.oneliang.ktx.util.common.replaceAllSpace
 import com.oneliang.ktx.util.jar.JarClassLoader
 import com.oneliang.ktx.util.jar.JarUtil
 import com.oneliang.ktx.util.logging.LoggerManager
@@ -39,7 +41,7 @@ object AnnotationContextUtil {
      */
     @Throws(ClassNotFoundException::class, FileLoadException::class)
     fun parseAnnotationContextParameterAndSearchClass(parameters: String, classLoader: ClassLoader, classesRealPath: String, jarClassLoader: JarClassLoader, annotationClass: KClass<out Annotation>): List<KClass<*>> {
-        val parameterArray = parameters.split(Constants.Symbol.COMMA)
+        val parameterArray = parameters.replaceAllSpace().replaceAllLines().split(Constants.Symbol.COMMA)
         val fixedClassesRealPath = if (classesRealPath.isBlank()) {
             classLoader.getResource(Constants.String.BLANK)?.path.nullToBlank()
         } else {
