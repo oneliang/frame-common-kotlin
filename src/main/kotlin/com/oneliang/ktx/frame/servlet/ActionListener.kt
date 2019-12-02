@@ -547,7 +547,7 @@ class ActionListener : HttpServlet() {
             try {
                 for (globalInterceptor in interceptorList) {
                     val sign = globalInterceptor.intercept(request, response)
-                    logger.info("Global intercept:$sign,interceptor:$globalInterceptor")
+                    logger.info("Global interceptor, through:$sign,interceptor:$globalInterceptor")
                     if (!sign) {
                         interceptorSign = false
                         break
@@ -576,7 +576,7 @@ class ActionListener : HttpServlet() {
                     val actionInterceptor = actionInterceptorBean.interceptorInstance
                     if (actionInterceptor != null) {
                         val sign = actionInterceptor.intercept(request, response)
-                        logger.info("Action intercept:$sign,interceptor:$actionInterceptor")
+                        logger.info("Action interceptor, through:$sign,interceptor:$actionInterceptor")
                         if (!sign) {
                             actionInterceptorBeanSign = false
                             break
