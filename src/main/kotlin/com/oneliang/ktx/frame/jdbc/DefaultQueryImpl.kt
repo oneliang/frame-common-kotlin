@@ -649,35 +649,26 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
      * @throws QueryException
      */
     @Throws(QueryException::class)
-    override fun executeTransaction(transaction: Transaction): Boolean {
+    override fun executeTransaction(transaction: Transaction) {
         var isFirstIn = false
         val customTransactionSign = TransactionManager.customTransactionSign.get()
         if (customTransactionSign == null || !customTransactionSign) {
             isFirstIn = true
         }
-        return if (isFirstIn) {
+        if (isFirstIn) {
             TransactionManager.customTransactionSign.set(true)
             var connection: Connection? = null
             //beginTransaction
             try {
                 connection = this.connectionPool.resource!!
                 connection.autoCommit = false
-                val result = transaction.execute()
-                if (result) {
-                    connection.commit()
-                } else {
-                    try {
-                        connection.rollback()
-                    } catch (ex: Exception) {
-                        throw QueryException(ex)
-                    }
-                }
-                result
+                transaction.execute()
+                connection.commit()
             } catch (e: Throwable) {
                 try {
                     connection!!.rollback()
-                } catch (ex: Exception) {
-                    throw QueryException(ex)
+                } catch (e: Throwable) {
+                    throw QueryException(e)
                 }
                 throw QueryException(e)
             } finally {
