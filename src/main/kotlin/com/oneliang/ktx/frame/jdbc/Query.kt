@@ -364,11 +364,10 @@ interface Query : BaseQuery {
     fun <T : Any> totalRows(kClass: KClass<T>? = null, table: String = Constants.String.BLANK, condition: String = Constants.String.BLANK, parameters: Array<*> = emptyArray<Any>()): Int
 
     /**
-     *
-     * execute transaction
+     * execute transaction, if you need to stop transaction, you can throw exception
      * @param transaction
      * @throws QueryException
      */
     @Throws(QueryException::class)
-    fun executeTransaction(transaction: Transaction)
+    fun executeTransaction(transaction: Transaction): Boolean
 }

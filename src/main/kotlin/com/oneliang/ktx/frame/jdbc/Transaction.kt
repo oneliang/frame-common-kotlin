@@ -7,5 +7,5 @@ interface Transaction {
      * @throws QueryException
      */
     @Throws(QueryException::class)
-    fun execute()
+    fun execute(): Boolean
 }

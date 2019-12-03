@@ -644,27 +644,36 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
 
     /**
      *
-     * execute transaction
+     * execute transaction, if you need to stop transaction, you can throw exception
      * @param transaction
      * @throws QueryException
      */
     @Throws(QueryException::class)
-    override fun executeTransaction(transaction: Transaction) {
+    override fun executeTransaction(transaction: Transaction): Boolean {
         var isFirstIn = false
         val customTransactionSign = TransactionManager.customTransactionSign.get()
         if (customTransactionSign == null || !customTransactionSign) {
             isFirstIn = true
         }
-        if (isFirstIn) {
+        return if (isFirstIn) {
             TransactionManager.customTransactionSign.set(true)
             var connection: Connection? = null
             //beginTransaction
             try {
                 connection = this.connectionPool.resource!!
                 connection.autoCommit = false
-                transaction.execute()
-                connection.commit()
-            } catch (e: Exception) {
+                val result = transaction.execute()
+                if (result) {
+                    connection.commit()
+                } else {
+                    try {
+                        connection.rollback()
+                    } catch (ex: Exception) {
+                        throw QueryException(ex)
+                    }
+                }
+                result
+            } catch (e: Throwable) {
                 try {
                     connection!!.rollback()
                 } catch (ex: Exception) {
@@ -675,7 +684,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
                 //endTransaction
                 try {
                     connection!!.autoCommit = true
-                } catch (e: Exception) {
+                } catch (e: Throwable) {
                     throw QueryException(e)
                 } finally {
                     TransactionManager.customTransactionSign.set(false)
@@ -685,7 +694,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
         } else {
             try {
                 transaction.execute()
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 throw QueryException(e)
             }
         }
