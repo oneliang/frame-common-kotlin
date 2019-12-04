@@ -2,11 +2,10 @@ package com.oneliang.ktx.frame.servlet.filter
 
 import com.oneliang.ktx.Constants
 import com.oneliang.ktx.util.common.nullToBlank
-import com.oneliang.ktx.util.file.FileUtil
+import com.oneliang.ktx.util.common.replaceAllLines
 import com.oneliang.ktx.util.http.HttpUtil
 import com.oneliang.ktx.util.json.JsonArray
 import com.oneliang.ktx.util.logging.LoggerManager
-import java.io.ByteArrayInputStream
 import java.io.IOException
 import javax.servlet.*
 import javax.servlet.http.HttpServletRequest
@@ -37,15 +36,9 @@ class HeaderFilter : Filter {
         logger.info("initialize filter:${this::class}")
         val responseHeaderJson = filterConfig.getInitParameter(RESPONSE_HEADER_JSON).nullToBlank()
         if (responseHeaderJson.isNotBlank()) {
-            val responseHeaderJsonAfterTrim = StringBuilder()
-            FileUtil.readInputStreamContentIgnoreLine(ByteArrayInputStream(responseHeaderJson.toByteArray(Charsets.UTF_8)), readFileContentProcessor = object : FileUtil.ReadFileContentProcessor {
-                override fun afterReadLine(line: String): Boolean {
-                    responseHeaderJsonAfterTrim.append(line.trim())
-                    return true
-                }
-            })
+            val fixResponseHeaderJson = responseHeaderJson.replaceAllLines().trim()
             try {
-                val responseHeaderJsonAfterTrimString = responseHeaderJsonAfterTrim.toString()
+                val responseHeaderJsonAfterTrimString = fixResponseHeaderJson.toString()
                 logger.info("response header json:$responseHeaderJsonAfterTrimString")
                 if (responseHeaderJsonAfterTrimString.isNotBlank()) {
                     val headerJsonArray = JsonArray(responseHeaderJsonAfterTrimString)
