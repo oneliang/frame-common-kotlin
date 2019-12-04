@@ -3,6 +3,7 @@ package com.oneliang.ktx.frame.servlet.filter
 import com.oneliang.ktx.Constants
 import com.oneliang.ktx.util.common.nullToBlank
 import com.oneliang.ktx.util.common.replaceAllLines
+import com.oneliang.ktx.util.common.replaceAllSpace
 import com.oneliang.ktx.util.http.HttpUtil
 import com.oneliang.ktx.util.json.JsonArray
 import com.oneliang.ktx.util.logging.LoggerManager
@@ -36,12 +37,11 @@ class HeaderFilter : Filter {
         logger.info("initialize filter:${this::class}")
         val responseHeaderJson = filterConfig.getInitParameter(RESPONSE_HEADER_JSON).nullToBlank()
         if (responseHeaderJson.isNotBlank()) {
-            val fixResponseHeaderJson = responseHeaderJson.replaceAllLines().trim()
+            val fixResponseHeaderJson = responseHeaderJson.replaceAllLines().replaceAllSpace()
             try {
-                val responseHeaderJsonAfterTrimString = fixResponseHeaderJson.toString()
-                logger.info("response header json:$responseHeaderJsonAfterTrimString")
-                if (responseHeaderJsonAfterTrimString.isNotBlank()) {
-                    val headerJsonArray = JsonArray(responseHeaderJsonAfterTrimString)
+                logger.info("response header json:$fixResponseHeaderJson")
+                if (fixResponseHeaderJson.isNotBlank()) {
+                    val headerJsonArray = JsonArray(fixResponseHeaderJson)
                     for (i in 0 until headerJsonArray.length()) {
                         val headerJsonObject = headerJsonArray.getJsonObject(i)
                         headerList.add(HttpUtil.HttpNameValue(headerJsonObject.getString(HEADER_KEY), headerJsonObject.getString(HEADER_VALUE)))
