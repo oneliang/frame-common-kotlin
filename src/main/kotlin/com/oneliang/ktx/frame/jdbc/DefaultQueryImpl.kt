@@ -650,6 +650,11 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
      */
     @Throws(QueryException::class)
     override fun executeTransaction(transaction: Transaction): Boolean {
+        return executeTransaction(transaction::execute)
+    }
+
+    @Throws(QueryException::class)
+    override fun executeTransaction(transaction: () -> Boolean): Boolean {
         var isFirstIn = false
         val customTransactionSign = TransactionManager.customTransactionSign.get()
         if (customTransactionSign == null || !customTransactionSign) {
@@ -662,7 +667,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
             try {
                 connection = this.connectionPool.resource!!
                 connection.autoCommit = false
-                val result = transaction.execute()
+                val result = transaction()
                 if (!result) {
                     connection.rollback()
                 } else {
@@ -690,7 +695,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
         } else {//not first in
             val connection = this.connectionPool.resource!!
             try {
-                val result = transaction.execute()
+                val result = transaction()
                 if (!result) {
                     connection.rollback()
                 }
@@ -704,14 +709,5 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
                 throw QueryException(e)
             }
         }
-    }
-
-    @Throws(QueryException::class)
-    override fun executeTransaction(transaction: () -> Boolean): Boolean {
-        return executeTransaction(object : Transaction {
-            override fun execute(): Boolean {
-                return transaction()
-            }
-        })
     }
 }
