@@ -688,14 +688,19 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
                 }
             }
         } else {//not first in
+            val connection = this.connectionPool.resource!!
             try {
-                val connection = this.connectionPool.resource!!
                 val result = transaction.execute()
                 if (!result) {
                     connection.rollback()
                 }
                 result
             } catch (e: Throwable) {
+                try {
+                    connection.rollback()
+                } catch (e: Throwable) {
+                    throw QueryException(e)
+                }
                 throw QueryException(e)
             }
         }
