@@ -705,4 +705,13 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
             }
         }
     }
+
+    @Throws(QueryException::class)
+    override fun executeTransaction(transaction: () -> Boolean): Boolean {
+        return executeTransaction(object : Transaction {
+            override fun execute(): Boolean {
+                return transaction()
+            }
+        })
+    }
 }

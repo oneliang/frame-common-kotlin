@@ -370,4 +370,7 @@ interface Query : BaseQuery {
      */
     @Throws(QueryException::class)
     fun executeTransaction(transaction: Transaction): Boolean
+
+    @Throws(QueryException::class)
+    fun executeTransaction(transaction: () -> Boolean): Boolean
 }
