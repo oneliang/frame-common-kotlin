@@ -31,7 +31,7 @@ class JxlMappingContext : AbstractContext() {
             for (index in 0 until length) {
                 val beanElement = beanElementList.item(index)
                 val jxlMappingBean = JxlMappingBean()
-                val attributeMap = beanElement.getAttributes()
+                val attributeMap = beanElement.attributes
                 JavaXmlUtil.initializeFromAttributeMap(jxlMappingBean, attributeMap)
                 //bean column
                 val childNodeList = beanElement.childNodes
