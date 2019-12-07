@@ -77,12 +77,8 @@ class ConnectionSource : ResourceSource<Connection>() {
     var password: String = Constants.String.BLANK
 
     /**
-     *
-     *
      * Method: initial the connection operate,load the config file or use the
      * default file
-     *
-     *
      * This method initial the config file
      */
     override val resource: Connection?
