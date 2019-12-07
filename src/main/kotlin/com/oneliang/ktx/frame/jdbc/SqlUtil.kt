@@ -80,6 +80,7 @@ object SqlUtil {
         }
         val sql = StringBuilder()
         sql.append("SELECT ")
+        sql.append("DISTINCT ")
         sql.append(selectColumn)
         sql.append(" FROM ")
         sql.append(table)
