@@ -261,8 +261,7 @@ class ActionListener : HttpServlet() {
             } else {
                 doAnnotationAction(actionBean, request, response, httpRequestMethod)
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
+        } catch (e: Throwable) {
             logger.error(Constants.Base.EXCEPTION, e)
             logger.info("The request name:$uri. Action or page does not exist")
             val exceptionPath = ConfigurationFactory.singletonConfigurationContext.globalExceptionForwardPath
@@ -293,7 +292,7 @@ class ActionListener : HttpServlet() {
                 if (ObjectUtil.isInterfaceImplement(clazz, KotlinClassUtil.KotlinClassProcessor::class.java)) {
                     this.classProcessor = clazz.newInstance() as KotlinClassUtil.KotlinClassProcessor
                 }
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 logger.error(Constants.Base.EXCEPTION, e)
             }
         }
@@ -553,7 +552,7 @@ class ActionListener : HttpServlet() {
                         break
                     }
                 }
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 logger.error(Constants.Base.EXCEPTION, e)
                 interceptorSign = false
             }
@@ -583,7 +582,7 @@ class ActionListener : HttpServlet() {
                         }
                     }
                 }
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 logger.error(Constants.Base.EXCEPTION, e)
                 actionInterceptorBeanSign = false
             }

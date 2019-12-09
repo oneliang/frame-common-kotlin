@@ -5,7 +5,10 @@ import com.oneliang.ktx.exception.MappingNotFoundException
 import com.oneliang.ktx.frame.ConfigurationFactory
 import com.oneliang.ktx.util.common.ObjectUtil
 import com.oneliang.ktx.util.logging.LoggerManager
-import java.sql.*
+import java.sql.Connection
+import java.sql.PreparedStatement
+import java.sql.ResultSet
+import java.sql.Statement
 import kotlin.reflect.KClass
 
 open class BaseQueryImpl : BaseQuery {
@@ -37,13 +40,13 @@ open class BaseQueryImpl : BaseQuery {
                 index++
             }
             preparedStatement.execute()
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             throw QueryException(e)
         } finally {
             if (preparedStatement != null) {
                 try {
                     preparedStatement.close()
-                } catch (e: Exception) {
+                } catch (e: Throwable) {
                     throw QueryException(e)
                 }
             }
@@ -72,14 +75,14 @@ open class BaseQueryImpl : BaseQuery {
             val sql = SqlUtil.selectSql(selectColumns, table, condition, mappingBean)
             resultSet = this.executeQueryBySql(connection, sql, parameters)
             list = SqlUtil.resultSetToObjectList(resultSet, kClass, mappingBean, this.sqlProcessor)
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             throw QueryException(e)
         } finally {
             if (resultSet != null) {
                 try {
                     resultSet.statement.close()
                     resultSet.close()
-                } catch (e: Exception) {
+                } catch (e: Throwable) {
                     throw QueryException(e)
                 }
 
@@ -107,14 +110,14 @@ open class BaseQueryImpl : BaseQuery {
             val sql = SqlUtil.classToSelectIdSql(kClass, mappingBean)
             resultSet = this.executeQueryBySql(connection, sql, arrayOf<Any>(id))
             list = SqlUtil.resultSetToObjectList(resultSet, kClass, mappingBean, this.sqlProcessor)
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             throw QueryException(e)
         } finally {
             if (resultSet != null) {
                 try {
                     resultSet.statement.close()
                     resultSet.close()
-                } catch (e: Exception) {
+                } catch (e: Throwable) {
                     throw QueryException(e)
                 }
 
@@ -144,17 +147,16 @@ open class BaseQueryImpl : BaseQuery {
             val mappingBean = ConfigurationFactory.singletonConfigurationContext.findMappingBean(kClass) ?: throw MappingNotFoundException("Mapping is not found, class:$kClass")
             resultSet = this.executeQueryBySql(connection, sql, parameters)
             list = SqlUtil.resultSetToObjectList(resultSet, kClass, mappingBean, this.sqlProcessor)
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             throw QueryException(e)
         } finally {
             if (resultSet != null) {
                 try {
                     resultSet.statement.close()
                     resultSet.close()
-                } catch (e: Exception) {
+                } catch (e: Throwable) {
                     throw QueryException(e)
                 }
-
             }
         }
         return list
@@ -184,7 +186,7 @@ open class BaseQueryImpl : BaseQuery {
                 }
             }
             resultSet = preparedStatement.executeQuery()
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             throw QueryException(e)
         }
         return resultSet
@@ -218,7 +220,7 @@ open class BaseQueryImpl : BaseQuery {
             val mappingBean = ConfigurationFactory.singletonConfigurationContext.findMappingBean(kClass) ?: throw MappingNotFoundException("Mapping is not found, class:$kClass")
             val (sql, parameterList) = SqlInjectUtil.objectToInsertSql(instance, table, mappingBean)
             id = this.executeInsertForAutoIncrementBySql(connection, sql, parameterList.toTypedArray())
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             throw QueryException(e)
         }
         return id
@@ -285,7 +287,7 @@ open class BaseQueryImpl : BaseQuery {
         try {
             val mappingBean = ConfigurationFactory.singletonConfigurationContext.findMappingBean(kClass) ?: throw MappingNotFoundException("Mapping is not found, class:$kClass")
             sql = SqlUtil.classToDeleteOneRowSql(kClass, id, mappingBean)
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             throw QueryException(e)
         }
         return executeUpdateBySql(connection, sql)
@@ -311,7 +313,7 @@ open class BaseQueryImpl : BaseQuery {
             updateResult = this.executeBatch(connection, sqlPair.first, parametersList).size
 //            val sql = SqlUtil.classToDeleteMultipleRowSql(kClass, ids, mappingBean)
 //            updateResult = this.executeUpdateBySql(connection, sql)
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             throw QueryException(e)
         }
         return updateResult
@@ -350,7 +352,7 @@ open class BaseQueryImpl : BaseQuery {
             val mappingBean = ConfigurationFactory.singletonConfigurationContext.findMappingBean(kClass) ?: throw MappingNotFoundException("Mapping is not found, class:$kClass")
             val sql = SqlUtil.deleteSql(Constants.String.BLANK, condition, mappingBean)
             result = this.executeUpdateBySql(connection, sql, parameters)
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             throw QueryException(e)
         }
 
@@ -399,20 +401,20 @@ open class BaseQueryImpl : BaseQuery {
             if (resultSet != null && resultSet.next()) {
                 id = resultSet.getInt(1)
             }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             throw QueryException(e)
         } finally {
             if (preparedStatement != null) {
                 try {
                     preparedStatement.close()
-                } catch (e: Exception) {
+                } catch (e: Throwable) {
                     throw QueryException(e)
                 }
             }
             if (resultSet != null) {
                 try {
                     resultSet.close()
-                } catch (e: Exception) {
+                } catch (e: Throwable) {
                     throw QueryException(e)
                 }
             }
@@ -444,7 +446,7 @@ open class BaseQueryImpl : BaseQuery {
                 BaseQuery.ExecuteType.DELETE_NOT_BY_ID -> SqlInjectUtil.objectToDeleteSql(instance, table, condition, false, mappingBean)
             }
             rows = this.executeUpdateBySql(connection, sql, parameterList.toTypedArray())
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             throw QueryException(e)
         }
 
@@ -480,7 +482,7 @@ open class BaseQueryImpl : BaseQuery {
                     }
                 }
                 rows = this.executeBatch(connection, sqls)
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 throw QueryException(e)
             }
         }
@@ -541,11 +543,11 @@ open class BaseQueryImpl : BaseQuery {
             if (!customTransaction) {
                 connection.commit()
             }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             if (!customTransaction) {
                 try {
                     connection.rollback()
-                } catch (ex: Exception) {
+                } catch (ex: Throwable) {
                     throw QueryException(ex)
                 }
 
@@ -557,7 +559,7 @@ open class BaseQueryImpl : BaseQuery {
                     connection.autoCommit = true
                 }
                 preparedStatement?.close()
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 throw QueryException(e)
             }
         }
@@ -587,13 +589,13 @@ open class BaseQueryImpl : BaseQuery {
                 index++
             }
             updateResult = preparedStatement!!.executeUpdate()
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             throw QueryException(e)
         } finally {
             if (preparedStatement != null) {
                 try {
                     preparedStatement.close()
-                } catch (e: Exception) {
+                } catch (e: Throwable) {
                     throw QueryException(e)
                 }
             }
@@ -632,11 +634,11 @@ open class BaseQueryImpl : BaseQuery {
             if (!customTransaction) {
                 connection.commit()
             }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             if (!customTransaction) {
                 try {
                     connection.rollback()
-                } catch (ex: SQLException) {
+                } catch (ex: Throwable) {
                     throw QueryException(ex)
                 }
             }
@@ -647,7 +649,7 @@ open class BaseQueryImpl : BaseQuery {
                     connection.autoCommit = true
                 }
                 statement?.close()
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 throw QueryException(e)
             }
         }
@@ -695,11 +697,11 @@ open class BaseQueryImpl : BaseQuery {
             if (!customTransaction) {
                 connection.commit()
             }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             if (!customTransaction) {
                 try {
                     connection.rollback()
-                } catch (ex: Exception) {
+                } catch (ex: Throwable) {
                     throw QueryException(ex)
                 }
             }
@@ -710,7 +712,7 @@ open class BaseQueryImpl : BaseQuery {
                     connection.autoCommit = true
                 }
                 preparedStatement?.close()
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 throw QueryException(e)
             }
         }
@@ -748,7 +750,7 @@ open class BaseQueryImpl : BaseQuery {
                 }
             }
             results = this.executeBatch(connection, sqls)
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             throw QueryException(e)
         }
         return results

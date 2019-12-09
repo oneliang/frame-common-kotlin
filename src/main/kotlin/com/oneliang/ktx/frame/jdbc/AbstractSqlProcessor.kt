@@ -5,7 +5,7 @@ import com.oneliang.ktx.util.logging.LoggerManager
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.Timestamp
-import java.util.Date
+import java.util.*
 import kotlin.reflect.KClass
 
 abstract class AbstractSqlProcessor : SqlUtil.SqlProcessor {
@@ -14,7 +14,7 @@ abstract class AbstractSqlProcessor : SqlUtil.SqlProcessor {
         private val logger = LoggerManager.getLogger(AbstractSqlProcessor::class)
     }
 
-    override fun statementProcess(statement: PreparedStatement, index: Int, parameter: Any?) {
+    override fun statementProcess(preparedStatement: PreparedStatement, index: Int, parameter: Any?) {
         try {
             if (parameter != null) {
                 val parameterClass = parameter.javaClass
@@ -22,25 +22,25 @@ abstract class AbstractSqlProcessor : SqlUtil.SqlProcessor {
                 if (classType != null) {
                     val value = parameter.toString()
                     when (classType) {
-                        KotlinClassUtil.ClassType.KOTLIN_STRING, KotlinClassUtil.ClassType.KOTLIN_CHARACTER -> statement.setString(index, value)
-                        KotlinClassUtil.ClassType.KOTLIN_BYTE -> statement.setByte(index, java.lang.Byte.parseByte(value))
-                        KotlinClassUtil.ClassType.KOTLIN_SHORT -> statement.setShort(index, java.lang.Short.parseShort(value))
-                        KotlinClassUtil.ClassType.KOTLIN_INTEGER -> statement.setInt(index, Integer.parseInt(value))
-                        KotlinClassUtil.ClassType.KOTLIN_LONG -> statement.setLong(index, java.lang.Long.parseLong(value))
-                        KotlinClassUtil.ClassType.KOTLIN_FLOAT -> statement.setFloat(index, java.lang.Float.parseFloat(value))
-                        KotlinClassUtil.ClassType.KOTLIN_DOUBLE -> statement.setDouble(index, java.lang.Double.parseDouble(value))
-                        KotlinClassUtil.ClassType.KOTLIN_BOOLEAN -> statement.setBoolean(index, java.lang.Boolean.parseBoolean(value))
-                        KotlinClassUtil.ClassType.JAVA_UTIL_DATE -> statement.setTimestamp(index, Timestamp((parameter as Date).time))
-                        else -> statement.setObject(index, parameter)
+                        KotlinClassUtil.ClassType.KOTLIN_STRING, KotlinClassUtil.ClassType.KOTLIN_CHARACTER -> preparedStatement.setString(index, value)
+                        KotlinClassUtil.ClassType.KOTLIN_BYTE -> preparedStatement.setByte(index, java.lang.Byte.parseByte(value))
+                        KotlinClassUtil.ClassType.KOTLIN_SHORT -> preparedStatement.setShort(index, java.lang.Short.parseShort(value))
+                        KotlinClassUtil.ClassType.KOTLIN_INTEGER -> preparedStatement.setInt(index, Integer.parseInt(value))
+                        KotlinClassUtil.ClassType.KOTLIN_LONG -> preparedStatement.setLong(index, java.lang.Long.parseLong(value))
+                        KotlinClassUtil.ClassType.KOTLIN_FLOAT -> preparedStatement.setFloat(index, java.lang.Float.parseFloat(value))
+                        KotlinClassUtil.ClassType.KOTLIN_DOUBLE -> preparedStatement.setDouble(index, java.lang.Double.parseDouble(value))
+                        KotlinClassUtil.ClassType.KOTLIN_BOOLEAN -> preparedStatement.setBoolean(index, java.lang.Boolean.parseBoolean(value))
+                        KotlinClassUtil.ClassType.JAVA_UTIL_DATE -> preparedStatement.setTimestamp(index, Timestamp((parameter as Date).time))
+                        else -> preparedStatement.setObject(index, parameter)
                     }
                 } else {
-                    statement.setObject(index, parameter)
+                    preparedStatement.setObject(index, parameter)
                 }
             } else {
-                statement.setObject(index, null)
+                preparedStatement.setObject(index, null)
             }
-        } catch (e: Exception) {
-            throw RuntimeException(e)
+        } catch (e: Throwable) {
+            throw Exception(e)
         }
     }
 
