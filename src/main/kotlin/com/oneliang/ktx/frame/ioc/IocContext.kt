@@ -259,6 +259,8 @@ open class IocContext : AbstractContext() {
             }
             if (!objectMap.containsKey(iocBeanId)) {
                 objectMap[iocBeanId] = iocBean.proxyInstance!!
+            } else {
+                logger.warning("inject, object map contains the ioc bean id:%s", iocBeanId)
             }
         }
     }
@@ -344,14 +346,14 @@ open class IocContext : AbstractContext() {
      */
     @Throws(Exception::class)
     open fun manualInject(iocBean: IocBean) {
-        val id = iocBean.id
+        val iocBeanId = iocBean.id
         val iocPropertyBeanList = iocBean.iocPropertyBeanList
-        logger.info("Manual injecting, instance id:%s, instance class name:%s", id, iocBean.type)
+        logger.info("Manual injecting, instance id:%s, instance class name:%s", iocBeanId, iocBean.type)
         for (iocPropertyBean in iocPropertyBeanList) {
             val propertyName = iocPropertyBean.name
             val referenceBeanId = iocPropertyBean.reference
             if (!iocBeanMap.containsKey(referenceBeanId)) {
-                logger.error("Manual injecting error, can not find the reference instance id, instance class id:%s, instance class name:%s, field name:%s, reference id:%s", id, iocBean.type, propertyName, referenceBeanId)
+                logger.error("Manual injecting error, can not find the reference instance id, instance class id:%s, instance class name:%s, field name:%s, reference id:%s", iocBeanId, iocBean.type, propertyName, referenceBeanId)
                 continue
             }
             val instance = iocBean.beanInstance
@@ -371,22 +373,24 @@ open class IocContext : AbstractContext() {
                 }
                 val referenceIocBean = iocBeanMap[referenceBeanId]
                 if (referenceIocBean == null) {
-                    logger.warning("Manual injecting by id error, can not find the reference instance, instance id:%s, field name:%s, reference bean id:%s", id, fieldName, referenceBeanId)
+                    logger.warning("Manual injecting by id error, can not find the reference instance, instance id:%s, field name:%s, reference bean id:%s", iocBeanId, fieldName, referenceBeanId)
                     continue
                 }
                 val instanceClassName = instance.javaClass.name
                 val proxyInstance = referenceIocBean.proxyInstance
-                logger.info("Manual injecting, instance id:%s, %s <- %s", id, iocBean.type, referenceIocBean.type)
+                logger.info("Manual injecting, instance id:%s, %s <- %s", iocBeanId, iocBean.type, referenceIocBean.type)
                 try {
                     method.invoke(instance, proxyInstance)
                 } catch (e: Exception) {
-                    logger.error("Manual injecting error, instance id:%s, instance class name:%s, field name:%s, reference type:%s, real type:%s", e, id, instanceClassName, fieldName, types[0], referenceIocBean.type)
+                    logger.error("Manual injecting error, instance id:%s, instance class name:%s, field name:%s, reference type:%s, real type:%s", e, iocBeanId, instanceClassName, fieldName, types[0], referenceIocBean.type)
                     throw e
                 }
             }
         }
-        if (!objectMap.containsKey(id)) {
-            objectMap[id] = iocBean.proxyInstance!!
+        if (!objectMap.containsKey(iocBeanId)) {
+            objectMap[iocBeanId] = iocBean.proxyInstance!!
+        } else {
+            logger.warning("manual inject, object map contains the ioc bean id:%s", iocBeanId)
         }
     }
 
