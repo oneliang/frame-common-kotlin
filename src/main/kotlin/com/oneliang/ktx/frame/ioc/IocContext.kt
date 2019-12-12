@@ -79,6 +79,8 @@ open class IocContext : AbstractContext() {
                 }
                 if (!iocBeanMap.containsKey(iocBean.id)) {
                     iocBeanMap[iocBean.id] = iocBean
+                } else {
+                    logger.error("ioc context initialize error, duplicate ioc bean id:%s", iocBean.id)
                 }
             }
         } catch (e: Exception) {
@@ -104,7 +106,6 @@ open class IocContext : AbstractContext() {
             try {
                 if (iocBean.iocConstructorBean != null) {
                     instantiateIocBeanObjectByConstructor(iocBean)
-
                 } else {
                     instantiateIocBeanObjectByDefaultConstructor(iocBean)
                 }
@@ -183,6 +184,7 @@ open class IocContext : AbstractContext() {
         if (beanInstance == null) {
             val iocBeanId = iocBean.id
             if (objectMap.containsKey(iocBeanId)) {//object map contain,prove duplicate config in ioc,copy to ioc bean
+                logger.warning("object map contains id:%s", iocBeanId)
                 beanInstance = objectMap[iocBeanId]
                 iocBean.beanInstance = beanInstance
                 iocBean.proxyInstance = beanInstance

@@ -45,7 +45,11 @@ class AnnotationIocContext : IocContext() {
                         iocBean.addIocAfterInjectBean(iocAfterInjectBean)
                     }
                 }
-                IocContext.iocBeanMap[iocBean.id] = iocBean
+                if (!iocBeanMap.containsKey(iocBean.id)) {
+                    iocBeanMap[iocBean.id] = iocBean
+                } else {
+                    logger.error("annotation ioc context initialize error, duplicate ioc bean id:%s", iocBean.id)
+                }
             }
         } catch (e: Exception) {
             throw InitializeException(fixParameters, e)
