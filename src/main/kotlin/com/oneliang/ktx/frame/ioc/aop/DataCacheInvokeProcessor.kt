@@ -1,18 +1,21 @@
 package com.oneliang.ktx.frame.ioc.aop
 
+import com.oneliang.ktx.Constants
+import com.oneliang.ktx.util.logging.LoggerManager
 import java.lang.reflect.Method
 import java.util.concurrent.ConcurrentHashMap
 
 class DataCacheInvokeProcessor : InvokeProcessor {
 
     companion object {
+        private val logger = LoggerManager.getLogger(DataCacheInvokeProcessor::class)
         private val threadMethodMap = ConcurrentHashMap<Thread, Method>()
         private val methodUpdateInvokeMap = ConcurrentHashMap<Method, MethodUpdateInvoke>()
     }
 
     @Throws(Throwable::class)
     override fun invoke(instance: Any, method: Method, args: Array<Any>): Any? {
-        var returnValue: Any? = null
+        var returnValue: Any?
         val objectMethod = instance.javaClass.getMethod(method.name, *method.parameterTypes)
         if (objectMethod.isAnnotationPresent(DataCache::class.java) && args.isEmpty()) {
             if (methodUpdateInvokeMap.containsKey(objectMethod)) {
@@ -66,7 +69,7 @@ class DataCacheInvokeProcessor : InvokeProcessor {
                         this.dataCache = this.method!!.invoke(this.interfaceImpl)
                     }
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    logger.error(Constants.Base.EXCEPTION, e)
                 }
             }
         }

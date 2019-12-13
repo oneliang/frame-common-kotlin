@@ -270,7 +270,7 @@ open class IocContext : AbstractContext() {
      * @throws Exception
      */
     @Throws(Exception::class)
-    open fun autoInjectObjectByType(id: String, instance: Any) {
+    fun autoInjectObjectByType(id: String, instance: Any) {
         val objectMethods = instance.javaClass.methods
         for (method in objectMethods) {
             val methodName = method.name
@@ -288,7 +288,7 @@ open class IocContext : AbstractContext() {
                 val proxyInstance = iocBean.proxyInstance
                 val beanInstanceClassName = beanInstance!!.javaClass.name
                 if (parameterClassName == beanInstanceClassName) {
-                    logger.info("Auto injecting by type, " + instance.javaClass.name + "<-" + beanInstance.javaClass.name)
+                    logger.info("Auto injecting by type, instance id:%s, %s <- %s", id, instance.javaClass.name, beanInstance.javaClass.name)
                     method.invoke(instance, proxyInstance)
                 } else {
                     val interfaces = beanInstance.javaClass.interfaces
@@ -296,7 +296,7 @@ open class IocContext : AbstractContext() {
                         for (interfaceClass in interfaces) {
                             val beanInstanceClassInterfaceName = interfaceClass.name
                             if (parameterClassName == beanInstanceClassInterfaceName) {
-                                logger.info("Auto injecting by type, " + instance.javaClass.name + "<-" + beanInstance.javaClass.name)
+                                logger.info("Auto injecting by type, instance id:%s, %s <- %s", id, instance.javaClass.name, beanInstance.javaClass.name)
                                 method.invoke(instance, proxyInstance)
                             }
                         }
@@ -345,7 +345,7 @@ open class IocContext : AbstractContext() {
      * @throws Exception
      */
     @Throws(Exception::class)
-    open fun manualInject(iocBean: IocBean) {
+    fun manualInject(iocBean: IocBean) {
         val iocBeanId = iocBean.id
         val iocPropertyBeanList = iocBean.iocPropertyBeanList
         logger.info("Manual injecting, instance id:%s, instance class name:%s", iocBeanId, iocBean.type)
@@ -386,11 +386,6 @@ open class IocContext : AbstractContext() {
                     throw e
                 }
             }
-        }
-        if (!objectMap.containsKey(iocBeanId)) {
-            objectMap[iocBeanId] = iocBean.proxyInstance!!
-        } else {
-            logger.warning("manual inject, object map contains the ioc bean id:%s", iocBeanId)
         }
     }
 

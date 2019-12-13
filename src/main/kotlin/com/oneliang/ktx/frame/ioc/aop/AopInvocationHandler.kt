@@ -31,14 +31,6 @@ class AopInvocationHandler<T : Any>(private val interfaceImpl: T) : InvocationHa
         return instance
     }
 
-    private class DefaultInvokeProcessor : InvokeProcessor {
-
-        @Throws(Throwable::class)
-        override fun invoke(instance: Any, method: Method, args: Array<Any>): Any? {
-            return method.invoke(instance, *args)
-        }
-    }
-
     companion object {
         private val beforeInvokeProcessorList = CopyOnWriteArrayList<BeforeInvokeProcessor>()
         private val afterReturningProcessorList = CopyOnWriteArrayList<AfterReturningProcessor>()
