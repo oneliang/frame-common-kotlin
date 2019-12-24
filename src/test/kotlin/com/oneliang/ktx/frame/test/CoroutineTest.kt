@@ -1,5 +1,6 @@
 package com.oneliang.ktx.frame.test
 
+import com.oneliang.ktx.frame.test.CustomCoroutineScope.coroutineContext
 import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 
@@ -82,7 +83,7 @@ fun main(args: Array<String>) {
 //    }
 //    log(1003)
 //    Thread.sleep(6000)
-    runBlocking {
+    runBlocking(coroutineContext) {
         val jobs = mutableListOf<Job>()
         listOf(1, 2, 3).forEach {
             jobs += CustomCoroutineScope.launch {
