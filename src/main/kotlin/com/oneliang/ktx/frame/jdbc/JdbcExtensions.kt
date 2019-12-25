@@ -16,3 +16,9 @@ fun <T> Iterable<T>.toSqlCondition(transform: (T) -> String = ::defaultSqlCondit
         transform(it)
     }
 }
+
+fun <T> Array<T>.toSqlCondition(transform: (T) -> String = ::defaultSqlConditionTransform): String {
+    return this.joinToString {
+        transform(it)
+    }
+}
