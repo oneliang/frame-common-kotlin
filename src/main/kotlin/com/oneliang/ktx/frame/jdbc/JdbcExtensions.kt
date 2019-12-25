@@ -4,7 +4,7 @@ import com.oneliang.ktx.Constants
 
 private fun <T> defaultSqlConditionTransform(instance: T): String {
     return when (instance) {
-        is Int, Long -> instance.toString()
+        is Short, Int, Long -> instance.toString()
         else ->
             Constants.Symbol.SINGLE_QUOTES + instance + Constants.Symbol.SINGLE_QUOTES
 
