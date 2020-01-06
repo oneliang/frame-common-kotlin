@@ -30,10 +30,9 @@ class FieldDelegate {
 
 }
 
-
 fun main(args: Array<String>) {
     val byteForField = ByForField()
-    byteForField.field = "1"
+    byteForField.field = "1"//original value:1, need to set value:1
     println(byteForField.field)
     byteForField.lazyField
     byteForField.lazyField

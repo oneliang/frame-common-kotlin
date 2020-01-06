@@ -50,7 +50,7 @@ object CustomCoroutineScope : CoroutineScope {
     @ObsoleteCoroutinesApi
     override val coroutineContext: CoroutineContext
         //        get() = Executors.newFixedThreadPool(4).asCoroutineDispatcher()
-        get() = newFixedThreadPoolContext(Runtime.getRuntime().availableProcessors(), "Custom")
+        get() = newFixedThreadPoolContext(4, "Custom")
 }
 
 fun main(args: Array<String>) {
@@ -85,9 +85,12 @@ fun main(args: Array<String>) {
 //    Thread.sleep(6000)
     runBlocking(coroutineContext) {
         val jobs = mutableListOf<Job>()
-        listOf(1, 2, 3).forEach {
-            val job = CustomCoroutineScope.launch {
-//                delay(5000)
+        listOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10).forEach {
+            val job = CustomCoroutineScope.launch(CustomCoroutineScope.coroutineContext) {
+                delay(5000)
+                if (it == 6) {
+                    error("aaa")
+                }
                 log(it)
             }
             jobs += job
@@ -95,7 +98,7 @@ fun main(args: Array<String>) {
         jobs.forEach {
             it.join()
         }
-        log(2)
+        log(200)
 //        delay(5000)
     }
     log(300)
