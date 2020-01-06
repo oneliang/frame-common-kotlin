@@ -3,10 +3,7 @@ package com.oneliang.ktx.frame.servlet
 import com.oneliang.ktx.Constants
 import com.oneliang.ktx.frame.ConfigurationFactory
 import com.oneliang.ktx.frame.servlet.action.*
-import com.oneliang.ktx.util.common.KotlinClassUtil
-import com.oneliang.ktx.util.common.ObjectUtil
-import com.oneliang.ktx.util.common.toObject
-import com.oneliang.ktx.util.common.toObjectList
+import com.oneliang.ktx.util.common.*
 import com.oneliang.ktx.util.logging.LoggerManager
 import java.io.IOException
 import java.lang.reflect.InvocationTargetException
@@ -392,7 +389,7 @@ class ActionListener : HttpServlet() {
                     val clazz = classes[i].componentType
                     val objectList = request.parameterMap.toObjectList(clazz, this.classProcessor)
                     if (objectList.isNotEmpty()) {
-                        val objectArray = objectList.toTypedArray()
+                        val objectArray = objectList.toArray(clazz.kotlin)
                         parameterValues[i] = objectArray
                     }
                 } else {
