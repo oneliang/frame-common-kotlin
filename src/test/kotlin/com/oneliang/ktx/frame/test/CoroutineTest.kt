@@ -3,10 +3,11 @@ package com.oneliang.ktx.frame.test
 import com.oneliang.ktx.frame.test.CustomCoroutineScope.coroutineContext
 import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 
 
 fun log(message: Any) {
-    println("[${Thread.currentThread()}][$message]")
+//    println("[${Thread.currentThread()},${Thread.currentThread().id}][$message]")
 }
 
 open class CoroutineTest {
@@ -83,23 +84,39 @@ fun main(args: Array<String>) {
 //    }
 //    log(1003)
 //    Thread.sleep(6000)
-    runBlocking(coroutineContext) {
-        val jobs = mutableListOf<Job>()
-        listOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10).forEach {
-            val job = CustomCoroutineScope.launch(CustomCoroutineScope.coroutineContext) {
-                delay(5000)
-                if (it == 6) {
-                    error("aaa")
-                }
+    val begin = System.currentTimeMillis()
+//    runBlocking {
+//        repeat(1000_000) {
+//            // launch a lot of coroutines
+//            launch {
+//                //                delay(1000L)
+//                log(it)
+//            }
+//        }
+//    }
+//    println("finished, cost:" + (System.currentTimeMillis() - begin))
+//    return
+    runBlocking {
+        //        val jobs = mutableListOf<Job>()
+        repeat(1000_000) {
+
+            //        }
+//        listOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10).forEach {
+            val job = launch {
+                //                delay(5000)
+//                if (it == 6) {
+//                    error("aaa")
+//                }
                 log(it)
             }
-            jobs += job
+//            jobs += job
         }
-        jobs.forEach {
-            it.join()
-        }
+//        jobs.forEach {
+//            it.join()
+//        }
         log(200)
 //        delay(5000)
     }
     log(300)
+    println("finished, cost:" + (System.currentTimeMillis() - begin))
 }
