@@ -51,7 +51,7 @@ object CustomCoroutineScope : CoroutineScope {
     @ObsoleteCoroutinesApi
     override val coroutineContext: CoroutineContext
         //        get() = Executors.newFixedThreadPool(4).asCoroutineDispatcher()
-        get() = newFixedThreadPoolContext(4, "Custom")
+        get() = EmptyCoroutineContext//newFixedThreadPoolContext(4, "Custom")
 }
 
 fun main(args: Array<String>) {
@@ -102,7 +102,7 @@ fun main(args: Array<String>) {
 
             //        }
 //        listOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10).forEach {
-            val job = launch {
+            val job = launch(CustomCoroutineScope.coroutineContext) {
                 //                delay(5000)
 //                if (it == 6) {
 //                    error("aaa")
