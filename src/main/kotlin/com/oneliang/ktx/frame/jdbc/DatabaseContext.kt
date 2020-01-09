@@ -61,8 +61,8 @@ class DatabaseContext : AbstractContext() {
                     when (propertyName) {
                         ConnectionPool.CONNECTION_ALIVE_TIME -> pool.resourceAliveTime = value.toLong()
                         ConnectionPool.THREAD_SLEEP_TIME -> pool.threadSleepTime = value.toLong()
-                        ConnectionPool.INITIAL_CONNECTIONS -> pool.minResources = value.toInt()
-                        ConnectionPool.MAX_CONNECTIONS -> pool.maxResources = value.toInt()
+                        ConnectionPool.INITIAL_CONNECTIONS -> pool.minResourceSize = value.toInt()
+                        ConnectionPool.MAX_CONNECTIONS -> pool.maxResourceSize = value.toInt()
                         ConnectionSource.CONNECTION_SOURCE_NAME -> (pool.resourceSource as ConnectionSource).connectionSourceName = value
                         ConnectionSource.DRIVER -> (pool.resourceSource as ConnectionSource).driver = value
                         ConnectionSource.URL -> (pool.resourceSource as ConnectionSource).url = value
