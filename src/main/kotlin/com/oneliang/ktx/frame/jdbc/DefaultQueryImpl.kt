@@ -280,7 +280,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
         val instance: T?
         var connection: Connection? = null
         try {
-            connection = this.connectionPool.resource!!
+            connection = this.connectionPool.stableResource!!
             instance = this.executeQueryById(connection, kClass, id)
         } catch (e: Exception) {
             throw QueryException(e)
@@ -307,7 +307,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
         val list: List<T>
         var connection: Connection? = null
         try {
-            connection = this.connectionPool.resource!!
+            connection = this.connectionPool.stableResource!!
             list = this.executeQuery(connection, kClass, selectColumns, table, condition, parameters)
         } catch (e: Exception) {
             throw QueryException(e)
@@ -332,7 +332,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
         val list: List<T>
         var connection: Connection? = null
         try {
-            connection = this.connectionPool.resource!!
+            connection = this.connectionPool.stableResource!!
             list = this.executeQueryBySql(connection, kClass, sql, parameters)
         } catch (e: Exception) {
             throw QueryException(e)
