@@ -643,7 +643,6 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
     }
 
     /**
-     *
      * execute transaction, if you need to stop transaction, you can throw exception
      * @param transaction
      * @throws QueryException

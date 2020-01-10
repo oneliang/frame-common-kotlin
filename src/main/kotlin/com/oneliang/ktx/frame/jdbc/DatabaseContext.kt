@@ -74,7 +74,6 @@ class DatabaseContext : AbstractContext() {
         } catch (e: Exception) {
             throw InitializeException(fixParameters, e)
         }
-
     }
 
     /**
