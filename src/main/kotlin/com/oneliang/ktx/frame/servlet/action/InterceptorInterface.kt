@@ -1,5 +1,6 @@
 package com.oneliang.ktx.frame.servlet.action
 
+import com.oneliang.ktx.Constants
 import javax.servlet.ServletRequest
 import javax.servlet.ServletResponse
 
@@ -12,7 +13,9 @@ interface InterceptorInterface {
      * @exception InterceptException
      */
     @Throws(InterceptorInterface.InterceptException::class)
-    fun intercept(request: ServletRequest, response: ServletResponse): Boolean
+    fun intercept(request: ServletRequest, response: ServletResponse): Result
+
+    class Result(val result: Boolean = true, val message: String = Constants.String.BLANK)
 
     class InterceptException : Exception {
 

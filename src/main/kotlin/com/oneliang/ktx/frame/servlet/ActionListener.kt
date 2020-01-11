@@ -215,12 +215,12 @@ class ActionListener : HttpServlet() {
 
         //global interceptor doIntercept
         val beforeGlobalInterceptorList = ConfigurationFactory.singletonConfigurationContext.beforeGlobalInterceptorList
-        val beforeGlobalInterceptorSign = doGlobalInterceptorList(beforeGlobalInterceptorList, request, response)
+        val beforeGlobalInterceptorResult = doGlobalInterceptorList(beforeGlobalInterceptorList, request, response)
 
         //through the interceptor
-        if (!beforeGlobalInterceptorSign) {
+        if (!beforeGlobalInterceptorResult.result) {
             logger.info("The request name:$uri. Can not through the before global interceptors")
-            response.sendError(Constants.Http.StatusCode.FORBIDDEN)
+            response.sendError(Constants.Http.StatusCode.FORBIDDEN, beforeGlobalInterceptorResult.message)
             return
         }
         logger.info("Through the before global interceptors!")
@@ -245,10 +245,10 @@ class ActionListener : HttpServlet() {
             }
             //action interceptor doIntercept
             val beforeActionBeanInterceptorList = actionBean.beforeActionInterceptorBeanList
-            val beforeActionInterceptorSign = doActionInterceptorBeanList(beforeActionBeanInterceptorList, request, response)
-            if (!beforeActionInterceptorSign) {
+            val beforeActionInterceptorResult = doActionInterceptorBeanList(beforeActionBeanInterceptorList, request, response)
+            if (!beforeActionInterceptorResult.result) {
                 logger.info("The request name:$uri. Can not through the before action interceptors")
-                response.sendError(Constants.Http.StatusCode.FORBIDDEN)
+                response.sendError(Constants.Http.StatusCode.FORBIDDEN, beforeActionInterceptorResult.message)
                 return
             }
             logger.info("Through the before action interceptors!")
@@ -261,8 +261,8 @@ class ActionListener : HttpServlet() {
         } catch (e: Throwable) {
             logger.error(Constants.Base.EXCEPTION, e)
             logger.info("The request name:$uri. Action or page does not exist")
-            val exceptionPath = ConfigurationFactory.singletonConfigurationContext.globalExceptionForwardPath
-            if (exceptionPath != null) {
+            val exceptionPath = ConfigurationFactory.singletonConfigurationContext.globalExceptionForwardPath.nullToBlank()
+            if (exceptionPath.isNotBlank()) {
                 logger.info("Forward to exception path:$exceptionPath")
                 request.setAttribute(Constants.Base.EXCEPTION, e)
                 val requestDispatcher = request.getRequestDispatcher(exceptionPath)
@@ -329,15 +329,15 @@ class ActionListener : HttpServlet() {
             actionForwardBean!!.name
         }
         val afterActionBeanInterceptorList = actionBean.afterActionInterceptorBeanList
-        val afterActionInterceptorSign = doActionInterceptorBeanList(afterActionBeanInterceptorList, request, response)
-        if (!afterActionInterceptorSign) {
+        val afterActionInterceptorResult = doActionInterceptorBeanList(afterActionBeanInterceptorList, request, response)
+        if (!afterActionInterceptorResult.result) {
             logger.error("Can not through the after action interceptors")
             return false
         }
         logger.info("Through the after action interceptors!")
         val afterGlobalInterceptorList = ConfigurationFactory.singletonConfigurationContext.afterGlobalInterceptorList
-        val afterGlobalInterceptorSign = doGlobalInterceptorList(afterGlobalInterceptorList, request, response)
-        if (!afterGlobalInterceptorSign) {
+        val afterGlobalInterceptorResult = doGlobalInterceptorList(afterGlobalInterceptorList, request, response)
+        if (!afterGlobalInterceptorResult.result) {
             logger.error("Can not through the after global interceptors")
             return false
         }
@@ -427,7 +427,7 @@ class ActionListener : HttpServlet() {
         var path: String = Constants.String.BLANK
         if (normalExecute || needToStaticExecute) {
             if (normalExecute) {
-                logger.info("Common bean action ($actionInstance) is executing.")
+                logger.info("Common bean action (%s) is executing.", actionInstance ?: Constants.String.NULL)
             } else if (needToStaticExecute) {
                 logger.info("Need to static execute,first time executing original action")
             }
@@ -442,15 +442,15 @@ class ActionListener : HttpServlet() {
             logger.info("Static execute,not the first time execute")
         }
         val afterActionBeanInterceptorList = actionBean.afterActionInterceptorBeanList
-        val afterActionInterceptorSign = doActionInterceptorBeanList(afterActionBeanInterceptorList, request, response)
-        if (!afterActionInterceptorSign) {
+        val afterActionInterceptorResult = doActionInterceptorBeanList(afterActionBeanInterceptorList, request, response)
+        if (!afterActionInterceptorResult.result) {
             logger.error("Can not through the after action interceptors")
             return false
         }
         logger.info("Through the after action interceptors!")
         val afterGlobalInterceptorList = ConfigurationFactory.singletonConfigurationContext.afterGlobalInterceptorList
-        val afterGlobalInterceptorSign = doGlobalInterceptorList(afterGlobalInterceptorList, request, response)
-        if (!afterGlobalInterceptorSign) {
+        val afterGlobalInterceptorResult = doGlobalInterceptorList(afterGlobalInterceptorList, request, response)
+        if (!afterGlobalInterceptorResult.result) {
             logger.error("Can not through the after global interceptors")
             return false
         }
@@ -535,26 +535,23 @@ class ActionListener : HttpServlet() {
      * @param interceptorList
      * @param request
      * @param response
-     * @return boolean
+     * @return InterceptorInterface.Result
      */
-    private fun doGlobalInterceptorList(interceptorList: List<InterceptorInterface>?, request: HttpServletRequest, response: HttpServletResponse): Boolean {
-        var interceptorSign = true
-        if (interceptorList != null) {
-            try {
-                for (globalInterceptor in interceptorList) {
-                    val sign = globalInterceptor.intercept(request, response)
-                    logger.info("Global interceptor, through:$sign,interceptor:$globalInterceptor")
-                    if (!sign) {
-                        interceptorSign = false
-                        break
-                    }
+    private fun doGlobalInterceptorList(interceptorList: List<InterceptorInterface>, request: HttpServletRequest, response: HttpServletResponse): InterceptorInterface.Result {
+        try {
+            for (globalInterceptor in interceptorList) {
+                val result = globalInterceptor.intercept(request, response)
+                val sign = result.result
+                logger.info("Global interceptor, through:%s,interceptor:%s", sign, globalInterceptor)
+                if (!sign) {
+                    return result
                 }
-            } catch (e: Throwable) {
-                logger.error(Constants.Base.EXCEPTION, e)
-                interceptorSign = false
             }
+        } catch (e: Throwable) {
+            logger.error(Constants.Base.EXCEPTION, e)
+            return InterceptorInterface.Result(false, Constants.Base.EXCEPTION)
         }
-        return interceptorSign
+        return InterceptorInterface.Result()
     }
 
     /**
@@ -562,29 +559,23 @@ class ActionListener : HttpServlet() {
      * @param actionInterceptorBeanList
      * @param request
      * @param response
-     * @return boolean
+     * @return InterceptorInterface.Result
      */
-    private fun doActionInterceptorBeanList(actionInterceptorBeanList: List<ActionInterceptorBean>?, request: HttpServletRequest, response: HttpServletResponse): Boolean {
-        var actionInterceptorBeanSign = true
-        if (actionInterceptorBeanList != null) {
-            try {
-                for (actionInterceptorBean in actionInterceptorBeanList) {
-                    val actionInterceptor = actionInterceptorBean.interceptorInstance
-                    if (actionInterceptor != null) {
-                        val sign = actionInterceptor.intercept(request, response)
-                        logger.info("Action interceptor, through:$sign,interceptor:$actionInterceptor")
-                        if (!sign) {
-                            actionInterceptorBeanSign = false
-                            break
-                        }
-                    }
+    private fun doActionInterceptorBeanList(actionInterceptorBeanList: List<ActionInterceptorBean>, request: HttpServletRequest, response: HttpServletResponse): InterceptorInterface.Result {
+        try {
+            for (actionInterceptorBean in actionInterceptorBeanList) {
+                val actionInterceptor = actionInterceptorBean.interceptorInstance
+                val result = actionInterceptor.intercept(request, response)
+                val sign = result.result
+                logger.info("Action interceptor, through:%s,interceptor:%s", sign, actionInterceptor)
+                if (!sign) {
+                    return result
                 }
-            } catch (e: Throwable) {
-                logger.error(Constants.Base.EXCEPTION, e)
-                actionInterceptorBeanSign = false
             }
-
+        } catch (e: Throwable) {
+            logger.error(Constants.Base.EXCEPTION, e)
+            return InterceptorInterface.Result(false, Constants.Base.EXCEPTION)
         }
-        return actionInterceptorBeanSign
+        return InterceptorInterface.Result()
     }
 }
