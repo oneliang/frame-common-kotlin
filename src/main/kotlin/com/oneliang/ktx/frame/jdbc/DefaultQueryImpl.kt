@@ -285,7 +285,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
         } catch (e: Exception) {
             throw QueryException(e)
         } finally {
-            this.connectionPool.releaseResource(connection)
+            this.connectionPool.releaseStableResource(connection)
         }
         return instance
     }
@@ -312,7 +312,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
         } catch (e: Exception) {
             throw QueryException(e)
         } finally {
-            this.connectionPool.releaseResource(connection)
+            this.connectionPool.releaseStableResource(connection)
         }
         return list
     }
@@ -337,7 +337,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
         } catch (e: Exception) {
             throw QueryException(e)
         } finally {
-            this.connectionPool.releaseResource(connection)
+            this.connectionPool.releaseStableResource(connection)
         }
         return list
     }
