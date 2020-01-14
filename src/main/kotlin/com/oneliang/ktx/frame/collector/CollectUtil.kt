@@ -29,7 +29,7 @@ object CollectUtil {
             override fun httpOkCallback(headerFieldMap: Map<String, List<String>>, inputStream: InputStream, contentLength: Int) {
                 var needToUnzip = false
                 if (headerFieldMap.containsKey(Constants.Http.HeaderKey.CONTENT_ENCODING)) {
-                    needToUnzip = headerFieldMap.get(Constants.Http.HeaderKey.CONTENT_ENCODING)?.contains("gzip") ?: false
+                    needToUnzip = headerFieldMap[Constants.Http.HeaderKey.CONTENT_ENCODING]?.contains(Constants.CompressType.GZIP) ?: false
                 }
                 var newInputStream = inputStream
                 if (needToUnzip) {
