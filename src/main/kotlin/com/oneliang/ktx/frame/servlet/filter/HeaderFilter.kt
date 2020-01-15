@@ -79,6 +79,7 @@ class HeaderFilter : Filter {
         if (accessControlSet.isNotEmpty()) {
             val httpServletRequest = servletRequest as HttpServletRequest
             val httpHeaderOrigin = httpServletRequest.getHeader(Constants.Http.HeaderKey.ORIGIN).nullToBlank()
+            logger.info("header[Origin] is:%s", httpHeaderOrigin)
             if (httpHeaderOrigin.isNotBlank() && accessControlSet.contains(httpHeaderOrigin)) {
                 httpServletResponse.setHeader(Constants.Http.HeaderKey.ACCESS_CONTROL_ALLOW_ORIGIN, httpHeaderOrigin)
             } else {
