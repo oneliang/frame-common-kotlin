@@ -47,7 +47,7 @@ class HeaderFilter : Filter {
                         headerList.add(HttpUtil.HttpNameValue(headerJsonObject.getString(HEADER_KEY), headerJsonObject.getString(HEADER_VALUE)))
                     }
                 }
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 logger.error("init exception", e)
             }
         }
