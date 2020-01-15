@@ -387,9 +387,10 @@ class ActionListener : HttpServlet() {
                     parameterValues[i] = KotlinClassUtil.changeType(classes[i].kotlin, emptyArray(), Constants.String.BLANK, this.classProcessor)
                 } else if (classes[i].isArray) {
                     val clazz = classes[i].componentType
-                    val objectList = request.parameterMap.toObjectList(clazz, this.classProcessor)
+                    val kClass = clazz.kotlin
+                    val objectList = request.parameterMap.toObjectList(kClass, this.classProcessor)
                     if (objectList.isNotEmpty()) {
-                        val objectArray = objectList.toArray(clazz.kotlin)
+                        val objectArray = objectList.toArray(kClass)
                         parameterValues[i] = objectArray
                     }
                 } else {
