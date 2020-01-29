@@ -3,10 +3,12 @@ package com.oneliang.ktx.frame.servlet.action
 import com.oneliang.ktx.exception.InitializeException
 import com.oneliang.ktx.frame.context.AbstractContext
 import com.oneliang.ktx.util.common.JavaXmlUtil
+import com.oneliang.ktx.util.logging.LoggerManager
 
 open class InterceptorContext : AbstractContext() {
 
     companion object {
+        private val logger = LoggerManager.getLogger(InterceptorContext::class)
         internal val globalInterceptorBeanMap = mutableMapOf<String, GlobalInterceptorBean>()
         internal val interceptorBeanMap = mutableMapOf<String, InterceptorBean>()
         internal val beforeGlobalInterceptorList = mutableListOf<InterceptorInterface>()
@@ -58,10 +60,10 @@ open class InterceptorContext : AbstractContext() {
                     objectMap[interceptor.id] = interceptorInstance
                 }
             }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
+            logger.error("parameter:%s", e, fixParameters)
             throw InitializeException(fixParameters, e)
         }
-
     }
 
     /**

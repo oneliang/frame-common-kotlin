@@ -71,7 +71,8 @@ class ConfigurationContext : AbstractContext() {
                 }
             }
             this.initialized = true
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
+            logger.error("parameter:%s", e, fixParameters)
             throw InitializeException(fixParameters, e)
         }
     }

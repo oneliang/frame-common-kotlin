@@ -24,10 +24,10 @@ class AnnotationIocContext : IocContext() {
                 var id = iocAnnotation.id
                 if (id.isBlank()) {
                     val classes = kClass.java.interfaces
-                    if (classes != null && classes.isNotEmpty()) {
-                        id = classes[0].simpleName
+                    id = if (classes != null && classes.isNotEmpty()) {
+                        classes[0].simpleName
                     } else {
-                        id = kClass.java.simpleName
+                        kClass.java.simpleName
                     }
                     id = id.substring(0, 1).toLowerCase() + id.substring(1)
                 }
@@ -51,7 +51,8 @@ class AnnotationIocContext : IocContext() {
                     logger.error("annotation ioc context initialize error, duplicate ioc bean id:%s", iocBean.id)
                 }
             }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
+            logger.error("parameter:%s", e, fixParameters)
             throw InitializeException(fixParameters, e)
         }
     }

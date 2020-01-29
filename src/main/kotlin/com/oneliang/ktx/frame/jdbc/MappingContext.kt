@@ -3,10 +3,12 @@ package com.oneliang.ktx.frame.jdbc
 import com.oneliang.ktx.exception.InitializeException
 import com.oneliang.ktx.frame.context.AbstractContext
 import com.oneliang.ktx.util.common.JavaXmlUtil
+import com.oneliang.ktx.util.logging.LoggerManager
 import kotlin.reflect.KClass
 
 open class MappingContext : AbstractContext() {
     companion object {
+        private val logger = LoggerManager.getLogger(MappingContext::class)
         internal val classNameMappingBeanMap = mutableMapOf<String, MappingBean>()
         internal val simpleNameMappingBeanMap = mutableMapOf<String, MappingBean>()
 
@@ -51,7 +53,8 @@ open class MappingContext : AbstractContext() {
                 classNameMappingBeanMap[className] = mappingBean
                 simpleNameMappingBeanMap[this.classLoader.loadClass(className).simpleName] = mappingBean
             }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
+            logger.error("parameter:%s", e, fixParameters)
             throw InitializeException(fixParameters, e)
         }
     }

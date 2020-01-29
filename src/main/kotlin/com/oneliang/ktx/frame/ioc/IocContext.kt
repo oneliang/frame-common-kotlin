@@ -83,10 +83,10 @@ open class IocContext : AbstractContext() {
                     logger.error("ioc context initialize error, duplicate ioc bean id:%s", iocBean.id)
                 }
             }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
+            logger.error("parameter:%s", e, fixParameters)
             throw InitializeException(fixParameters, e)
         }
-
     }
 
     /**

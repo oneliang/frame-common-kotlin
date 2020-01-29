@@ -3,10 +3,12 @@ package com.oneliang.ktx.frame.servlet.action
 import com.oneliang.ktx.exception.InitializeException
 import com.oneliang.ktx.frame.context.AbstractContext
 import com.oneliang.ktx.util.common.JavaXmlUtil
+import com.oneliang.ktx.util.logging.LoggerManager
 import java.util.concurrent.ConcurrentHashMap
 
 open class ActionContext : AbstractContext() {
     companion object {
+        private val logger = LoggerManager.getLogger(ActionContext::class)
         internal val actionBeanMap: MutableMap<String, ActionBean> = ConcurrentHashMap()
         internal val pathActionBeanMap: MutableMap<String, MutableList<ActionBean>> = ConcurrentHashMap()
         internal val globalForwardBeanMap: MutableMap<String, GlobalForwardBean> = ConcurrentHashMap()
@@ -103,10 +105,10 @@ open class ActionContext : AbstractContext() {
                     actionBeanList.add(actionBean)
                 }
             }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
+            logger.error("parameter:%s", e, fixParameters)
             throw InitializeException(fixParameters, e)
         }
-
     }
 
     /**

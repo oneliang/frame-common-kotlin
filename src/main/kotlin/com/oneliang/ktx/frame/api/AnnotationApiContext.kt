@@ -32,7 +32,8 @@ class AnnotationApiContext : AbstractContext() {
                     apiDocumentObjectMap += instanceObjectMap
                 }
             }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
+            logger.error("parameter:%s", e, fixParameters)
             throw InitializeException(fixParameters, e)
         }
     }

@@ -54,7 +54,8 @@ class AnnotationMappingContext : MappingContext() {
                 classNameMappingBeanMap[className] = annotationMappingBean
                 simpleNameMappingBeanMap[classSimpleName] = annotationMappingBean
             }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
+            logger.error("parameter:%s", e, fixParameters)
             throw InitializeException(fixParameters, e)
         }
     }

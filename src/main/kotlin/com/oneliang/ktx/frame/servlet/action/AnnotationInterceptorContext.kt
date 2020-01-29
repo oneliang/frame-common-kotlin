@@ -61,9 +61,9 @@ class AnnotationInterceptorContext : InterceptorContext() {
                 }
                 objectMap[id] = interceptorInstance
             }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
+            logger.error("parameter:%s", e, fixParameters)
             throw InitializeException(fixParameters, e)
         }
-
     }
 }

@@ -5,11 +5,13 @@ import com.oneliang.ktx.frame.context.AbstractContext
 import com.oneliang.ktx.util.common.JavaXmlUtil
 import com.oneliang.ktx.util.jxl.JxlMappingBean
 import com.oneliang.ktx.util.jxl.JxlMappingColumnBean
+import com.oneliang.ktx.util.logging.LoggerManager
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 
 class JxlMappingContext : AbstractContext() {
     companion object {
+        private val logger = LoggerManager.getLogger(JxlMappingContext::class)
         internal val typeImportJxlMappingBeanMap = ConcurrentHashMap<String, JxlMappingBean>()
         internal val nameImportJxlMappingBeanMap = ConcurrentHashMap<String, JxlMappingBean>()
         internal val typeExportJxlMappingBeanMap = ConcurrentHashMap<String, JxlMappingBean>()
@@ -59,10 +61,10 @@ class JxlMappingContext : AbstractContext() {
                     nameExportJxlMappingBeanMap[this.classLoader.loadClass(type).simpleName] = jxlMappingBean
                 }
             }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
+            logger.error("parameter:%s", e, fixParameters)
             throw InitializeException(fixParameters, e)
         }
-
     }
 
     /**

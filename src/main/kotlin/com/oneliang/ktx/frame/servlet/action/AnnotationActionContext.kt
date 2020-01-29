@@ -3,8 +3,13 @@ package com.oneliang.ktx.frame.servlet.action
 import com.oneliang.ktx.Constants
 import com.oneliang.ktx.exception.InitializeException
 import com.oneliang.ktx.frame.context.AnnotationContextUtil
+import com.oneliang.ktx.util.logging.LoggerManager
 
 class AnnotationActionContext : ActionContext() {
+
+    companion object {
+        private val logger = LoggerManager.getLogger(AnnotationActionContext::class)
+    }
 
     /**
      * initialize
@@ -93,7 +98,8 @@ class AnnotationActionContext : ActionContext() {
                     }
                 }
             }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
+            logger.error("parameter:%s", e, fixParameters)
             throw InitializeException(fixParameters, e)
         }
     }

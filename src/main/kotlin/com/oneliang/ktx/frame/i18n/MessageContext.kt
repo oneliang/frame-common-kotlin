@@ -5,6 +5,7 @@ import com.oneliang.ktx.exception.InitializeException
 import com.oneliang.ktx.frame.context.AbstractContext
 import com.oneliang.ktx.util.common.matchPattern
 import com.oneliang.ktx.util.file.FileUtil
+import com.oneliang.ktx.util.logging.LoggerManager
 import java.io.File
 import java.io.IOException
 import java.util.*
@@ -13,6 +14,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
 class MessageContext : AbstractContext() {
 
     companion object {
+        private val logger = LoggerManager.getLogger(MessageContext::class)
         private const val FILE_PATH = '/'
         private const val PARAMETER_PATH = "-P="
         private const val PARAMETER_RECURSION = "-R"
@@ -47,10 +49,10 @@ class MessageContext : AbstractContext() {
             val fullDirectoryPath = if (directoryPath.isNotBlank()) classesRealPath + directoryPath else classesRealPath
             val directoryFile = File(fullDirectoryPath)
             loadPropertiesFile(directoryFile, matchPatternName, isRecursion)
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
+            logger.error("parameter:%s", e, fixParameters)
             throw InitializeException(fixParameters, e)
         }
-
     }
 
     /**

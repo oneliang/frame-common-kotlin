@@ -4,12 +4,12 @@ import com.oneliang.ktx.Constants
 import com.oneliang.ktx.exception.InitializeException
 import com.oneliang.ktx.frame.context.AbstractContext
 import com.oneliang.ktx.util.common.JavaXmlUtil
+import com.oneliang.ktx.util.logging.LoggerManager
 import java.util.concurrent.ConcurrentHashMap
 
 class UriMappingContext : AbstractContext() {
     companion object {
-        private const val REGEX = "\\{[\\w]*\\}"
-        private const val FIRST_REGEX = "\\{"
+        private val logger = LoggerManager.getLogger(UriMappingContext::class)
         internal val uriMappingBeanMap: MutableMap<String, UriMappingBean> = ConcurrentHashMap()
 
         /**
@@ -40,17 +40,20 @@ class UriMappingContext : AbstractContext() {
             val document = JavaXmlUtil.parse(path)
             val root = document.documentElement
             val uriBeanElementList = root.getElementsByTagName(UriMappingBean.TAG_URI)
-            if (uriBeanElementList != null) {
-                val length = uriBeanElementList.length
-                for (index in 0 until length) {
-                    val beanElement = uriBeanElementList.item(index)
-                    val uriMappingBean = UriMappingBean()
-                    val attributeMap = beanElement.attributes
-                    JavaXmlUtil.initializeFromAttributeMap(uriMappingBean, attributeMap)
-                    uriMappingBeanMap[uriMappingBean.from] = uriMappingBean
-                }
+            if (uriBeanElementList == null) {
+                logger.error("uri bean element list is null")
+                return
             }
-        } catch (e: Exception) {
+            val length = uriBeanElementList.length
+            for (index in 0 until length) {
+                val beanElement = uriBeanElementList.item(index)
+                val uriMappingBean = UriMappingBean()
+                val attributeMap = beanElement.attributes
+                JavaXmlUtil.initializeFromAttributeMap(uriMappingBean, attributeMap)
+                uriMappingBeanMap[uriMappingBean.from] = uriMappingBean
+            }
+        } catch (e: Throwable) {
+            logger.error("parameter:%s", e, fixParameters)
             throw InitializeException(fixParameters, e)
         }
     }
