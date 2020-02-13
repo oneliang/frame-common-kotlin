@@ -18,7 +18,7 @@ class AopInvocationHandler<T : Any>(private val interfaceImpl: T) : InvocationHa
         }
         try {
             instance = invokeProcessor.invoke(this.interfaceImpl, method, args ?: emptyArray())
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             for (afterThrowingProcessor in afterThrowingProcessorList) {
                 afterThrowingProcessor.afterThrowing(this.interfaceImpl, method, args ?: emptyArray(), e)
             }

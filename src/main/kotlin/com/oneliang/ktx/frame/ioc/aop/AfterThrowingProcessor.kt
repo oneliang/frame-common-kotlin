@@ -9,7 +9,7 @@ interface AfterThrowingProcessor {
      * @param instance
      * @param method
      * @param args
-     * @param exception
+     * @param throwable
      */
-    fun afterThrowing(instance: Any, method: Method, args: Array<Any>, exception: Exception)
+    fun afterThrowing(instance: Any, method: Method, args: Array<Any>, throwable: Throwable)
 }
