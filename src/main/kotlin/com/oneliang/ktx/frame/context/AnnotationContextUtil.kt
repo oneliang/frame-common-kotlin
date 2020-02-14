@@ -76,9 +76,11 @@ object AnnotationContextUtil {
                 val packageToPath = packageName.replace(Constants.Symbol.DOT, Constants.Symbol.SLASH_LEFT)
                 filePathList.forEach {
                     val filePath = it.trim()
-                    val otherClassesRealPath = File(fixedClassesRealPath, filePath).absolutePath
-                    val searchClassPath = File(otherClassesRealPath, Constants.Symbol.SLASH_LEFT + packageToPath).absolutePath
-                    logger.debug("search classes real path:$otherClassesRealPath, search class path:$searchClassPath")
+                    val otherClassesRealPathFile = File(fixedClassesRealPath, filePath)
+                    val otherClassesRealPath = otherClassesRealPathFile.absolutePath
+                    val searchClassPathFile = File(otherClassesRealPath, Constants.Symbol.SLASH_LEFT + packageToPath)
+                    val searchClassPath = searchClassPathFile.absolutePath
+                    logger.debug("search classes real path:%s, exists:%s, search class path:%s, exists:%s", otherClassesRealPath, otherClassesRealPathFile.exists(), searchClassPath, searchClassPathFile.exists())
                     searchClassList.addAll(searchClassList(otherClassesRealPath, searchClassPath, annotationClass))
                 }
             }
