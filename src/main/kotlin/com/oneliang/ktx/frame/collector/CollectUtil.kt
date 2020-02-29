@@ -40,9 +40,9 @@ object CollectUtil {
                 }
             }
 
-            override fun exceptionCallback(exception: Exception) {
-                exception.printStackTrace()
-                logger.error(Constants.Base.EXCEPTION, exception)
+            override fun exceptionCallback(throwable: Throwable) {
+                throwable.printStackTrace()
+                logger.error(Constants.Base.EXCEPTION, throwable)
             }
 
             @Throws(Exception::class)
