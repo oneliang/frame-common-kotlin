@@ -75,6 +75,7 @@ open class BaseQueryImpl : BaseQuery {
             val sql = SqlUtil.selectSql(selectColumns, table, condition, mappingBean)
             resultSet = this.executeQueryBySql(connection, sql, parameters)
             list = SqlUtil.resultSetToObjectList(resultSet, kClass, mappingBean, this.sqlProcessor)
+            logger.debug("sql select result:%s, sql%s", list.size, sql)
         } catch (e: Throwable) {
             throw QueryException(e)
         } finally {
@@ -110,6 +111,7 @@ open class BaseQueryImpl : BaseQuery {
             val sql = SqlUtil.classToSelectIdSql(kClass, mappingBean)
             resultSet = this.executeQueryBySql(connection, sql, arrayOf<Any>(id))
             list = SqlUtil.resultSetToObjectList(resultSet, kClass, mappingBean, this.sqlProcessor)
+            logger.debug("sql select result:%s, sql%s", list.size, sql)
         } catch (e: Throwable) {
             throw QueryException(e)
         } finally {
@@ -147,6 +149,7 @@ open class BaseQueryImpl : BaseQuery {
             val mappingBean = ConfigurationFactory.singletonConfigurationContext.findMappingBean(kClass) ?: throw MappingNotFoundException("Mapping is not found, class:$kClass")
             resultSet = this.executeQueryBySql(connection, sql, parameters)
             list = SqlUtil.resultSetToObjectList(resultSet, kClass, mappingBean, this.sqlProcessor)
+            logger.debug("sql select result:%s, sql%s", list.size, sql)
         } catch (e: Throwable) {
             throw QueryException(e)
         } finally {
@@ -305,14 +308,15 @@ open class BaseQueryImpl : BaseQuery {
     </T> */
     @Throws(QueryException::class)
     override fun <T : Any, IdType : Any> executeDeleteByIds(connection: Connection, kClass: KClass<T>, ids: Array<IdType>): Int {
+        if (ids.isEmpty()) {
+            return 0
+        }
         val updateResult: Int
         try {
             val mappingBean = ConfigurationFactory.singletonConfigurationContext.findMappingBean(kClass) ?: throw MappingNotFoundException("Mapping is not found, class:$kClass")
             val sqlPair = SqlInjectUtil.classToDeleteSql(kClass, byId = true, mappingBean = mappingBean)
             val parametersList = ids.map { arrayOf<Any>(it) }
             updateResult = this.executeBatch(connection, sqlPair.first, parametersList).size
-//            val sql = SqlUtil.classToDeleteMultipleRowSql(kClass, ids, mappingBean)
-//            updateResult = this.executeUpdateBySql(connection, sql)
         } catch (e: Throwable) {
             throw QueryException(e)
         }
@@ -385,7 +389,7 @@ open class BaseQueryImpl : BaseQuery {
     @Throws(QueryException::class)
     override fun executeInsertForAutoIncrementBySql(connection: Connection, sql: String, parameters: Array<*>): Int {
         var preparedStatement: PreparedStatement? = null
-        var id: Int = 0
+        var id = 0
         var resultSet: ResultSet? = null
         try {
             val parsedSql = DatabaseMappingUtil.parseSql(sql)
@@ -582,13 +586,14 @@ open class BaseQueryImpl : BaseQuery {
         try {
             val parsedSql = DatabaseMappingUtil.parseSql(sql)
             logger.info(parsedSql)
-            preparedStatement = connection.prepareStatement(parsedSql)
+            preparedStatement = connection.prepareStatement(parsedSql)!!
             var index = 1
             for (parameter in parameters) {
                 this.sqlProcessor.statementProcess(preparedStatement, index, parameter)
                 index++
             }
-            updateResult = preparedStatement!!.executeUpdate()
+            updateResult = preparedStatement.executeUpdate()
+            logger.debug("sql update result:%s, sql%s", updateResult, parsedSql)
         } catch (e: Throwable) {
             throw QueryException(e)
         } finally {
@@ -613,13 +618,16 @@ open class BaseQueryImpl : BaseQuery {
      */
     @Throws(QueryException::class)
     override fun executeBatch(connection: Connection, sqls: Array<String>): IntArray {
-        var statement: Statement? = null
+        if (sqls.isEmpty()) {
+            return IntArray(0)
+        }
         val results: IntArray
         var customTransaction = false
         val customTransactionSign = TransactionManager.customTransactionSign.get()
         if (customTransactionSign != null && customTransactionSign) {
             customTransaction = true
         }
+        var statement: Statement? = null
         try {
             if (!customTransaction) {
                 connection.autoCommit = false
@@ -666,17 +674,17 @@ open class BaseQueryImpl : BaseQuery {
      * @throws QueryException
      */
     @Throws(QueryException::class)
-    override fun executeBatch(connection: Connection, sql: String, parametersList: List<Array<Any>>): IntArray {
-        var results = IntArray(0)
-        var preparedStatement: PreparedStatement? = null
+    override fun executeBatch(connection: Connection, sql: String, parametersList: List<Array<*>>): IntArray {
         if (parametersList.isEmpty()) {
-            return results
+            return IntArray(0)
         }
+        val results: IntArray
         var customTransaction = false
         val customTransactionSign = TransactionManager.customTransactionSign.get()
         if (customTransactionSign != null && customTransactionSign) {
             customTransaction = true
         }
+        var preparedStatement: PreparedStatement? = null
         try {
             val parsedSql = DatabaseMappingUtil.parseSql(sql)
             logger.info(parsedSql)
@@ -729,10 +737,10 @@ open class BaseQueryImpl : BaseQuery {
      */
     @Throws(QueryException::class)
     override fun executeBatch(connection: Connection, batchObjectCollection: Collection<BaseQuery.BatchObject>): IntArray {
-        var results = IntArray(0)
         if (batchObjectCollection.isEmpty()) {
-            return results
+            return IntArray(0)
         }
+        val results: IntArray
         try {
             val sqls = Array(batchObjectCollection.size) { Constants.String.BLANK }
             for ((i, batchObject) in batchObjectCollection.withIndex()) {

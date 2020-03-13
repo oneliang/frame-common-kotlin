@@ -255,7 +255,7 @@ interface BaseQuery {
      * @throws QueryException
      */
     @Throws(QueryException::class)
-    fun executeBatch(connection: Connection, sql: String, parametersList: List<Array<Any>>): IntArray
+    fun executeBatch(connection: Connection, sql: String, parametersList: List<Array<*>>): IntArray
 
     /**
      *

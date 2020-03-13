@@ -3,6 +3,7 @@ package com.oneliang.ktx.frame.jdbc
 import com.oneliang.ktx.Constants
 import com.oneliang.ktx.frame.ConfigurationFactory
 import com.oneliang.ktx.frame.bean.Page
+import com.oneliang.ktx.util.logging.LoggerManager
 import com.oneliang.ktx.util.resource.ResourcePool
 import java.sql.Connection
 import java.sql.ResultSet
@@ -14,6 +15,9 @@ import kotlin.reflect.KClass
  * @since 2011-02-12
  */
 open class DefaultQueryImpl : BaseQueryImpl(), Query {
+    companion object {
+        private val logger = LoggerManager.getLogger(DefaultQueryImpl::class)
+    }
 
     override lateinit var connectionPool: ResourcePool<Connection>
 
@@ -136,6 +140,9 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
     </T> */
     @Throws(QueryException::class)
     override fun <T : Any, IdType : Any> deleteObjectByIds(kClass: KClass<T>, ids: Array<IdType>): Int {
+        if (ids.isEmpty()) {
+            return 0
+        }
         val updateResult: Int
         var connection: Connection? = null
         try {
@@ -334,6 +341,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
         try {
             connection = this.connectionPool.stableResource!!
             list = this.executeQueryBySql(connection, kClass, sql, parameters)
+            logger.debug("sql select result:%s, sql%s", list.size, sql)
         } catch (e: Exception) {
             throw QueryException(e)
         } finally {
