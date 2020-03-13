@@ -398,7 +398,11 @@ open class IocContext : AbstractContext() {
         iocBeanMap.forEach { (id, iocBean) ->
             val iocAfterInjectBeanList = iocBean.iocAfterInjectBeanList
             for (iocAfterInjectBean in iocAfterInjectBeanList) {
-                val proxyInstance = iocBean.proxyInstance!!
+                val proxyInstance = iocBean.proxyInstance
+                if (proxyInstance == null) {
+                    logger.error("After inject, proxy instance is null, instance id:%s", id)
+                    continue
+                }
                 val method = proxyInstance.javaClass.getMethod(iocAfterInjectBean.method)
                 logger.info("After inject, instance id:%s, proxyInstance:%s, method:%s", id, proxyInstance, iocAfterInjectBean.method)
                 try {
