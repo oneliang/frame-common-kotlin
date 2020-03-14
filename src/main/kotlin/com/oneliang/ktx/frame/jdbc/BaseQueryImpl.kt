@@ -75,7 +75,7 @@ open class BaseQueryImpl : BaseQuery {
             val sql = SqlUtil.selectSql(selectColumns, table, condition, mappingBean)
             resultSet = this.executeQueryBySql(connection, sql, parameters)
             list = SqlUtil.resultSetToObjectList(resultSet, kClass, mappingBean, this.sqlProcessor)
-            logger.debug("sql select result:%s, sql%s", list.size, sql)
+            logger.debug("sql select result:%s, sql:%s", list.size, sql)
         } catch (e: Throwable) {
             throw QueryException(e)
         } finally {
@@ -111,7 +111,7 @@ open class BaseQueryImpl : BaseQuery {
             val sql = SqlUtil.classToSelectIdSql(kClass, mappingBean)
             resultSet = this.executeQueryBySql(connection, sql, arrayOf<Any>(id))
             list = SqlUtil.resultSetToObjectList(resultSet, kClass, mappingBean, this.sqlProcessor)
-            logger.debug("sql select result:%s, sql%s", list.size, sql)
+            logger.debug("sql select result:%s, sql:%s", list.size, sql)
         } catch (e: Throwable) {
             throw QueryException(e)
         } finally {
@@ -149,7 +149,7 @@ open class BaseQueryImpl : BaseQuery {
             val mappingBean = ConfigurationFactory.singletonConfigurationContext.findMappingBean(kClass) ?: throw MappingNotFoundException("Mapping is not found, class:$kClass")
             resultSet = this.executeQueryBySql(connection, sql, parameters)
             list = SqlUtil.resultSetToObjectList(resultSet, kClass, mappingBean, this.sqlProcessor)
-            logger.debug("sql select result:%s, sql%s", list.size, sql)
+            logger.debug("sql select result:%s, sql:%s", list.size, sql)
         } catch (e: Throwable) {
             throw QueryException(e)
         } finally {
