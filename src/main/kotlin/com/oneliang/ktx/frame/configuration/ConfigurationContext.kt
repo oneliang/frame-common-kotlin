@@ -6,16 +6,17 @@ import com.oneliang.ktx.frame.context.Context
 import com.oneliang.ktx.util.common.JavaXmlUtil
 import com.oneliang.ktx.util.common.ObjectUtil
 import com.oneliang.ktx.util.logging.LoggerManager
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.collections.Map.Entry
 import kotlin.reflect.KClass
 
 class ConfigurationContext : AbstractContext() {
     companion object {
         private val logger = LoggerManager.getLogger(ConfigurationContext::class)
-        internal val configurationBeanMap = mutableMapOf<String, ConfigurationBean>()
+        internal val configurationBeanMap = ConcurrentHashMap<String, ConfigurationBean>()
     }
 
-    private val selfConfigurationBeanMap = mutableMapOf<String, ConfigurationBean>()
+    private val selfConfigurationBeanMap = ConcurrentHashMap<String, ConfigurationBean>()
     /**
      * @return the initialized
      */
@@ -24,7 +25,7 @@ class ConfigurationContext : AbstractContext() {
     /**
      * is initialized
      */
-    public fun isInitialized(): Boolean {
+    fun isInitialized(): Boolean {
         return this.initialized
     }
 

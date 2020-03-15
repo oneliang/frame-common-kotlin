@@ -10,6 +10,7 @@ import com.oneliang.ktx.util.common.ObjectUtil
 import com.oneliang.ktx.util.common.ProxyUtil
 import com.oneliang.ktx.util.logging.LoggerManager
 import java.lang.reflect.Constructor
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * so far,only this context use proxy
@@ -19,7 +20,7 @@ open class IocContext : AbstractContext() {
     companion object {
         private val logger = LoggerManager.getLogger(IocContext::class)
         internal val iocConfigurationBean = IocConfigurationBean()
-        internal val iocBeanMap = mutableMapOf<String, IocBean>()
+        internal val iocBeanMap = ConcurrentHashMap<String, IocBean>()
     }
 
     /**
