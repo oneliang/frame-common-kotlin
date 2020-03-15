@@ -545,13 +545,9 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
      */
     @Throws(QueryException::class)
     override fun executeTransaction(transaction: () -> Boolean): Boolean {
-        var isFirstIn = false
-        val customTransactionSign = TransactionManager.customTransactionSign.get()
-        if (customTransactionSign == null || !customTransactionSign) {
-            isFirstIn = true
-        }
+        val isFirstIn = !TransactionManager.isCustomTransaction()//first time is not custom transaction, second time is
         return if (isFirstIn) {
-            TransactionManager.customTransactionSign.set(true)
+            TransactionManager.customTransactionSign.set(true)//must set true before get resource(connection)
             useConnection {
                 try {
                     it.autoCommit = false
@@ -576,7 +572,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
                     } catch (e: Throwable) {
                         throw QueryException(e)
                     } finally {
-                        TransactionManager.customTransactionSign.set(false)
+                        TransactionManager.customTransactionSign.set(false)//must set false before release resource(connection)
                     }
                 }
             }

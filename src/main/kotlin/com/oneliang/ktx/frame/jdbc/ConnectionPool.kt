@@ -24,8 +24,8 @@ class ConnectionPool : ResourcePool<Connection>() {
         @Throws(ResourcePoolException::class)
         get() {
             val connection: Connection?
-            val customTransaction = TransactionManager.customTransactionSign.get()
-            if (customTransaction != null && customTransaction) {
+            val customTransaction = TransactionManager.isCustomTransaction()
+            if (customTransaction) {
                 if (TransactionManager.customTransactionConnection.get() != null) {
                     connection = TransactionManager.customTransactionConnection.get()
                 } else {
@@ -44,8 +44,8 @@ class ConnectionPool : ResourcePool<Connection>() {
     }
 
     override fun releaseResource(resource: Connection?) {
-        val customTransaction = TransactionManager.customTransactionSign.get()
-        if (customTransaction == null || !customTransaction) {
+        val customTransaction = TransactionManager.isCustomTransaction()
+        if (!customTransaction) {
             super.releaseResource(resource)
             if (TransactionManager.customTransactionConnection.get() != null) {
                 TransactionManager.customTransactionConnection.set(null)

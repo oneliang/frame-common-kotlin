@@ -495,11 +495,7 @@ open class BaseQueryImpl : BaseQuery {
      * use batch
      */
     private fun <R> useBatch(connection: Connection, block: () -> R): R {
-        var customTransaction = false
-        val customTransactionSign = TransactionManager.customTransactionSign.get()
-        if (customTransactionSign != null && customTransactionSign) {
-            customTransaction = true
-        }
+        val customTransaction = TransactionManager.isCustomTransaction()
         return try {
             if (!customTransaction) {
                 connection.autoCommit = false
