@@ -427,7 +427,6 @@ open class BaseQueryImpl : BaseQuery {
     }
 
     /**
-     *
      * Method: execute update include insert sql and update sql,for sql binding
      * @param connection
      * @param instance
@@ -458,7 +457,6 @@ open class BaseQueryImpl : BaseQuery {
     }
 
     /**
-     *
      * Method: execute update collection,transaction not for sql binding
      * @param <T>
      * @param connection
@@ -494,7 +492,44 @@ open class BaseQueryImpl : BaseQuery {
     }
 
     /**
-     *
+     * use batch
+     */
+    private fun <R> useBatch(connection: Connection, block: () -> R): R {
+        var customTransaction = false
+        val customTransactionSign = TransactionManager.customTransactionSign.get()
+        if (customTransactionSign != null && customTransactionSign) {
+            customTransaction = true
+        }
+        return try {
+            if (!customTransaction) {
+                connection.autoCommit = false
+            }
+            val result = block()
+            if (!customTransaction) {
+                connection.commit()
+            }
+            result
+        } catch (e: Throwable) {
+            if (!customTransaction) {
+                try {
+                    connection.rollback()
+                } catch (ex: Throwable) {
+                    throw QueryException(ex)
+                }
+            }
+            throw QueryException(e)
+        } finally {
+            try {
+                if (!customTransaction) {
+                    connection.autoCommit = true
+                }
+            } catch (e: Throwable) {
+                throw QueryException(e)
+            }
+        }
+    }
+
+    /**
      * Method: execute update collection,transaction,for preparedStatement sql binding
      * @param <T>
      * @param <M>
@@ -511,67 +546,40 @@ open class BaseQueryImpl : BaseQuery {
             logger.warning("collection is empty, class:$kClass")
             return IntArray(0)
         }
-        val rows: IntArray
-        var customTransaction = false
-        val customTransactionSign = TransactionManager.customTransactionSign.get()
-        if (customTransactionSign != null && customTransactionSign) {
-            customTransaction = true
-        }
-        var preparedStatement: PreparedStatement? = null
-        try {
-            if (!customTransaction) {
-                connection.autoCommit = false
-            }
-            val mappingBean = ConfigurationFactory.singletonConfigurationContext.findMappingBean(kClass) ?: throw MappingNotFoundException("Mapping is not found, class:$kClass")
-            var (sql, fieldNameList) = when (executeType) {
-                BaseQuery.ExecuteType.INSERT -> SqlInjectUtil.classToInsertSql(kClass, table, mappingBean)
-                BaseQuery.ExecuteType.UPDATE_BY_ID -> SqlInjectUtil.classToUpdateSql(kClass, table, Constants.String.BLANK, true, mappingBean)
-                BaseQuery.ExecuteType.UPDATE_NOT_BY_ID -> SqlInjectUtil.classToUpdateSql(kClass, table, Constants.String.BLANK, false, mappingBean)
-                BaseQuery.ExecuteType.DELETE_BY_ID -> SqlInjectUtil.classToDeleteSql(kClass, table, Constants.String.BLANK, true, mappingBean)
-                BaseQuery.ExecuteType.DELETE_NOT_BY_ID -> SqlInjectUtil.classToDeleteSql(kClass, table, Constants.String.BLANK, false, mappingBean)
-            }
-            sql = DatabaseMappingUtil.parseSql(sql)
-            logger.info(sql)
-            preparedStatement = connection.prepareStatement(sql)
-            for (instance in collection) {
-                var index = 1
-                for (fieldName in fieldNameList) {
-                    val parameter = ObjectUtil.getterOrIsMethodInvoke(instance, fieldName)
-                    this.sqlProcessor.statementProcess(preparedStatement, index, parameter)
-                    index++
-                }
-                preparedStatement.addBatch()
-            }
-            rows = preparedStatement.executeBatch()
-            preparedStatement.clearBatch()
-            if (!customTransaction) {
-                connection.commit()
-            }
-        } catch (e: Throwable) {
-            if (!customTransaction) {
-                try {
-                    connection.rollback()
-                } catch (ex: Throwable) {
-                    throw QueryException(ex)
-                }
-
-            }
-            throw QueryException(e)
-        } finally {
+        return useBatch(connection) {
+            val rows: IntArray
+            var preparedStatement: PreparedStatement? = null
             try {
-                if (!customTransaction) {
-                    connection.autoCommit = true
+                val mappingBean = ConfigurationFactory.singletonConfigurationContext.findMappingBean(kClass) ?: throw MappingNotFoundException("Mapping is not found, class:$kClass")
+                var (sql, fieldNameList) = when (executeType) {
+                    BaseQuery.ExecuteType.INSERT -> SqlInjectUtil.classToInsertSql(kClass, table, mappingBean)
+                    BaseQuery.ExecuteType.UPDATE_BY_ID -> SqlInjectUtil.classToUpdateSql(kClass, table, Constants.String.BLANK, true, mappingBean)
+                    BaseQuery.ExecuteType.UPDATE_NOT_BY_ID -> SqlInjectUtil.classToUpdateSql(kClass, table, Constants.String.BLANK, false, mappingBean)
+                    BaseQuery.ExecuteType.DELETE_BY_ID -> SqlInjectUtil.classToDeleteSql(kClass, table, Constants.String.BLANK, true, mappingBean)
+                    BaseQuery.ExecuteType.DELETE_NOT_BY_ID -> SqlInjectUtil.classToDeleteSql(kClass, table, Constants.String.BLANK, false, mappingBean)
                 }
+                sql = DatabaseMappingUtil.parseSql(sql)
+                logger.info(sql)
+                preparedStatement = connection.prepareStatement(sql)
+                for (instance in collection) {
+                    var index = 1
+                    for (fieldName in fieldNameList) {
+                        val parameter = ObjectUtil.getterOrIsMethodInvoke(instance, fieldName)
+                        this.sqlProcessor.statementProcess(preparedStatement, index, parameter)
+                        index++
+                    }
+                    preparedStatement.addBatch()
+                }
+                rows = preparedStatement.executeBatch()
+                preparedStatement.clearBatch()
+                rows
+            } finally {
                 preparedStatement?.close()
-            } catch (e: Throwable) {
-                throw QueryException(e)
             }
         }
-        return rows
     }
 
     /**
-     *
      * Method: execute update by sql statement
      * @param connection
      * @param sql include insert delete update
@@ -609,7 +617,6 @@ open class BaseQueryImpl : BaseQuery {
     }
 
     /**
-     *
      * Method: execute batch by connection,transaction
      * @param connection
      * @param sqls
@@ -621,51 +628,26 @@ open class BaseQueryImpl : BaseQuery {
         if (sqls.isEmpty()) {
             return IntArray(0)
         }
-        val results: IntArray
-        var customTransaction = false
-        val customTransactionSign = TransactionManager.customTransactionSign.get()
-        if (customTransactionSign != null && customTransactionSign) {
-            customTransaction = true
-        }
-        var statement: Statement? = null
-        try {
-            if (!customTransaction) {
-                connection.autoCommit = false
-            }
-            statement = connection.createStatement()
-            for (sql in sqls) {
-                val parsedSql = DatabaseMappingUtil.parseSql(sql)
-                logger.info(parsedSql)
-                statement.addBatch(parsedSql)
-            }
-            results = statement.executeBatch()
-            if (!customTransaction) {
-                connection.commit()
-            }
-        } catch (e: Throwable) {
-            if (!customTransaction) {
-                try {
-                    connection.rollback()
-                } catch (ex: Throwable) {
-                    throw QueryException(ex)
-                }
-            }
-            throw QueryException(e)
-        } finally {
+        return useBatch(connection) {
+            val results: IntArray
+            var statement: Statement? = null
             try {
-                if (!customTransaction) {
-                    connection.autoCommit = true
+                statement = connection.createStatement()
+                for (sql in sqls) {
+                    val parsedSql = DatabaseMappingUtil.parseSql(sql)
+                    logger.info(parsedSql)
+                    statement.addBatch(parsedSql)
                 }
+                results = statement.executeBatch()
+                statement.clearBatch()
+                results
+            } finally {
                 statement?.close()
-            } catch (e: Throwable) {
-                throw QueryException(e)
             }
         }
-        return results
     }
 
     /**
-     *
      * Method: execute batch by connection,transaction
      * @param connection
      * @param sql include insert update delete sql only the same sql many data
@@ -678,57 +660,31 @@ open class BaseQueryImpl : BaseQuery {
         if (parametersList.isEmpty()) {
             return IntArray(0)
         }
-        val results: IntArray
-        var customTransaction = false
-        val customTransactionSign = TransactionManager.customTransactionSign.get()
-        if (customTransactionSign != null && customTransactionSign) {
-            customTransaction = true
-        }
-        var preparedStatement: PreparedStatement? = null
-        try {
-            if (!customTransaction) {
-                connection.autoCommit = false
-            }
-            val parsedSql = DatabaseMappingUtil.parseSql(sql)
-            logger.info(parsedSql)
-            preparedStatement = connection.prepareStatement(parsedSql)
-            for (parameters in parametersList) {
-                var index = 1
-                for (parameter in parameters) {
-                    this.sqlProcessor.statementProcess(preparedStatement, index, parameter)
-                    index++
-                }
-                preparedStatement.addBatch()
-            }
-            results = preparedStatement.executeBatch()
-            preparedStatement.clearBatch()
-            if (!customTransaction) {
-                connection.commit()
-            }
-        } catch (e: Throwable) {
-            if (!customTransaction) {
-                try {
-                    connection.rollback()
-                } catch (ex: Throwable) {
-                    throw QueryException(ex)
-                }
-            }
-            throw QueryException(e)
-        } finally {
+        return useBatch(connection) {
+            val results: IntArray
+            var preparedStatement: PreparedStatement? = null
             try {
-                if (!customTransaction) {
-                    connection.autoCommit = true
+                val parsedSql = DatabaseMappingUtil.parseSql(sql)
+                logger.info(parsedSql)
+                preparedStatement = connection.prepareStatement(parsedSql)
+                for (parameters in parametersList) {
+                    var index = 1
+                    for (parameter in parameters) {
+                        this.sqlProcessor.statementProcess(preparedStatement, index, parameter)
+                        index++
+                    }
+                    preparedStatement.addBatch()
                 }
+                results = preparedStatement.executeBatch()
+                preparedStatement.clearBatch()
+                results
+            } finally {
                 preparedStatement?.close()
-            } catch (e: Throwable) {
-                throw QueryException(e)
             }
         }
-        return results
     }
 
     /**
-     *
      * Method: execute batch by connection,transaction
      * @param connection
      * @param batchObjectCollection

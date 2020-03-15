@@ -529,7 +529,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
     }
 
     /**
-     * execute transaction, if you need to stop transaction, you can return false
+     * execute transaction, if you need to stop transaction, you can throw exception
      * @param transaction
      * @throws QueryException
      */
@@ -539,7 +539,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
     }
 
     /**
-     * execute transaction, if you need to stop transaction, you can return false
+     * execute transaction, if you need to stop transaction, you can throw exception
      * @param transaction
      * @throws QueryException
      */
@@ -552,51 +552,50 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
         }
         return if (isFirstIn) {
             TransactionManager.customTransactionSign.set(true)
-            var connection: Connection? = null
-            //beginTransaction
-            try {
-                connection = this.connectionPool.resource!!
-                connection.autoCommit = false
-                val result = transaction()
-                if (!result) {
-                    connection.rollback()
-                } else {
-                    connection.commit()
-                }
-                result
-            } catch (e: Throwable) {
+            useConnection {
                 try {
-                    connection!!.rollback()
+                    it.autoCommit = false
+                    val result = transaction()
+                    if (!result) {
+                        it.rollback()
+                    } else {
+                        it.commit()
+                    }
+                    result
                 } catch (e: Throwable) {
-                    throw QueryException(e)
-                }
-                throw QueryException(e)
-            } finally {
-                //endTransaction
-                try {
-                    connection!!.autoCommit = true
-                } catch (e: Throwable) {
+                    try {
+                        it.rollback()
+                    } catch (e: Throwable) {
+                        throw QueryException(e)
+                    }
                     throw QueryException(e)
                 } finally {
-                    TransactionManager.customTransactionSign.set(false)
-                    this.connectionPool.releaseResource(connection)
+                    //endTransaction
+                    try {
+                        it.autoCommit = true
+                    } catch (e: Throwable) {
+                        throw QueryException(e)
+                    } finally {
+                        TransactionManager.customTransactionSign.set(false)
+                    }
                 }
             }
         } else {//not first in
-            val connection = this.connectionPool.resource!!
-            try {
-                val result = transaction()
-                if (!result) {
-                    connection.rollback()
-                }
-                result
-            } catch (e: Throwable) {
+            useConnection {
                 try {
-                    connection.rollback()
+                    val result = transaction()
+                    if (!result) {
+                        it.rollback()
+                    }
+                    result
                 } catch (e: Throwable) {
+                    try {
+                        it.rollback()
+                    } catch (e: Throwable) {
+                        throw QueryException(e)
+                    }
                     throw QueryException(e)
                 }
-                throw QueryException(e)
             }
         }
     }
