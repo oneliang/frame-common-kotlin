@@ -19,14 +19,14 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
         private val logger = LoggerManager.getLogger(DefaultQueryImpl::class)
     }
 
-    override lateinit var connectionPool: ResourcePool<Connection>
+    private lateinit var connectionPool: ResourcePool<Connection>
 
     /**
-     * execute
+     * use connection
      * @param block
      */
     @Throws(QueryException::class)
-    private fun <R> execute(block: (connection: Connection) -> R): R {
+    override fun <R> useConnection(block: (connection: Connection) -> R): R {
         var connection: Connection? = null
         return try {
             connection = this.connectionPool.resource!!
@@ -39,11 +39,11 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
     }
 
     /**
-     * execute stable
+     * use stable connection
      * @param block
      */
     @Throws(QueryException::class)
-    private fun <R> executeStable(block: (connection: Connection) -> R): R {
+    override fun <R> useStableConnection(block: (connection: Connection) -> R): R {
         var connection: Connection? = null
         return try {
             connection = this.connectionPool.stableResource!!
@@ -70,7 +70,6 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
     }
 
     /**
-     *
      * Method: delete object not by id,by table condition,sql binding
      * @param <T>
      * @param instance
@@ -94,7 +93,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
     </T> */
     @Throws(QueryException::class)
     override fun <T : Any> deleteObject(kClass: KClass<T>, condition: String, parameters: Array<*>): Int {
-        return execute {
+        return useConnection {
             this.executeDelete(it, kClass, condition, parameters)
         }
     }
@@ -137,7 +136,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
     </T> */
     @Throws(QueryException::class)
     override fun <T : Any, IdType : Any> deleteObjectById(kClass: KClass<T>, id: IdType): Int {
-        return execute {
+        return useConnection {
             this.executeDeleteById(it, kClass, id)
         }
     }
@@ -155,7 +154,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
         if (ids.isEmpty()) {
             return 0
         }
-        return execute {
+        return useConnection {
             this.executeDeleteByIds(it, kClass, ids)
         }
     }
@@ -279,7 +278,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
     </T> */
     @Throws(QueryException::class)
     override fun <T : Any, IdType : Any> selectObjectById(kClass: KClass<T>, id: IdType): T? {
-        return executeStable {
+        return useStableConnection {
             this.executeQueryById(it, kClass, id)
         }
     }
@@ -297,7 +296,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
     </T></T> */
     @Throws(QueryException::class)
     override fun <T : Any> selectObjectList(kClass: KClass<T>, selectColumns: Array<String>, table: String, condition: String, parameters: Array<*>): List<T> {
-        return executeStable {
+        return useStableConnection {
             this.executeQuery(it, kClass, selectColumns, table, condition, parameters)
         }
     }
@@ -313,7 +312,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
     </T></T> */
     @Throws(QueryException::class)
     override fun <T : Any> selectObjectListBySql(kClass: KClass<T>, sql: String, parameters: Array<*>): List<T> {
-        return executeStable {
+        return useStableConnection {
             this.executeQueryBySql(it, kClass, sql, parameters).apply {
                 logger.debug("sql select result:%s, sql:%s", this.size, sql)
             }
@@ -353,7 +352,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
      */
     @Throws(QueryException::class)
     override fun executeBySql(sql: String, parameters: Array<*>) {
-        execute {
+        useConnection {
             this.executeBySql(it, sql, parameters)
         }
     }
@@ -367,7 +366,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
      */
     @Throws(QueryException::class)
     override fun executeQueryBySql(sql: String, parameters: Array<*>): ResultSet {
-        return executeStable {
+        return useStableConnection {
             this.executeQueryBySql(it, sql, parameters)
         }
     }
@@ -381,7 +380,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
      */
     @Throws(QueryException::class)
     protected fun <T : Any> executeInsertForAutoIncrement(instance: T, table: String): Int {
-        return execute {
+        return useConnection {
             this.executeInsertForAutoIncrement(it, instance, table)
         }
     }
@@ -396,7 +395,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
      */
     @Throws(QueryException::class)
     override fun <T : Any> executeUpdate(instance: T, table: String, condition: String, executeType: BaseQuery.ExecuteType): Int {
-        return execute {
+        return useConnection {
             this.executeUpdate(it, instance, table, condition, executeType)
         }
     }
@@ -412,7 +411,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
     </T> */
     @Throws(QueryException::class)
     protected fun <T : Any> executeUpdate(collection: Collection<T>, table: String, executeType: BaseQuery.ExecuteType): IntArray {
-        return execute {
+        return useConnection {
             this.executeUpdate(it, collection, table, executeType)
         }
     }
@@ -430,7 +429,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
     </M></T> */
     @Throws(QueryException::class)
     protected fun <T : Any, M : Any> executeUpdate(collection: Collection<T>, kClass: KClass<M>, table: String, executeType: BaseQuery.ExecuteType): IntArray {
-        return execute {
+        return useConnection {
             this.executeUpdate(it, collection, kClass, table, executeType)
         }
     }
@@ -444,7 +443,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
      */
     @Throws(QueryException::class)
     override fun executeUpdateBySql(sql: String, parameters: Array<*>): Int {
-        return execute {
+        return useConnection {
             this.executeUpdateBySql(it, sql, parameters)
         }
     }
@@ -457,7 +456,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
      */
     @Throws(QueryException::class)
     override fun executeBatch(sqls: Array<String>): IntArray {
-        return execute {
+        return useConnection {
             this.executeBatch(it, sqls)
         }
     }
@@ -471,7 +470,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
      */
     @Throws(QueryException::class)
     override fun executeBatch(sql: String, parametersList: List<Array<Any>>): IntArray {
-        return execute {
+        return useConnection {
             this.executeBatch(it, sql, parametersList)
         }
     }
@@ -484,7 +483,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
      */
     @Throws(QueryException::class)
     override fun executeBatch(batchObjectCollection: Collection<BaseQuery.BatchObject>): IntArray {
-        return execute {
+        return useConnection {
             this.executeBatch(it, batchObjectCollection)
         }
     }
@@ -530,7 +529,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
     }
 
     /**
-     * execute transaction, if you need to stop transaction, you can throw exception
+     * execute transaction, if you need to stop transaction, you can return false
      * @param transaction
      * @throws QueryException
      */
@@ -539,6 +538,11 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
         return executeTransaction(transaction::execute)
     }
 
+    /**
+     * execute transaction, if you need to stop transaction, you can return false
+     * @param transaction
+     * @throws QueryException
+     */
     @Throws(QueryException::class)
     override fun executeTransaction(transaction: () -> Boolean): Boolean {
         var isFirstIn = false
@@ -595,5 +599,9 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
                 throw QueryException(e)
             }
         }
+    }
+
+    fun setConnectionPool(connectionPool: ResourcePool<Connection>) {
+        this.connectionPool = connectionPool
     }
 }

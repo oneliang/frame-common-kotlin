@@ -10,12 +10,20 @@ import kotlin.reflect.KClass
 interface Query : BaseQuery {
 
     /**
-     * @return the connectionPool
+     * use connection
+     * @param block
      */
-    val connectionPool: ResourcePool<Connection>
+    @Throws(QueryException::class)
+    fun <R> useConnection(block: (connection: Connection) -> R): R
 
     /**
-     *
+     * use stable connection
+     * @param block
+     */
+    @Throws(QueryException::class)
+    fun <R> useStableConnection(block: (connection: Connection) -> R): R
+
+    /**
      * Method: delete object,by table condition just by object id,sql binding
      * @param <T>
      * @param instance
@@ -28,7 +36,6 @@ interface Query : BaseQuery {
     fun <T : Any> deleteObject(instance: T, table: String = Constants.String.BLANK, condition: String = Constants.String.BLANK): Int
 
     /**
-     *
      * Method: delete object not by id,by table condition,sql binding
      * @param <T>
      * @param instance
@@ -41,7 +48,6 @@ interface Query : BaseQuery {
     fun <T : Any> deleteObjectNotById(instance: T, table: String = Constants.String.BLANK, condition: String = Constants.String.BLANK): Int
 
     /**
-     *
      * Method: delete class,by condition
      * @param <T>
      * @param kClass

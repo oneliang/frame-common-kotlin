@@ -507,18 +507,21 @@ open class BaseQueryImpl : BaseQuery {
     </M></T> */
     @Throws(QueryException::class)
     protected fun <T : Any, M : Any> executeUpdate(connection: Connection, collection: Collection<T>, kClass: KClass<M>, table: String, executeType: BaseQuery.ExecuteType): IntArray {
-        var rows = IntArray(0)
-        var preparedStatement: PreparedStatement? = null
         if (collection.isEmpty()) {
             logger.warning("collection is empty, class:$kClass")
-            return rows
+            return IntArray(0)
         }
+        val rows: IntArray
         var customTransaction = false
         val customTransactionSign = TransactionManager.customTransactionSign.get()
         if (customTransactionSign != null && customTransactionSign) {
             customTransaction = true
         }
+        var preparedStatement: PreparedStatement? = null
         try {
+            if (!customTransaction) {
+                connection.autoCommit = false
+            }
             val mappingBean = ConfigurationFactory.singletonConfigurationContext.findMappingBean(kClass) ?: throw MappingNotFoundException("Mapping is not found, class:$kClass")
             var (sql, fieldNameList) = when (executeType) {
                 BaseQuery.ExecuteType.INSERT -> SqlInjectUtil.classToInsertSql(kClass, table, mappingBean)
@@ -529,9 +532,6 @@ open class BaseQueryImpl : BaseQuery {
             }
             sql = DatabaseMappingUtil.parseSql(sql)
             logger.info(sql)
-            if (!customTransaction) {
-                connection.autoCommit = false
-            }
             preparedStatement = connection.prepareStatement(sql)
             for (instance in collection) {
                 var index = 1
@@ -686,11 +686,11 @@ open class BaseQueryImpl : BaseQuery {
         }
         var preparedStatement: PreparedStatement? = null
         try {
-            val parsedSql = DatabaseMappingUtil.parseSql(sql)
-            logger.info(parsedSql)
             if (!customTransaction) {
                 connection.autoCommit = false
             }
+            val parsedSql = DatabaseMappingUtil.parseSql(sql)
+            logger.info(parsedSql)
             preparedStatement = connection.prepareStatement(parsedSql)
             for (parameters in parametersList) {
                 var index = 1

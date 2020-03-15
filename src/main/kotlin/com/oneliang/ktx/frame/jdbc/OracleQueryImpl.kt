@@ -10,7 +10,6 @@ import kotlin.reflect.KClass
 class OracleQueryImpl : DefaultQueryImpl() {
 
     /**
-     *
      * Method: select object pagination list,has implement,it is sql binding
      * @param <T>
      * @param kClass
@@ -50,16 +49,8 @@ class OracleQueryImpl : DefaultQueryImpl() {
         //generate outer conditions
         val sqlConditions = StringBuilder()
         sqlConditions.append("and " + rowNumAlias + ">" + startRow + " and " + rowNumAlias + "<=" + rowsPerPage * currentPage)
-        val list: List<T>
-        var connection: Connection? = null
-        try {
-            connection = this.connectionPool!!.resource!!
-            list = this.executeQuery(connection, kClass, emptyArray(), tempTable, sqlConditions.toString(), parameters)
-        } catch (e: Exception) {
-            throw QueryException(e)
-        } finally {
-            this.connectionPool!!.releaseResource(connection)
+        return useConnection {
+            this.executeQuery(it, kClass, emptyArray(), tempTable, sqlConditions.toString(), parameters)
         }
-        return list
     }
 }
