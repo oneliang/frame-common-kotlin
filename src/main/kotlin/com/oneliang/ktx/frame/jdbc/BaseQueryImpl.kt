@@ -597,7 +597,7 @@ open class BaseQueryImpl : BaseQuery {
                 index++
             }
             updateResult = preparedStatement.executeUpdate()
-            logger.debug("sql update result:%s, sql%s", updateResult, parsedSql)
+            logger.debug("sql update result:%s, sql:%s", updateResult, parsedSql)
         } catch (e: Throwable) {
             throw QueryException(e)
         } finally {
