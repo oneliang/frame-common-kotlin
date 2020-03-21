@@ -218,9 +218,12 @@ class ActionListener : HttpServlet() {
         val beforeGlobalInterceptorResult = doGlobalInterceptorList(beforeGlobalInterceptorList, request, response)
 
         //through the interceptor
-        if (!beforeGlobalInterceptorResult.result) {
-            logger.info("The request name:$uri. Can not through the before global interceptors")
+        if (beforeGlobalInterceptorResult.type == InterceptorInterface.Result.Type.ERROR) {
+            logger.error("The request name:%s. Can not through the before global interceptors", uri)
             response.sendError(Constants.Http.StatusCode.FORBIDDEN, beforeGlobalInterceptorResult.message)
+            return
+        } else if (beforeGlobalInterceptorResult.type == InterceptorInterface.Result.Type.CUSTOM) {
+            logger.info("The request name:%s. Use CUSTOM to through the before global interceptors", uri)
             return
         }
         logger.info("Through the before global interceptors!")
@@ -246,9 +249,12 @@ class ActionListener : HttpServlet() {
             //action interceptor doIntercept
             val beforeActionBeanInterceptorList = actionBean.beforeActionInterceptorBeanList
             val beforeActionInterceptorResult = doActionInterceptorBeanList(beforeActionBeanInterceptorList, request, response)
-            if (!beforeActionInterceptorResult.result) {
-                logger.info("The request name:$uri. Can not through the before action interceptors")
+            if (beforeActionInterceptorResult.type == InterceptorInterface.Result.Type.ERROR) {
+                logger.error("The request name:%s. Can not through the before action interceptors", uri)
                 response.sendError(Constants.Http.StatusCode.FORBIDDEN, beforeActionInterceptorResult.message)
+                return
+            } else if (beforeActionInterceptorResult.type == InterceptorInterface.Result.Type.CUSTOM) {
+                logger.info("The request name:%s. Use CUSTOM to through the before global interceptors", uri)
                 return
             }
             logger.info("Through the before action interceptors!")
@@ -330,15 +336,21 @@ class ActionListener : HttpServlet() {
         }
         val afterActionBeanInterceptorList = actionBean.afterActionInterceptorBeanList
         val afterActionInterceptorResult = doActionInterceptorBeanList(afterActionBeanInterceptorList, request, response)
-        if (!afterActionInterceptorResult.result) {
+        if (afterActionInterceptorResult.type == InterceptorInterface.Result.Type.ERROR) {
             logger.error("Can not through the after action interceptors")
+            return false
+        } else if (afterActionInterceptorResult.type == InterceptorInterface.Result.Type.CUSTOM) {
+            logger.error("Can not through the after action interceptors, not support for CUSTOM yet")
             return false
         }
         logger.info("Through the after action interceptors!")
         val afterGlobalInterceptorList = ConfigurationFactory.singletonConfigurationContext.afterGlobalInterceptorList
         val afterGlobalInterceptorResult = doGlobalInterceptorList(afterGlobalInterceptorList, request, response)
-        if (!afterGlobalInterceptorResult.result) {
+        if (afterGlobalInterceptorResult.type == InterceptorInterface.Result.Type.ERROR) {
             logger.error("Can not through the after global interceptors")
+            return false
+        } else if (afterGlobalInterceptorResult.type == InterceptorInterface.Result.Type.CUSTOM) {
+            logger.error("Can not through the after global interceptors, not support for CUSTOM yet")
             return false
         }
         logger.info("Through the after global interceptors!")
@@ -444,15 +456,21 @@ class ActionListener : HttpServlet() {
         }
         val afterActionBeanInterceptorList = actionBean.afterActionInterceptorBeanList
         val afterActionInterceptorResult = doActionInterceptorBeanList(afterActionBeanInterceptorList, request, response)
-        if (!afterActionInterceptorResult.result) {
+        if (afterActionInterceptorResult.type == InterceptorInterface.Result.Type.ERROR) {
             logger.error("Can not through the after action interceptors")
+            return false
+        } else if (afterActionInterceptorResult.type == InterceptorInterface.Result.Type.CUSTOM) {
+            logger.error("Can not through the after action interceptors, not support for CUSTOM yet")
             return false
         }
         logger.info("Through the after action interceptors!")
         val afterGlobalInterceptorList = ConfigurationFactory.singletonConfigurationContext.afterGlobalInterceptorList
         val afterGlobalInterceptorResult = doGlobalInterceptorList(afterGlobalInterceptorList, request, response)
-        if (!afterGlobalInterceptorResult.result) {
+        if (afterGlobalInterceptorResult.type == InterceptorInterface.Result.Type.ERROR) {
             logger.error("Can not through the after global interceptors")
+            return false
+        } else if (afterGlobalInterceptorResult.type == InterceptorInterface.Result.Type.CUSTOM) {
+            logger.error("Can not through the after global interceptors, not support for CUSTOM yet")
             return false
         }
         logger.info("Through the after global interceptors!")
@@ -542,15 +560,15 @@ class ActionListener : HttpServlet() {
         try {
             for (globalInterceptor in interceptorList) {
                 val result = globalInterceptor.intercept(request, response)
-                val sign = result.result
+                val sign = result.type
                 logger.info("Global interceptor, through:%s, interceptor:%s", sign, globalInterceptor)
-                if (!sign) {
+                if (sign != InterceptorInterface.Result.Type.NEXT) {
                     return result
                 }
             }
         } catch (e: Throwable) {
             logger.error(Constants.Base.EXCEPTION, e)
-            return InterceptorInterface.Result(false, Constants.Base.EXCEPTION)
+            return InterceptorInterface.Result(InterceptorInterface.Result.Type.ERROR, Constants.Base.EXCEPTION)
         }
         return InterceptorInterface.Result()
     }
@@ -567,15 +585,15 @@ class ActionListener : HttpServlet() {
             for (actionInterceptorBean in actionInterceptorBeanList) {
                 val actionInterceptor = actionInterceptorBean.interceptorInstance
                 val result = actionInterceptor.intercept(request, response)
-                val sign = result.result
+                val sign = result.type
                 logger.info("Action interceptor, through:%s, interceptor:%s", sign, actionInterceptor)
-                if (!sign) {
+                if (sign != InterceptorInterface.Result.Type.NEXT) {
                     return result
                 }
             }
         } catch (e: Throwable) {
             logger.error(Constants.Base.EXCEPTION, e)
-            return InterceptorInterface.Result(false, Constants.Base.EXCEPTION)
+            return InterceptorInterface.Result(InterceptorInterface.Result.Type.ERROR, Constants.Base.EXCEPTION)
         }
         return InterceptorInterface.Result()
     }
