@@ -14,6 +14,7 @@ class OracleQueryImpl : DefaultQueryImpl() {
      * @param <T>
      * @param kClass
      * @param page
+     * @param countColumn
      * @param selectColumns
      * @param table
      * @param condition
@@ -22,10 +23,10 @@ class OracleQueryImpl : DefaultQueryImpl() {
      * @throws QueryException
     </T></T> */
     @Throws(QueryException::class)
-    override fun <T : Any> selectObjectPaginationList(kClass: KClass<T>, page: Page, selectColumns: Array<String>, table: String, condition: String, parameters: Array<*>): List<T> {
+    override fun <T : Any> selectObjectPaginationList(kClass: KClass<T>, page: Page, countColumn: String, selectColumns: Array<String>, table: String, condition: String, parameters: Array<*>): List<T> {
         var tempSelectColumns = selectColumns
         var tempTable = table
-        val totalRows = this.totalRows(kClass, tempTable, condition, parameters)
+        val totalRows = this.totalRows(kClass, countColumn, tempTable, condition, parameters)
         val rowsPerPage = page.rowsPerPage
         page.initialize(totalRows, rowsPerPage)
         val startRow = page.pageFirstRow

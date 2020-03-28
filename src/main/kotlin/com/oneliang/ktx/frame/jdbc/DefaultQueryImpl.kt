@@ -332,8 +332,8 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
      * @throws QueryException
     </T></T> */
     @Throws(QueryException::class)
-    override fun <T : Any> selectObjectPaginationList(kClass: KClass<T>, page: Page, selectColumns: Array<String>, table: String, condition: String, parameters: Array<*>): List<T> {
-        val totalRows = this.totalRows(kClass, table, condition, parameters)
+    override fun <T : Any> selectObjectPaginationList(kClass: KClass<T>, page: Page, countColumn: String, selectColumns: Array<String>, table: String, condition: String, parameters: Array<*>): List<T> {
+        val totalRows = this.totalRows(kClass, countColumn, table, condition, parameters)
         val rowsPerPage = page.rowsPerPage
         page.initialize(totalRows, rowsPerPage)
         val startRow = page.pageFirstRow
@@ -489,7 +489,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
     }
 
     /**
-     * Method: get the total size,it is sql binding
+     * Method: get the total size, it is sql binding
      * @param <T>
      * @param table
      * @param condition
@@ -498,12 +498,12 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
      * @throws QueryException
     </T> */
     @Throws(QueryException::class)
-    override fun <T : Any> totalRows(table: String, condition: String, parameters: Array<*>): Int {
-        return this.totalRows<Any>(null, table, condition, parameters)
+    override fun <T : Any> totalRows(countColumn: String, table: String, condition: String, parameters: Array<*>): Int {
+        return this.totalRows<Any>(null, countColumn, table, condition, parameters)
     }
 
     /**
-     * Method: get the total size
+     * Method: get the total size, it is sql binding
      * @param <T>
      * @param kClass
      * @param table
@@ -513,12 +513,17 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
      * @throws QueryException
     </T> */
     @Throws(QueryException::class)
-    override fun <T : Any> totalRows(kClass: KClass<T>?, table: String, condition: String, parameters: Array<*>): Int {
+    override fun <T : Any> totalRows(kClass: KClass<T>?, countColumn: String, table: String, condition: String, parameters: Array<*>): Int {
+        val innerCountColumn = if (countColumn.isBlank()) {
+            Constants.String.ZERO
+        } else {
+            "DISTINCT $countColumn"
+        }
         val sql = if (kClass != null) {
             val mappingBean = ConfigurationFactory.singletonConfigurationContext.findMappingBean(kClass)
-            SqlUtil.selectSql(arrayOf("COUNT(0) AS " + Constants.Database.COLUMN_NAME_TOTAL), table, condition, mappingBean)
+            SqlUtil.selectSql(arrayOf("COUNT(${innerCountColumn}) AS " + Constants.Database.COLUMN_NAME_TOTAL), table, condition, mappingBean)
         } else {
-            SqlUtil.selectSql(arrayOf("COUNT(0) AS " + Constants.Database.COLUMN_NAME_TOTAL), table, condition, null)
+            SqlUtil.selectSql(arrayOf("COUNT(${innerCountColumn}) AS " + Constants.Database.COLUMN_NAME_TOTAL), table, condition, null)
         }
         val totalList = this.selectObjectListBySql(Total::class, sql, parameters)
         return if (totalList.isNotEmpty()) {
