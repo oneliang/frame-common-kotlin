@@ -213,70 +213,13 @@ class ActionListener : HttpServlet() {
 
         request.setAttribute(ConstantsAction.RequestKey.KEY_STRING_CURRENT_REQUEST_URI, uri)
 
-        //global interceptor doIntercept
-        val beforeGlobalInterceptorList = ConfigurationFactory.singletonConfigurationContext.beforeGlobalInterceptorList
-        val beforeGlobalInterceptorResult = doGlobalInterceptorList(beforeGlobalInterceptorList, request, response)
-
-        //through the interceptor
-        if (beforeGlobalInterceptorResult.type == InterceptorInterface.Result.Type.ERROR) {
-            logger.error("The request name:%s. Can not through the before global interceptors", uri)
-            response.sendError(Constants.Http.StatusCode.FORBIDDEN, beforeGlobalInterceptorResult.message)
-            return
-        } else if (beforeGlobalInterceptorResult.type == InterceptorInterface.Result.Type.CUSTOM) {
-            logger.info("The request name:%s. Use CUSTOM to through the before global interceptors", uri)
+        val beforeGlobalInterceptorResult = this.doBeforeGlobalInterceptor(uri, request, response)
+        if (!beforeGlobalInterceptorResult) {
             return
         }
-        logger.info("Through the before global interceptors!")
-        try {
-            val actionBeanList = ConfigurationFactory.singletonConfigurationContext.findActionBeanList(uri)
-            if (actionBeanList.isNullOrEmpty()) {
-                logger.info("The request name:$uri. It does not exist, please config the name and entity class")
-                response.sendError(Constants.Http.StatusCode.NOT_FOUND)
-                return
-            }
-            var actionBean: ActionBean? = null
-            for (eachActionBean in actionBeanList) {
-                if (eachActionBean.isContainHttpRequestMethod(httpRequestMethod)) {
-                    actionBean = eachActionBean
-                    break
-                }
-            }
-            if (actionBean == null) {
-                logger.info("The request name:$uri. Method not allowed, http request method:$httpRequestMethod")
-                response.sendError(Constants.Http.StatusCode.METHOD_NOT_ALLOWED)
-                return
-            }
-            //action interceptor doIntercept
-            val beforeActionBeanInterceptorList = actionBean.beforeActionInterceptorBeanList
-            val beforeActionInterceptorResult = doActionInterceptorBeanList(beforeActionBeanInterceptorList, request, response)
-            if (beforeActionInterceptorResult.type == InterceptorInterface.Result.Type.ERROR) {
-                logger.error("The request name:%s. Can not through the before action interceptors", uri)
-                response.sendError(Constants.Http.StatusCode.FORBIDDEN, beforeActionInterceptorResult.message)
-                return
-            } else if (beforeActionInterceptorResult.type == InterceptorInterface.Result.Type.CUSTOM) {
-                logger.info("The request name:%s. Use CUSTOM to through the before global interceptors", uri)
-                return
-            }
-            logger.info("Through the before action interceptors!")
-            val actionInstance = actionBean.actionInstance
-            if (actionInstance is ActionInterface) {
-                doAction(actionBean, request, response, httpRequestMethod)
-            } else {
-                doAnnotationAction(actionBean, request, response, httpRequestMethod)
-            }
-        } catch (e: Throwable) {
-            logger.error(Constants.Base.EXCEPTION, e)
-            logger.info("The request name:$uri. Action or page does not exist")
-            val exceptionPath = ConfigurationFactory.singletonConfigurationContext.globalExceptionForwardPath.nullToBlank()
-            if (exceptionPath.isNotBlank()) {
-                logger.info("Forward to exception path:$exceptionPath")
-                request.setAttribute(Constants.Base.EXCEPTION, e)
-                val requestDispatcher = request.getRequestDispatcher(exceptionPath)
-                requestDispatcher.forward(request, response)
-            } else {
-                logger.info("System can not find the exception path.Please config the global exception forward path.")
-                response.sendError(Constants.Http.StatusCode.INTERNAL_SERVER_ERROR)
-            }
+        val actionResult = doAction(uri, request, response, httpRequestMethod)
+        if (!actionResult) {
+            return
         }
     }
 
@@ -302,8 +245,57 @@ class ActionListener : HttpServlet() {
     }
 
     /**
-     * do action
+     * do before global interceptor
+     * @param uri
+     * @param request
+     * @param response
+     * @return boolean
+     */
+    private fun doBeforeGlobalInterceptor(uri: String, request: HttpServletRequest, response: HttpServletResponse): Boolean {
+        //global interceptor doIntercept
+        val beforeGlobalInterceptorList = ConfigurationFactory.singletonConfigurationContext.beforeGlobalInterceptorList
+        val beforeGlobalInterceptorResult = doGlobalInterceptorList(beforeGlobalInterceptorList, request, response)
+
+        //through the interceptor
+        if (beforeGlobalInterceptorResult.type == InterceptorInterface.Result.Type.ERROR) {
+            logger.error("The request name:%s. Can not through the before global interceptors", uri)
+            response.sendError(Constants.Http.StatusCode.FORBIDDEN, beforeGlobalInterceptorResult.message)
+            return false
+        } else if (beforeGlobalInterceptorResult.type == InterceptorInterface.Result.Type.CUSTOM) {
+            logger.info("The request name:%s. Use CUSTOM to through the before global interceptors", uri)
+            return false
+        }
+        logger.info("Through the before global interceptors!")
+        return true
+    }
+
+    /**
+     * do before action interceptor
+     * @param uri
      * @param actionBean
+     * @param request
+     * @param response
+     * @return boolean
+     */
+    private fun doBeforeActionInterceptor(uri: String, actionBean: ActionBean, request: HttpServletRequest, response: HttpServletResponse): Boolean {
+        //action interceptor doIntercept
+        val beforeActionBeanInterceptorList = actionBean.beforeActionInterceptorBeanList
+        val beforeActionInterceptorResult = doActionInterceptorBeanList(beforeActionBeanInterceptorList, request, response)
+        if (beforeActionInterceptorResult.type == InterceptorInterface.Result.Type.ERROR) {
+            logger.error("The request name:%s. Can not through the before action interceptors", uri)
+            response.sendError(Constants.Http.StatusCode.FORBIDDEN, beforeActionInterceptorResult.message)
+            return false
+        } else if (beforeActionInterceptorResult.type == InterceptorInterface.Result.Type.CUSTOM) {
+            logger.info("The request name:%s. Use CUSTOM to through the before action interceptors", uri)
+            return false
+        }
+        logger.info("Through the before action interceptors!")
+        return true
+    }
+
+    /**
+     * do action
+     * @param uri
      * @param request
      * @param response
      * @return boolean
@@ -312,7 +304,63 @@ class ActionListener : HttpServlet() {
      * @throws ActionExecuteException
      */
     @Throws(ActionExecuteException::class, ServletException::class, IOException::class)
-    private fun doAction(actionBean: ActionBean, request: HttpServletRequest, response: HttpServletResponse, httpRequestMethod: ActionInterface.HttpRequestMethod): Boolean {
+    private fun doAction(uri: String, request: HttpServletRequest, response: HttpServletResponse, httpRequestMethod: ActionInterface.HttpRequestMethod): Boolean {
+        val actionBeanList = ConfigurationFactory.singletonConfigurationContext.findActionBeanList(uri)
+        if (actionBeanList.isNullOrEmpty()) {
+            logger.info("The request name:$uri. It does not exist, please config the name and entity class")
+            response.sendError(Constants.Http.StatusCode.NOT_FOUND)
+            return false
+        }
+        var actionBean: ActionBean? = null
+        for (eachActionBean in actionBeanList) {
+            if (eachActionBean.isContainHttpRequestMethod(httpRequestMethod)) {
+                actionBean = eachActionBean
+                break
+            }
+        }
+        if (actionBean == null) {
+            logger.info("The request name:$uri. Method not allowed, http request method:$httpRequestMethod")
+            response.sendError(Constants.Http.StatusCode.METHOD_NOT_ALLOWED)
+            return false
+        }
+        val beforeActionInterceptorResult = this.doBeforeActionInterceptor(uri, actionBean, request, response)
+        if (!beforeActionInterceptorResult) {
+            return false
+        }
+        val actionInstance = actionBean.actionInstance
+        return try {
+            if (actionInstance is ActionInterface) {
+                doAction(uri, actionBean, request, response, httpRequestMethod)
+            } else {
+                doAnnotationAction(uri, actionBean, request, response, httpRequestMethod)
+            }
+        } catch (e: Throwable) {
+            logger.error(Constants.Base.EXCEPTION, e)
+            logger.info("The request name:$uri. Action or page does not exist")
+            val exceptionPath = ConfigurationFactory.singletonConfigurationContext.globalExceptionForwardPath.nullToBlank()
+            if (exceptionPath.isNotBlank()) {
+                logger.info("Forward to exception path:$exceptionPath")
+                request.setAttribute(Constants.Base.EXCEPTION, e)
+                val requestDispatcher = request.getRequestDispatcher(exceptionPath)
+                requestDispatcher.forward(request, response)
+            } else {
+                logger.info("System can not find the exception path.Please config the global exception forward path.")
+                response.sendError(Constants.Http.StatusCode.INTERNAL_SERVER_ERROR)
+            }
+            false
+        }
+    }
+
+    /**
+     * do action
+     * @param uri
+     * @param actionBean
+     * @param request
+     * @param response
+     * @return boolean
+     */
+    @Throws(ActionExecuteException::class, ServletException::class, IOException::class)
+    private fun doAction(uri: String, actionBean: ActionBean, request: HttpServletRequest, response: HttpServletResponse, httpRequestMethod: ActionInterface.HttpRequestMethod): Boolean {
         val actionInstance = actionBean.actionInstance
         if (actionInstance !is ActionInterface) {
             logger.error("It is not ActionInterface, actionBean:$actionBean, it is impossible")
@@ -334,26 +382,16 @@ class ActionListener : HttpServlet() {
             logger.info("Static execute,not the first time execute")
             actionForwardBean!!.name
         }
-        val afterActionBeanInterceptorList = actionBean.afterActionInterceptorBeanList
-        val afterActionInterceptorResult = doActionInterceptorBeanList(afterActionBeanInterceptorList, request, response)
-        if (afterActionInterceptorResult.type == InterceptorInterface.Result.Type.ERROR) {
-            logger.error("Can not through the after action interceptors")
-            return false
-        } else if (afterActionInterceptorResult.type == InterceptorInterface.Result.Type.CUSTOM) {
-            logger.error("Can not through the after action interceptors, not support for CUSTOM yet")
+        val afterActionInterceptorResult = this.doAfterActionInterceptor(actionBean, request, response)
+        if (!afterActionInterceptorResult) {
             return false
         }
-        logger.info("Through the after action interceptors!")
-        val afterGlobalInterceptorList = ConfigurationFactory.singletonConfigurationContext.afterGlobalInterceptorList
-        val afterGlobalInterceptorResult = doGlobalInterceptorList(afterGlobalInterceptorList, request, response)
-        if (afterGlobalInterceptorResult.type == InterceptorInterface.Result.Type.ERROR) {
-            logger.error("Can not through the after global interceptors")
-            return false
-        } else if (afterGlobalInterceptorResult.type == InterceptorInterface.Result.Type.CUSTOM) {
-            logger.error("Can not through the after global interceptors, not support for CUSTOM yet")
+
+        val afterGlobalInterceptorResult = this.doAfterGlobalInterceptor(uri, request, response)
+        if (!afterGlobalInterceptorResult) {
             return false
         }
-        logger.info("Through the after global interceptors!")
+
         if (forward.isNotBlank()) {
             var path = actionBean.findForwardPath(forward)
             if (path.isNotBlank()) {
@@ -417,6 +455,7 @@ class ActionListener : HttpServlet() {
 
     /**
      * do annotation bean
+     * @param uri
      * @param actionBean
      * @param request
      * @param response
@@ -428,7 +467,7 @@ class ActionListener : HttpServlet() {
      * @throws ServletException
      */
     @Throws(IllegalArgumentException::class, InstantiationException::class, IllegalAccessException::class, InvocationTargetException::class, ServletException::class, IOException::class)
-    private fun doAnnotationAction(actionBean: ActionBean, request: HttpServletRequest, response: HttpServletResponse, httpRequestMethod: ActionInterface.HttpRequestMethod): Boolean {
+    private fun doAnnotationAction(uri: String, actionBean: ActionBean, request: HttpServletRequest, response: HttpServletResponse, httpRequestMethod: ActionInterface.HttpRequestMethod): Boolean {
         if (actionBean !is AnnotationActionBean) {
             logger.error("It is not AnnotationActionBean, actionBean:$actionBean, it is impossible")
             return false
@@ -454,6 +493,28 @@ class ActionListener : HttpServlet() {
         } else {
             logger.info("Static execute,not the first time execute")
         }
+        val afterActionInterceptorResult = this.doAfterActionInterceptor(actionBean, request, response)
+        if (!afterActionInterceptorResult) {
+            return false
+        }
+
+        val afterGlobalInterceptorResult = this.doAfterGlobalInterceptor(uri, request, response)
+        if (!afterGlobalInterceptorResult) {
+            return false
+        }
+
+        this.doForward(normalExecute, needToStaticExecute, actionForwardBean, path, request, response, true)
+        return true
+    }
+
+    /**
+     * do after action interceptor
+     * @param actionBean
+     * @param request
+     * @param response
+     * @return boolean
+     */
+    private fun doAfterActionInterceptor(actionBean: ActionBean, request: HttpServletRequest, response: HttpServletResponse): Boolean {
         val afterActionBeanInterceptorList = actionBean.afterActionInterceptorBeanList
         val afterActionInterceptorResult = doActionInterceptorBeanList(afterActionBeanInterceptorList, request, response)
         if (afterActionInterceptorResult.type == InterceptorInterface.Result.Type.ERROR) {
@@ -464,17 +525,27 @@ class ActionListener : HttpServlet() {
             return false
         }
         logger.info("Through the after action interceptors!")
+        return true
+    }
+
+    /**
+     * do after global interceptor
+     * @param uri
+     * @param request
+     * @param response
+     * @return boolean
+     */
+    private fun doAfterGlobalInterceptor(uri: String, request: HttpServletRequest, response: HttpServletResponse): Boolean {
         val afterGlobalInterceptorList = ConfigurationFactory.singletonConfigurationContext.afterGlobalInterceptorList
         val afterGlobalInterceptorResult = doGlobalInterceptorList(afterGlobalInterceptorList, request, response)
         if (afterGlobalInterceptorResult.type == InterceptorInterface.Result.Type.ERROR) {
-            logger.error("Can not through the after global interceptors")
+            logger.error("The request name:%s. Can not through the after global interceptors", uri)
             return false
         } else if (afterGlobalInterceptorResult.type == InterceptorInterface.Result.Type.CUSTOM) {
-            logger.error("Can not through the after global interceptors, not support for CUSTOM yet")
+            logger.error("The request name:%s. Can not through the after global interceptors, not support for CUSTOM yet", uri)
             return false
         }
         logger.info("Through the after global interceptors!")
-        this.doForward(normalExecute, needToStaticExecute, actionForwardBean, path, request, response, true)
         return true
     }
 

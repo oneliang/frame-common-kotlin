@@ -86,22 +86,10 @@ open class ActionContext : AbstractContext() {
                             }//forwardList
                         }
                     }
-                    val actionInstance: ActionInterface
-                    if (!objectMap.containsKey(actionBean.id)) {
-                        actionInstance = this.classLoader.loadClass(actionBean.type).newInstance() as ActionInterface
-                        objectMap[actionBean.id] = actionInstance
-                    } else {
-                        actionInstance = objectMap[actionBean.id] as ActionInterface
-                    }
+                    val actionInstance = objectMap.getOrPut(actionBean.id) { this.classLoader.loadClass(actionBean.type).newInstance() as ActionInterface }
                     actionBean.actionInstance = actionInstance
                     actionBeanMap[actionBean.id] = actionBean
-                    val actionBeanList: MutableList<ActionBean>
-                    if (pathActionBeanMap.containsKey(actionBean.path)) {
-                        actionBeanList = pathActionBeanMap[actionBean.path]!!
-                    } else {
-                        actionBeanList = mutableListOf()
-                        pathActionBeanMap[actionBean.path] = actionBeanList
-                    }
+                    val actionBeanList = pathActionBeanMap.getOrPut(actionBean.path) { mutableListOf() }
                     actionBeanList.add(actionBean)
                 }
             }

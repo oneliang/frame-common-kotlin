@@ -84,6 +84,9 @@ fun main(args: Array<String>) {
 //    }
 //    log(1003)
 //    Thread.sleep(6000)
+//    GlobalScope.launch {
+//        runBlocking {  }
+//    }
     val begin = System.currentTimeMillis()
 //    runBlocking {
 //        repeat(1000_000) {
