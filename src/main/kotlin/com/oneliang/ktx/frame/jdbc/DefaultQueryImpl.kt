@@ -469,7 +469,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
      * @throws QueryException
      */
     @Throws(QueryException::class)
-    override fun executeBatch(sql: String, parametersList: List<Array<Any>>): IntArray {
+    override fun executeBatch(sql: String, parametersList: List<Array<*>>): IntArray {
         return useConnection {
             this.executeBatch(it, sql, parametersList)
         }
