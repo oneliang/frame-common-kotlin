@@ -61,6 +61,7 @@ object AnnotationContextUtil {
                     parameter.startsWith(PARAMETER_TYPE) -> type = parameter.replaceFirst(PARAMETER_TYPE, Constants.String.BLANK)
                     parameter.startsWith(PARAMETER_PACKAGE) -> packageName = parameter.replaceFirst(PARAMETER_PACKAGE, Constants.String.BLANK)
                     parameter.startsWith(PARAMETER_PATH) -> path = parameter.replaceFirst(PARAMETER_PATH, Constants.String.BLANK)
+                    else -> logger.error("Maybe parameter error, parameter:%s", parameter)
                 }
             }
             val filePathList = path.split(Constants.Symbol.COLON)
