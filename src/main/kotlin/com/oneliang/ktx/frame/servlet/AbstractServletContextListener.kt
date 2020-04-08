@@ -23,7 +23,7 @@ abstract class AbstractServletContextListener : ServletContextListener {
      * when the server is starting initial all thing
      */
     override fun contextInitialized(servletContextEvent: ServletContextEvent) {
-        TimeZone.setDefault(TimeZone.getTimeZone(Constants.Timezone.ASIA_SHANGHAI))
+        TimeZone.setDefault(TimeZone.getTimeZone(Constants.TimeZone.ASIA_SHANGHAI))
         Locale.setDefault(Locale.CHINA)
         val configFile = servletContextEvent.servletContext.getInitParameter(CONTEXT_PARAMETER_CONFIG_FILE).nullToBlank().replaceAllSpace().replaceAllLines()
         //real path
