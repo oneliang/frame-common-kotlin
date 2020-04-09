@@ -313,9 +313,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
     @Throws(QueryException::class)
     override fun <T : Any> selectObjectListBySql(kClass: KClass<T>, sql: String, parameters: Array<*>): List<T> {
         return useStableConnection {
-            this.executeQueryBySql(it, kClass, sql, parameters).apply {
-                logger.debug("sql select result:%s, sql:%s", this.size, sql)
-            }
+            this.executeQueryBySql(it, kClass, sql, parameters)
         }
     }
 
