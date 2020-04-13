@@ -418,10 +418,12 @@ open class IocContext : AbstractContext() {
 
     /**
      * put to ioc bean map
-     * @param key
      * @param iocBean
      */
-    fun putToIocBeanMap(key: String, iocBean: IocBean) {
-        iocBeanMap[key] = iocBean
+    fun putToIocBeanMap(iocBean: IocBean) {
+        if (iocBean.id.isBlank()) {
+            error("ioc bean id can not be blank")
+        }
+        iocBeanMap[iocBean.id] = iocBean
     }
 }

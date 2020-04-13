@@ -118,17 +118,18 @@ class ConfigurationContext : AbstractContext() {
      * @return T
     </T> */
     @Suppress("UNCHECKED_CAST")
-    fun <T : Context> findContext(kClass: KClass<T>): T? {
-        var instance: T? = null
-        run loop@{
-            configurationBeanMap.forEach { (_, value) ->
-                val context = value.contextInstance
-                if (ObjectUtil.isEntity(context as Any, kClass.java)) {
-                    instance = context as T
-                    return@loop
-                }
+    fun <T : Context> findContext(kClass: KClass<T>, whenFound: (T) -> Unit = {}): T? {
+        var contextInstance: T? = null
+        for ((_, value) in configurationBeanMap) {
+            val context = value.contextInstance
+            if (ObjectUtil.isEntity(context as Any, kClass.java)) {
+                contextInstance = context as T
+                break
             }
         }
-        return instance
+        if (contextInstance != null) {
+            whenFound(contextInstance)
+        }
+        return contextInstance
     }
 }

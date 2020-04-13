@@ -18,50 +18,48 @@ fun ConfigurationContext.inject() {
  */
 @Throws(Exception::class)
 private fun ConfigurationContext.iocInject() {
-    val iocContext = this.findContext(IocContext::class)
-    iocContext?.inject()
+    this.findContext(IocContext::class) {
+        it.inject()
+    }
 }
 
 /**
- * ioc auto inject object by id
- *
+ * put to ioc bean map and auto inject object by id
  * @param id
  * @param instance
  * @throws Exception
  */
 @Throws(Exception::class)
-fun ConfigurationContext.iocAutoInjectObjectById(id: String, instance: Any) {
-    val iocContext = this.findContext(IocContext::class)
-    if (iocContext != null) {
-        val iocBean = IocBean()
-        iocBean.id = id
-        iocBean.injectType = IocBean.INJECT_TYPE_AUTO_BY_ID
-        iocBean.proxy = false
-        iocBean.proxyInstance = instance
-        iocBean.beanInstance = instance
-        iocBean.type = instance.javaClass.name
-        iocContext.putToIocBeanMap(id, iocBean)
-        iocContext.autoInjectObjectById(id, instance)
+fun ConfigurationContext.putToIocBeanMapAndAutoInjectObjectById(id: String, instance: Any) {
+    findContext(IocContext::class) {
+        val iocBean = IocBean.build(id, instance)
+        it.putToIocBeanMap(iocBean)
+        it.autoInjectObjectById(id, instance)
+    }
+}
+
+/**
+ * auto inject object by id
+ * @param id
+ * @param instance
+ * @throws Exception
+ */
+@Throws(Exception::class)
+fun ConfigurationContext.autoInjectObjectById(id: String, instance: Any) {
+    findContext(IocContext::class) {
+        it.autoInjectObjectById(id, instance)
     }
 }
 
 /**
  * put object to ioc bean map
- *
  * @param id
  * @param instance
  */
 fun ConfigurationContext.putObjectToIocBeanMap(id: String, instance: Any) {
-    val iocContext = this.findContext(IocContext::class)
-    if (iocContext != null) {
-        val iocBean = IocBean()
-        iocBean.id = id
-        iocBean.injectType = IocBean.INJECT_TYPE_AUTO_BY_ID
-        iocBean.proxy = false
-        iocBean.proxyInstance = instance
-        iocBean.beanInstance = instance
-        iocBean.type = instance.javaClass.name
-        iocContext.putToIocBeanMap(id, iocBean)
+    this.findContext(IocContext::class) {
+        val iocBean = IocBean.build(id, instance)
+        it.putToIocBeanMap(iocBean)
     }
 }
 
@@ -70,6 +68,7 @@ fun ConfigurationContext.putObjectToIocBeanMap(id: String, instance: Any) {
  */
 @Throws(Exception::class)
 fun ConfigurationContext.afterInject() {
-    val iocContext = this.findContext(IocContext::class)
-    iocContext?.afterInject()
+    this.findContext(IocContext::class) {
+        it.afterInject()
+    }
 }
