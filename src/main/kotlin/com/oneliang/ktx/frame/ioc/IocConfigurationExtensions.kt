@@ -1,5 +1,6 @@
 package com.oneliang.ktx.frame.ioc
 
+import com.oneliang.ktx.frame.ConfigurationFactory
 import com.oneliang.ktx.frame.configuration.ConfigurationContext
 import com.oneliang.ktx.frame.servlet.interceptorInject
 
@@ -52,6 +53,19 @@ fun ConfigurationContext.autoInjectObjectById(id: String, instance: Any) {
 }
 
 /**
+ * auto inject object by type
+ * @param id
+ * @param instance
+ * @throws Exception
+ */
+@Throws(Exception::class)
+fun ConfigurationContext.autoInjectObjectByType(id: String, instance: Any) {
+    findContext(IocContext::class) {
+        it.autoInjectObjectByType(id, instance)
+    }
+}
+
+/**
  * put object to ioc bean map
  * @param id
  * @param instance
@@ -71,4 +85,21 @@ fun ConfigurationContext.afterInject() {
     this.findContext(IocContext::class) {
         it.afterInject()
     }
+}
+
+
+/**
+ * auto inject by id
+ */
+@Throws(Exception::class)
+fun <T : Any> T.autoInjectById() {
+    ConfigurationFactory.singletonConfigurationContext.autoInjectObjectById(this::class.java.name, this)
+}
+
+/**
+ * auto inject by type
+ */
+@Throws(Exception::class)
+fun <T : Any> T.autoInjectByType() {
+    ConfigurationFactory.singletonConfigurationContext.autoInjectObjectByType(this::class.java.name, this)
 }

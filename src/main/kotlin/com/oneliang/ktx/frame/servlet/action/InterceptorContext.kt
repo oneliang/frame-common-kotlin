@@ -36,7 +36,7 @@ open class InterceptorContext : AbstractContext() {
                     val interceptorInstance: InterceptorInterface = this.classLoader.loadClass(globalInterceptorBean.type).newInstance() as InterceptorInterface
                     globalInterceptorBean.interceptorInstance = interceptorInstance
                     globalInterceptorBeanMap[globalInterceptorBean.id] = globalInterceptorBean
-                    objectMap.put(globalInterceptorBean.id, interceptorInstance)
+                    objectMap[globalInterceptorBean.id] = interceptorInstance
                     val mode = globalInterceptorBean.mode
                     if (mode == GlobalInterceptorBean.INTERCEPTOR_MODE_BEFORE) {
                         beforeGlobalInterceptorList.add(interceptorInstance)
