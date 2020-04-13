@@ -32,7 +32,7 @@ private fun ConfigurationContext.iocInject() {
  */
 @Throws(Exception::class)
 fun ConfigurationContext.putToIocBeanMapAndAutoInjectObjectById(id: String, instance: Any) {
-    findContext(IocContext::class) {
+    this.findContext(IocContext::class) {
         val iocBean = IocBean.build(id, instance)
         it.putToIocBeanMap(iocBean)
         it.autoInjectObjectById(id, instance)
@@ -47,7 +47,7 @@ fun ConfigurationContext.putToIocBeanMapAndAutoInjectObjectById(id: String, inst
  */
 @Throws(Exception::class)
 fun ConfigurationContext.autoInjectObjectById(id: String, instance: Any) {
-    findContext(IocContext::class) {
+    this.findContext(IocContext::class) {
         it.autoInjectObjectById(id, instance)
     }
 }
@@ -60,7 +60,7 @@ fun ConfigurationContext.autoInjectObjectById(id: String, instance: Any) {
  */
 @Throws(Exception::class)
 fun ConfigurationContext.autoInjectObjectByType(id: String, instance: Any) {
-    findContext(IocContext::class) {
+    this.findContext(IocContext::class) {
         it.autoInjectObjectByType(id, instance)
     }
 }
