@@ -50,7 +50,7 @@ object DatabaseMappingUtil {
                 if (mappingBean != null) {
                     val table = mappingBean.table
                     if (table.isNotBlank()) {
-                        parsedSql = parsedSql.replaceFirst(REGEX.toRegex(), table)
+                        parsedSql = parsedSql.replaceFirst(REGEX.toRegex(), Constants.Symbol.ACCENT + table + Constants.Symbol.ACCENT)
                     } else {
                         throw MappingNotFoundException("can not find the mapping table of the class:$string")
                     }
