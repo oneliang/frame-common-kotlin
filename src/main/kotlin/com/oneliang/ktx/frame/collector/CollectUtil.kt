@@ -46,7 +46,7 @@ object CollectUtil {
             }
 
             @Throws(Exception::class)
-            override fun httpNotOkCallback(responseCode: Int, headerFieldMap: Map<String, List<String>>) {
+            override fun httpNotOkCallback(responseCode: Int, headerFieldMap: Map<String, List<String>>, errorInputStream: InputStream?) {
                 logger.error(String.format("response not ok, http:%s, response code:%s", httpUrl, responseCode))
             }
         })

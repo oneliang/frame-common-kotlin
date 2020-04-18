@@ -259,7 +259,8 @@ class ActionListener : HttpServlet() {
         //through the interceptor
         if (beforeGlobalInterceptorResult.type == InterceptorInterface.Result.Type.ERROR) {
             logger.error("The request name:%s. Can not through the before global interceptors", uri)
-            response.sendError(Constants.Http.StatusCode.FORBIDDEN, beforeGlobalInterceptorResult.message)
+            response.status = Constants.Http.StatusCode.FORBIDDEN
+            response.outputStream.write(beforeGlobalInterceptorResult.message)
             return false
         } else if (beforeGlobalInterceptorResult.type == InterceptorInterface.Result.Type.CUSTOM) {
             logger.info("The request name:%s. Use CUSTOM to through the before global interceptors", uri)
@@ -283,7 +284,8 @@ class ActionListener : HttpServlet() {
         val beforeActionInterceptorResult = doActionInterceptorBeanList(beforeActionBeanInterceptorList, request, response)
         if (beforeActionInterceptorResult.type == InterceptorInterface.Result.Type.ERROR) {
             logger.error("The request name:%s. Can not through the before action interceptors", uri)
-            response.sendError(Constants.Http.StatusCode.FORBIDDEN, beforeActionInterceptorResult.message)
+            response.status = Constants.Http.StatusCode.FORBIDDEN
+            response.outputStream.write(beforeActionInterceptorResult.message)
             return false
         } else if (beforeActionInterceptorResult.type == InterceptorInterface.Result.Type.CUSTOM) {
             logger.info("The request name:%s. Use CUSTOM to through the before action interceptors", uri)
@@ -308,7 +310,7 @@ class ActionListener : HttpServlet() {
         val actionBeanList = ConfigurationFactory.singletonConfigurationContext.findActionBeanList(uri)
         if (actionBeanList.isNullOrEmpty()) {
             logger.info("The request name:$uri. It does not exist, please config the name and entity class")
-            response.sendError(Constants.Http.StatusCode.NOT_FOUND)
+            response.status = Constants.Http.StatusCode.NOT_FOUND
             return false
         }
         var actionBean: ActionBean? = null
@@ -320,7 +322,7 @@ class ActionListener : HttpServlet() {
         }
         if (actionBean == null) {
             logger.info("The request name:$uri. Method not allowed, http request method:$httpRequestMethod")
-            response.sendError(Constants.Http.StatusCode.METHOD_NOT_ALLOWED)
+            response.status = Constants.Http.StatusCode.METHOD_NOT_ALLOWED
             return false
         }
         val beforeActionInterceptorResult = this.doBeforeActionInterceptor(uri, actionBean, request, response)
@@ -345,7 +347,7 @@ class ActionListener : HttpServlet() {
                 requestDispatcher.forward(request, response)
             } else {
                 logger.info("System can not find the exception path.Please config the global exception forward path.")
-                response.sendError(Constants.Http.StatusCode.INTERNAL_SERVER_ERROR)
+                response.status = Constants.Http.StatusCode.INTERNAL_SERVER_ERROR
             }
             false
         }
@@ -639,7 +641,7 @@ class ActionListener : HttpServlet() {
             }
         } catch (e: Throwable) {
             logger.error(Constants.Base.EXCEPTION, e)
-            return InterceptorInterface.Result(InterceptorInterface.Result.Type.ERROR, Constants.Base.EXCEPTION)
+            return InterceptorInterface.Result(InterceptorInterface.Result.Type.ERROR)
         }
         return InterceptorInterface.Result()
     }
@@ -664,7 +666,7 @@ class ActionListener : HttpServlet() {
             }
         } catch (e: Throwable) {
             logger.error(Constants.Base.EXCEPTION, e)
-            return InterceptorInterface.Result(InterceptorInterface.Result.Type.ERROR, Constants.Base.EXCEPTION)
+            return InterceptorInterface.Result(InterceptorInterface.Result.Type.ERROR)
         }
         return InterceptorInterface.Result()
     }

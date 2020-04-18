@@ -15,7 +15,7 @@ interface InterceptorInterface {
     @Throws(InterceptorInterface.InterceptException::class)
     fun intercept(request: ServletRequest, response: ServletResponse): Result
 
-    class Result(val type: Type = Type.NEXT, val message: String = Constants.String.BLANK) {
+    class Result(val type: Type = Type.NEXT, val message: ByteArray = ByteArray(0)) {
         enum class Type {
             NEXT, ERROR, CUSTOM
         }
