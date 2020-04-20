@@ -15,16 +15,21 @@ import kotlin.reflect.KClass
  */
 object SqlUtil {
 
+    @Throws(Throwable::class)
     internal fun fixTable(table: String, mappingBean: MappingBean?): String {
-        return if (table.isBlank() && mappingBean != null) {
-            val schema = mappingBean.schema
-            if (schema.isBlank()) {
-                Constants.Symbol.ACCENT + mappingBean.table + Constants.Symbol.ACCENT
-            } else {
-                Constants.Symbol.ACCENT + schema + Constants.Symbol.ACCENT + Constants.Symbol.DOT + Constants.Symbol.ACCENT + mappingBean.table + Constants.Symbol.ACCENT
-            }
+        return if (table.isBlank() && mappingBean == null) {
+            throw MappingNotFoundException("Can not find the object mapping or table, object mapping or table can not be null or empty string!")
         } else {
-            Constants.Symbol.ACCENT + table + Constants.Symbol.ACCENT
+            if (table.isBlank() && mappingBean != null) {
+                val schema = mappingBean.schema
+                if (schema.isBlank()) {
+                    Constants.Symbol.ACCENT + mappingBean.table + Constants.Symbol.ACCENT
+                } else {
+                    Constants.Symbol.ACCENT + schema + Constants.Symbol.ACCENT + Constants.Symbol.DOT + Constants.Symbol.ACCENT + mappingBean.table + Constants.Symbol.ACCENT
+                }
+            } else {//table is not blank, use input table first, don't add accent
+                table
+            }
         }
     }
 
@@ -112,14 +117,8 @@ object SqlUtil {
      * @return String
     </T> */
     fun selectSql(columns: Array<String>, table: String, condition: String = Constants.String.BLANK, mappingBean: MappingBean?): String {
-        val sql: String
-        if (table.isNotBlank() || mappingBean != null) {
-            val tempTable = fixTable(table, mappingBean)
-            sql = selectSql(columns, tempTable, condition)
-        } else {
-            throw MappingNotFoundException("Can not find the object mapping or table,object mapping or table can not be null or empty string!")
-        }
-        return sql
+        val tempTable = fixTable(table, mappingBean)
+        return selectSql(columns, tempTable, condition)
     }
 
     fun insertSql(table: String, columnNameArray: Array<String>, valueArray: Array<String>): String {
@@ -158,18 +157,11 @@ object SqlUtil {
      * @return String
      */
     fun deleteSql(table: String, condition: String = Constants.String.BLANK, mappingBean: MappingBean?): String {
-        val sql: String
-        if (table.isNotBlank() || mappingBean != null) {
-            val tempTable = fixTable(table, mappingBean)
-            sql = deleteSql(tempTable, condition)
-        } else {
-            throw MappingNotFoundException("Can not find the object or table,object or table can not be null or empty string!")
-        }
-        return sql
+        val tempTable = fixTable(table, mappingBean)
+        return deleteSql(tempTable, condition)
     }
 
     /**
-     *
      * Method: class to select sql with id
      * @param <T>
      * @param kClass
@@ -255,8 +247,8 @@ object SqlUtil {
             }
             if (isId) {
                 when (deleteType) {
-                    SqlUtil.DeleteType.ONE_ROW -> condition.append(" AND " + Constants.Symbol.ACCENT + columnName + Constants.Symbol.ACCENT + "='" + ids[0] + "'")
-                    SqlUtil.DeleteType.MULTIPLE_ROW -> {
+                    DeleteType.ONE_ROW -> condition.append(" AND " + Constants.Symbol.ACCENT + columnName + Constants.Symbol.ACCENT + "='" + ids[0] + "'")
+                    DeleteType.MULTIPLE_ROW -> {
                         var id = ids.toJson()
                         id = id.replace(("^\\" + Constants.Symbol.MIDDLE_BRACKET_LEFT).toRegex(), "").replace(("\\" + Constants.Symbol.MIDDLE_BRACKET_RIGHT + "$").toRegex(), "")
                         condition.append(" AND " + Constants.Symbol.ACCENT + columnName + Constants.Symbol.ACCENT + " IN ($id)")
@@ -403,7 +395,7 @@ object SqlUtil {
             stringBuilder.append(" SET " + columnsAndValues.substring(0, columnsAndValues.length - 1))
             stringBuilder.append(" WHERE 1=1 $condition $otherCondition")
             sql = stringBuilder.toString()
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             throw SqlUtilException(e)
         }
         return sql
@@ -450,7 +442,7 @@ object SqlUtil {
             }
             val tempTable = fixTable(table, mappingBean)
             sql = deleteSql(tempTable, "$condition $otherCondition")
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             throw SqlUtilException(e)
         }
         return sql

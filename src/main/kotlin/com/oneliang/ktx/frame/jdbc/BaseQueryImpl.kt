@@ -86,7 +86,6 @@ open class BaseQueryImpl : BaseQuery {
                 } catch (e: Throwable) {
                     throw QueryException(e)
                 }
-
             }
         }
         return list
