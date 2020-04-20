@@ -12,10 +12,11 @@ class Total {
 
 internal fun Total.Companion.toMappingBean(): MappingBean {
     return MappingBean().apply {
+        this.schema = Constants.String.BLANK
         this.table = Constants.Database.COLUMN_NAME_TOTAL
         this.type = Total::class.java.name
         this.addMappingColumnBean(MappingColumnBean().apply {
-            this.field = Total.FIELD_TOTAL
+            this.field = FIELD_TOTAL
             this.column = Constants.Database.COLUMN_NAME_TOTAL
         })
     }

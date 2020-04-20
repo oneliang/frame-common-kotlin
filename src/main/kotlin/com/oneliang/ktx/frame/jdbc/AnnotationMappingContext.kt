@@ -24,6 +24,7 @@ class AnnotationMappingContext : MappingContext() {
                 val tableAnnotation = kClass.java.getAnnotation(Table::class.java)
                 val annotationMappingBean = AnnotationMappingBean()
                 annotationMappingBean.isDropIfExist = tableAnnotation.dropIfExist
+                annotationMappingBean.schema = tableAnnotation.schema
                 annotationMappingBean.table = tableAnnotation.table
                 annotationMappingBean.type = className
                 annotationMappingBean.condition = tableAnnotation.condition

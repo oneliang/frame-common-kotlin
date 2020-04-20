@@ -8,6 +8,7 @@ open class MappingBean {
         const val TAG_BEAN = "bean"
     }
 
+    var schema: String = Constants.String.BLANK
     var table: String = Constants.String.BLANK
     var type: String = Constants.String.BLANK
     val mappingColumnBeanList = mutableListOf<MappingColumnBean>()

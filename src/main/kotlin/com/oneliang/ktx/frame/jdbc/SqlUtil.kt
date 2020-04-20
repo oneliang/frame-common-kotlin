@@ -15,6 +15,19 @@ import kotlin.reflect.KClass
  */
 object SqlUtil {
 
+    internal fun fixTable(table: String, mappingBean: MappingBean?): String {
+        return if (table.isBlank() && mappingBean != null) {
+            val schema = mappingBean.schema
+            if (schema.isBlank()) {
+                Constants.Symbol.ACCENT + mappingBean.table + Constants.Symbol.ACCENT
+            } else {
+                Constants.Symbol.ACCENT + schema + Constants.Symbol.ACCENT + Constants.Symbol.DOT + Constants.Symbol.ACCENT + mappingBean.table + Constants.Symbol.ACCENT
+            }
+        } else {
+            Constants.Symbol.ACCENT + table + Constants.Symbol.ACCENT
+        }
+    }
+
     /**
      * Method: for database use,ResultSet to object list
      * @param <T>
@@ -101,11 +114,7 @@ object SqlUtil {
     fun selectSql(columns: Array<String>, table: String, condition: String = Constants.String.BLANK, mappingBean: MappingBean?): String {
         val sql: String
         if (table.isNotBlank() || mappingBean != null) {
-            val tempTable = if (table.isBlank() && mappingBean != null) {
-                mappingBean.table
-            } else {
-                table
-            }
+            val tempTable = fixTable(table, mappingBean)
             sql = selectSql(columns, tempTable, condition)
         } else {
             throw MappingNotFoundException("Can not find the object mapping or table,object mapping or table can not be null or empty string!")
@@ -151,11 +160,7 @@ object SqlUtil {
     fun deleteSql(table: String, condition: String = Constants.String.BLANK, mappingBean: MappingBean?): String {
         val sql: String
         if (table.isNotBlank() || mappingBean != null) {
-            val tempTable = if (table.isBlank() && mappingBean != null) {
-                mappingBean.table
-            } else {
-                table
-            }
+            val tempTable = fixTable(table, mappingBean)
             sql = deleteSql(tempTable, condition)
         } else {
             throw MappingNotFoundException("Can not find the object or table,object or table can not be null or empty string!")
@@ -189,7 +194,7 @@ object SqlUtil {
             }
             condition.append(" AND " + Constants.Symbol.ACCENT + columnName + Constants.Symbol.ACCENT + " = ?")
         }
-        val table = mappingBean.table
+        val table = fixTable(Constants.String.BLANK, mappingBean)
         return selectSql(emptyArray(), table, condition.toString())
     }
 
@@ -259,7 +264,7 @@ object SqlUtil {
                 }
             }
         }
-        val table = mappingBean.table
+        val table = fixTable(Constants.String.BLANK, mappingBean)
         return deleteSql(table, condition.toString())
     }
 
@@ -293,11 +298,7 @@ object SqlUtil {
                 val value = method.invoke(instance)
                 condition.append(" AND " + Constants.Symbol.ACCENT + columnName + Constants.Symbol.ACCENT + "='$value'")
             }
-            val tempTable = if (table.isBlank()) {
-                mappingBean.table
-            } else {
-                table
-            }
+            val tempTable = fixTable(table, mappingBean)
             sql = selectSql(emptyArray(), tempTable, condition.toString())
         } catch (e: Exception) {
             throw SqlUtilException(e)
@@ -344,11 +345,7 @@ object SqlUtil {
                     }
                 }
             }
-            val tempTable = if (table.isBlank()) {
-                mappingBean.table
-            } else {
-                table
-            }
+            val tempTable = fixTable(table, mappingBean)
             sql = insertSql(tempTable, columnNames.substring(0, columnNames.length - 1), values.substring(0, values.length - 1))
         } catch (e: Exception) {
             throw SqlUtilException(e)
@@ -399,11 +396,7 @@ object SqlUtil {
                     columnsAndValues.append(result)
                 }
             }
-            val tempTable = if (table.isBlank()) {
-                mappingBean.table
-            } else {
-                table
-            }
+            val tempTable = fixTable(table, mappingBean)
             val stringBuilder = StringBuilder()
             stringBuilder.append("UPDATE ")
             stringBuilder.append(tempTable)
@@ -455,11 +448,7 @@ object SqlUtil {
                     }
                 }
             }
-            val tempTable = if (table.isBlank()) {
-                mappingBean.table
-            } else {
-                table
-            }
+            val tempTable = fixTable(table, mappingBean)
             sql = deleteSql(tempTable, "$condition $otherCondition")
         } catch (e: Exception) {
             throw SqlUtilException(e)
@@ -474,7 +463,7 @@ object SqlUtil {
      */
     fun createTableSqls(annotationMappingBean: AnnotationMappingBean): Array<String> {
         val sqlList = mutableListOf<String>()
-        val table = annotationMappingBean.table
+        val table = fixTable(Constants.String.BLANK, annotationMappingBean)
         if (annotationMappingBean.isDropIfExist) {
             sqlList.add("DROP TABLE IF EXISTS " + table + Constants.Symbol.SEMICOLON)
         }

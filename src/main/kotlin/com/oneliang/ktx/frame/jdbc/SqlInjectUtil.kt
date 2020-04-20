@@ -42,16 +42,12 @@ object SqlInjectUtil {
                 values.append(Constants.Symbol.QUESTION_MARK + Constants.Symbol.COMMA)
                 parameterList.add(value)
             }
-            val tempTable = if (table.isBlank()) {
-                mappingBean.table
-            } else {
-                table
-            }
+            val tempTable = SqlUtil.fixTable(table, mappingBean)
             sql.append("INSERT INTO ")
             sql.append(tempTable)
             sql.append("(" + columnNameStringBuilder.substring(0, columnNameStringBuilder.length - 1) + ")")
             sql.append(" VALUES (" + values.substring(0, values.length - 1) + ")")
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             throw SqlInjectUtilException(e)
         }
         return sql.toString() to parameterList
@@ -85,11 +81,7 @@ object SqlInjectUtil {
             valueStringBuilder.append(Constants.Symbol.QUESTION_MARK + Constants.Symbol.COMMA)
             fieldNameList.add(fieldName)
         }
-        val tempTable = if (table.isBlank()) {
-            mappingBean.table
-        } else {
-            table
-        }
+        val tempTable = SqlUtil.fixTable(table, mappingBean)
         sql.append("INSERT INTO ")
         sql.append(tempTable)
         sql.append("(" + columnNameStringBuilder.substring(0, columnNameStringBuilder.length - 1) + ")")
@@ -146,11 +138,7 @@ object SqlInjectUtil {
                     }
                 }
             }
-            val tempTable = if (table.isBlank()) {
-                mappingBean.table
-            } else {
-                table
-            }
+            val tempTable = SqlUtil.fixTable(table, mappingBean)
             sql.append("UPDATE ")
             sql.append(tempTable)
             sql.append(" SET " + columnsAndValues.substring(0, columnsAndValues.length - 1))
@@ -203,11 +191,7 @@ object SqlInjectUtil {
                 columnsAndValues.append(result)
             }
         }
-        val tempTable = if (table.isBlank()) {
-            mappingBean.table
-        } else {
-            table
-        }
+        val tempTable = SqlUtil.fixTable(table, mappingBean)
         sql.append("UPDATE ")
         sql.append(tempTable)
         sql.append(" SET " + columnsAndValues.substring(0, columnsAndValues.length - 1))
@@ -257,11 +241,7 @@ object SqlInjectUtil {
                     }
                 }
             }
-            val tempTable = if (table.isBlank()) {
-                mappingBean.table
-            } else {
-                table
-            }
+            val tempTable = SqlUtil.fixTable(table, mappingBean)
             sql = SqlUtil.deleteSql(tempTable, "$condition $otherCondition")
         } catch (e: Exception) {
             throw SqlInjectUtilException(e)
@@ -300,11 +280,7 @@ object SqlInjectUtil {
                 fieldNameList.add(fieldName)
             }
         }
-        val tempTable = if (table.isBlank()) {
-            mappingBean.table
-        } else {
-            table
-        }
+        val tempTable = SqlUtil.fixTable(table, mappingBean)
         val sql = SqlUtil.deleteSql(tempTable, "$condition $otherCondition")
         return sql to fieldNameList
     }

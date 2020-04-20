@@ -48,9 +48,14 @@ object DatabaseMappingUtil {
             } else {
                 val mappingBean = ConfigurationFactory.singletonConfigurationContext.findMappingBean(string)
                 if (mappingBean != null) {
+                    val schema = mappingBean.schema
                     val table = mappingBean.table
                     if (table.isNotBlank()) {
-                        parsedSql = parsedSql.replaceFirst(REGEX.toRegex(), Constants.Symbol.ACCENT + table + Constants.Symbol.ACCENT)
+                        parsedSql = if (schema.isNotBlank()) {
+                            parsedSql.replaceFirst(REGEX.toRegex(), Constants.Symbol.ACCENT + schema + Constants.Symbol.ACCENT + Constants.Symbol.DOT + Constants.Symbol.ACCENT + table + Constants.Symbol.ACCENT)
+                        } else {
+                            parsedSql.replaceFirst(REGEX.toRegex(), Constants.Symbol.ACCENT + table + Constants.Symbol.ACCENT)
+                        }
                     } else {
                         throw MappingNotFoundException("can not find the mapping table of the class:$string")
                     }
