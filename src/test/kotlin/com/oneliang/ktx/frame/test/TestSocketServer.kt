@@ -1,19 +1,22 @@
 package com.oneliang.ktx.frame.test
 
-import com.oneliang.ktx.frame.socket.BaseTcpProcessor
 import com.oneliang.ktx.frame.socket.SocketServer
-import com.oneliang.ktx.util.file.FileUtil
-import java.io.ByteArrayOutputStream
+import com.oneliang.ktx.frame.socket.TcpPacket
+import com.oneliang.ktx.frame.socket.TcpPacketProcessor
+import com.oneliang.ktx.frame.socket.TcpStreamProcessor
+import java.io.InputStream
+import java.io.OutputStream
 
 fun main() {
-    val baseTcpProcessor = BaseTcpProcessor()
     SocketServer(9999, true).also {
-        it.processor = { inputStream, outputStream ->
-            val tcpPacket = baseTcpProcessor.receiveTcpPacket(inputStream)
-            println(tcpPacket.body.size.toString() + "," + String(tcpPacket.body))
-            println("read finished")
-            outputStream.write("321".toByteArray())
-            outputStream.flush()
+        it.streamProcessor = object : TcpStreamProcessor() {
+            override fun process(inputStream: InputStream, outputStream: OutputStream) {
+                val tcpPacket = this.tcpPacketProcessor.receiveTcpPacket(inputStream)
+                println(tcpPacket.body.size.toString() + "," + String(tcpPacket.body))
+                println("receive finished")
+                this.tcpPacketProcessor.sendTcpPacket(outputStream, TcpPacket(1, "321".toByteArray()))
+                println("send finished")
+            }
         }
         it.start()
     }

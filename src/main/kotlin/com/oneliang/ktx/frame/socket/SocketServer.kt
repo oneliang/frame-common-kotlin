@@ -4,8 +4,6 @@ import com.oneliang.ktx.util.common.perform
 import com.oneliang.ktx.util.concurrent.LoopThread
 import com.oneliang.ktx.util.concurrent.ThreadPool
 import com.oneliang.ktx.util.logging.LoggerManager
-import java.io.InputStream
-import java.io.OutputStream
 import java.net.ServerSocket
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -17,7 +15,7 @@ class SocketServer(private val port: Int, private val longLink: Boolean = true) 
     private val threadCount = Runtime.getRuntime().availableProcessors()
     private val threadPool = ThreadPool()
     private var serverSocket: ServerSocket? = null
-    var processor: (inputStream: InputStream, outputStream: OutputStream) -> Unit = { inputStream, outputStream -> }
+    lateinit var streamProcessor: StreamProcessor
     private var longLinkCount = AtomicInteger(0)
 
     override fun run() {
@@ -34,7 +32,7 @@ class SocketServer(private val port: Int, private val longLink: Boolean = true) 
             val outputStream = socket.getOutputStream()
             perform({
                 do {
-                    this.processor(inputStream, outputStream)
+                    this.streamProcessor.process(inputStream, outputStream)
                 } while (this.longLink)
             }, failure = { it ->
                 logger.error("socket processor exception", it)

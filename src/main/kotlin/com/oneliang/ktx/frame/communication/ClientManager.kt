@@ -7,7 +7,7 @@ import java.nio.channels.Selector
 
 class ClientManager(private val host: String, private val port: Int) : LoopThread() {
     companion object {
-        private val logger = LoggerManager.getLogger(Server::class)
+        private val logger = LoggerManager.getLogger(ClientManager::class)
     }
 
     var readProcessor: (byteArray: ByteArray) -> Unit = {}

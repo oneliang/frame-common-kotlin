@@ -9,7 +9,7 @@ import java.nio.channels.SelectionKey
 import java.nio.channels.Selector
 import java.nio.channels.SocketChannel
 
-internal class Client(private val host: String, private val port: Int, private val selector: Selector) {
+class Client(private val host: String, private val port: Int, private val selector: Selector) {
     companion object {
         private val logger = LoggerManager.getLogger(Client::class)
     }
