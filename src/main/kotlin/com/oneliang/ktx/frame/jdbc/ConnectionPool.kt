@@ -43,10 +43,10 @@ class ConnectionPool : ResourcePool<Connection>() {
         this.connectionPoolProcessor?.afterInitialize()
     }
 
-    override fun releaseResource(resource: Connection?) {
+    override fun releaseResource(resource: Connection?, destroy: Boolean) {
         val customTransaction = TransactionManager.isCustomTransaction()
         if (!customTransaction) {
-            super.releaseResource(resource)
+            super.releaseResource(resource, destroy)
             if (TransactionManager.customTransactionConnection.get() != null) {
                 TransactionManager.customTransactionConnection.set(null)
             }
