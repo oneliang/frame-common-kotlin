@@ -32,6 +32,7 @@ class SocketServer(private val port: Int, private val longLink: Boolean = true) 
             val outputStream = socket.getOutputStream()
             perform({
                 do {
+                    logger.info("socket:%s ,processing...", socket)
                     this.streamProcessor.process(inputStream, outputStream)
                 } while (this.longLink)
             }, failure = { it ->

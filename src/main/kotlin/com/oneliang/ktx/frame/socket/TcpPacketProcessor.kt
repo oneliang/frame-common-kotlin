@@ -42,6 +42,6 @@ class TcpPacketProcessor(private val typeByteArrayLength: Int = 4, private val b
     fun receiveTcpPacket(inputStream: InputStream): TcpPacket {
         val type = receiveType(inputStream)
         val bodyByteArray = this.receiveBody(inputStream)
-        return TcpPacket(type.toInt(), bodyByteArray)
+        return TcpPacket(type, bodyByteArray)
     }
 }

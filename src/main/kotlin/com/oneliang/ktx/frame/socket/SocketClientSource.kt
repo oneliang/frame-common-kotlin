@@ -1,7 +1,7 @@
 package com.oneliang.ktx.frame.socket
 
 import com.oneliang.ktx.Constants
-import com.oneliang.ktx.frame.communication.Client
+import com.oneliang.ktx.frame.socket.nio.Client
 import com.oneliang.ktx.util.resource.ResourceSource
 import java.net.Socket
 

@@ -4,6 +4,7 @@ import com.oneliang.ktx.frame.socket.TcpPacketProcessor
 import com.oneliang.ktx.frame.socket.SocketClientPool
 import com.oneliang.ktx.frame.socket.SocketClientSource
 import com.oneliang.ktx.frame.socket.TcpPacket
+import com.oneliang.ktx.util.common.toByteArray
 import com.oneliang.ktx.util.common.toHexString
 import java.net.Socket
 
@@ -16,20 +17,39 @@ fun main() {
         it.tcpPacketProcessor = TcpPacketProcessor()
     }
     socketClientPool.initialize()
-    socketClientPool.useSocketClient {
-        val tcpPacket = TcpPacket(1, "123".toByteArray())
-        for (i in 0..10) {
-            val begin = System.currentTimeMillis()
-            val responseTcpPacket = it.send(tcpPacket)
-            println("receive:" + responseTcpPacket.toByteArray().toHexString() + ", cost:" + (System.currentTimeMillis() - begin))
+    object : Thread() {
+        override fun run() {
+            socketClientPool.useSocketClient {
+                println(it)
+                val tcpPacket = TcpPacket(1.toByteArray(), "111".toByteArray())
+                for (i in 0..10) {
+                    val begin = System.currentTimeMillis()
+                    val responseTcpPacket = it.send(tcpPacket)
+                    println(currentThread().toString() + ", receive:" + responseTcpPacket.toByteArray().toHexString() + ", cost:" + (System.currentTimeMillis() - begin))
+                }
+            }
         }
-    }
+    }.start()
+    object : Thread() {
+        override fun run() {
+            socketClientPool.useSocketClient {
+                println(it)
+                val tcpPacket = TcpPacket(2.toByteArray(), "222".toByteArray())
+                for (i in 0..10) {
+                    val begin = System.currentTimeMillis()
+                    val responseTcpPacket = it.send(tcpPacket)
+                    println(currentThread().toString() + ", receive:" + responseTcpPacket.toByteArray().toHexString() + ", cost:" + (System.currentTimeMillis() - begin))
+                }
+            }
+        }
+    }.start()
+    Thread.sleep(5000)
     return
     val tcpPacketProcessor = TcpPacketProcessor()
     val client = Socket("127.0.0.1", 9999)
     val inputStream = client.getInputStream()
     val outputStream = client.getOutputStream()
-    val tcpPacket = TcpPacket(1, "123".toByteArray())
+    val tcpPacket = TcpPacket(1.toByteArray(), "123".toByteArray())
     println(tcpPacket.toByteArray().toHexString())
     tcpPacketProcessor.sendTcpPacket(outputStream, tcpPacket)
     while (true) {

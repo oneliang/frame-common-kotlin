@@ -1,6 +1,6 @@
 package com.oneliang.ktx.frame.test
 
-import com.oneliang.ktx.frame.communication.ClientManager
+import com.oneliang.ktx.frame.socket.nio.ClientManager
 
 fun main() {
     ClientManager("localhost", 9999).also { clientManager ->

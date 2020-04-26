@@ -1,4 +1,4 @@
-package com.oneliang.ktx.frame.communication
+package com.oneliang.ktx.frame.socket.nio
 
 import com.oneliang.ktx.util.common.MD5String
 import com.oneliang.ktx.util.common.perform
@@ -6,6 +6,7 @@ import com.oneliang.ktx.util.concurrent.ThreadTask
 import com.oneliang.ktx.util.logging.LoggerManager
 import java.net.InetSocketAddress
 import java.nio.ByteBuffer
+import java.nio.channels.SelectionKey
 import java.nio.channels.Selector
 import java.nio.channels.SocketChannel
 import java.util.*
@@ -35,6 +36,8 @@ open class SelectorThreadTask(val selector: Selector) : ThreadTask {
                             val responseByteArray = this.processor(byteArray)
                             socketChannel.write(ByteBuffer.wrap(responseByteArray))
                             logger.debug("byte array md5:%s, byte array size:%s", byteArray.MD5String(), byteArray.size)
+//                            this.selector.wakeup()
+//                            socketChannel.register(this.selector, SelectionKey.OP_READ)
                         }) {
                             logger.error("disconnect", it)
                             key.cancel()

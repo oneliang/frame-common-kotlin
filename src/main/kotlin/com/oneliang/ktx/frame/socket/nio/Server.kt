@@ -1,4 +1,4 @@
-package com.oneliang.ktx.frame.communication
+package com.oneliang.ktx.frame.socket.nio
 
 import com.oneliang.ktx.util.common.perform
 import com.oneliang.ktx.util.concurrent.LoopThread

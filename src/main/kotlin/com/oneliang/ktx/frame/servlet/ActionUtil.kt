@@ -94,7 +94,7 @@ object ActionUtil {
     fun includeJsp(jspUriPath: String, servletRequest: ServletRequest, servletResponse: ServletResponse): ByteArrayOutputStream {
         val requestDispatcher = servletRequest.getRequestDispatcher(jspUriPath)
         val byteArrayOutputStream = ByteArrayOutputStream()
-        val servletOuputStream = object : ServletOutputStream() {
+        val servletOutputStream = object : ServletOutputStream() {
             override fun write(b: ByteArray, off: Int, len: Int) {
                 byteArrayOutputStream.write(b, off, len)
             }
@@ -113,14 +113,14 @@ object ActionUtil {
         val printWriter = PrintWriter(OutputStreamWriter(byteArrayOutputStream))
         val httpServletResponse = object : HttpServletResponseWrapper(servletResponse as HttpServletResponse) {
             override fun getOutputStream(): ServletOutputStream {
-                return servletOuputStream
+                return servletOutputStream
             }
 
             override fun getWriter(): PrintWriter {
                 return printWriter
             }
 //            val outputStream: ServletOutputStream
-//                get() = servletOuputStream
+//                get() = servletOutputStream
 //            val writer: PrintWriter
 //                get() = printWriter
         }
