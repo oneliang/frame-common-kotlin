@@ -10,8 +10,6 @@ class SocketClientPool : ResourcePool<SocketClient>() {
         private val logger = LoggerManager.getLogger(SocketClientPool::class)
     }
 
-    lateinit var tcpPacketProcessor: TcpPacketProcessor
-
     override fun destroyResource(resource: SocketClient?) {
         resource?.close()
     }
