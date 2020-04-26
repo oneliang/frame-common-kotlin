@@ -110,7 +110,7 @@ open class IocContext : AbstractContext() {
                 } else {
                     instantiateIocBeanObjectByDefaultConstructor(iocBean)
                 }
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 logger.error("instantiate ioc bean object error, id:${iocBean.id}, type:${iocBean.type}, value:${iocBean.value}", e)
                 throw e
             }
@@ -334,7 +334,7 @@ open class IocContext : AbstractContext() {
             logger.info("Auto injecting by id, instance id:%s, reference instance id:%s, method name:%s, %s <- %s", id, fieldName, methodName, instanceClassName, referenceIocBean.type)
             try {
                 method.invoke(instance, proxyInstance)
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 logger.error("Auto injecting by id error, instance id:%s, instance class name:%s, field name:%s, reference type:%s, real type:%s", e, id, instanceClassName, fieldName, types[0], referenceIocBean.type)
                 throw e
             }
@@ -382,7 +382,7 @@ open class IocContext : AbstractContext() {
                 logger.info("Manual injecting, instance id:%s, %s <- %s", iocBeanId, iocBean.type, referenceIocBean.type)
                 try {
                     method.invoke(instance, proxyInstance)
-                } catch (e: Exception) {
+                } catch (e: Throwable) {
                     logger.error("Manual injecting error, instance id:%s, instance class name:%s, field name:%s, reference type:%s, real type:%s", e, iocBeanId, instanceClassName, fieldName, types[0], referenceIocBean.type)
                     throw e
                 }
@@ -408,9 +408,10 @@ open class IocContext : AbstractContext() {
                 logger.info("After inject, instance id:%s, proxyInstance:%s, method:%s", id, proxyInstance, iocAfterInjectBean.method)
                 try {
                     method.invoke(proxyInstance)
-                } catch (e: Exception) {
+                } catch (e: Throwable) {
                     logger.error("After inject error, instance id:%s, proxyInstance:%s, method:%s", e, id, proxyInstance, iocAfterInjectBean.method)
-                    throw e
+                    //no need to throw exception, it will break the main thread
+//                    throw e
                 }
             }
         }
