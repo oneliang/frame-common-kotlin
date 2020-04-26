@@ -14,14 +14,16 @@ class SocketClientPool : ResourcePool<SocketClient>() {
         resource?.close()
     }
 
-    fun useSocketClient(block: (socketClient: SocketClient) -> Unit) {
-        val socketClient = this.stableResource ?: return
-        perform({
-            block(socketClient)
+    fun <R> useSocketClient(block: (socketClient: SocketClient) -> R?): R? {
+        val socketClient = this.stableResource ?: return null
+        return perform({
+            val result = block(socketClient)
             this.releaseStableResource(socketClient)
+            result
         }, failure = {
             logger.error(Constants.Base.EXCEPTION, it)
             this.releaseStableResource(socketClient, true)
+            null
         })
     }
 }
