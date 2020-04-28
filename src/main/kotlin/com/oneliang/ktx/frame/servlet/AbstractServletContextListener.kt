@@ -1,7 +1,7 @@
 package com.oneliang.ktx.frame.servlet
 
 import com.oneliang.ktx.Constants
-import com.oneliang.ktx.frame.ConfigurationFactory
+import com.oneliang.ktx.frame.configuration.ConfigurationContainer
 import com.oneliang.ktx.frame.configuration.ConfigurationContext
 import com.oneliang.ktx.util.common.nullToBlank
 import com.oneliang.ktx.util.common.replaceAllLines
@@ -32,7 +32,7 @@ abstract class AbstractServletContextListener : ServletContextListener {
         //config file
         if (configFile.isNotBlank()) {
             try {
-                val configurationContext = ConfigurationFactory.singletonConfigurationContext
+                val configurationContext = ConfigurationContainer.rootConfigurationContext
                 var classesRealPath = Thread.currentThread().contextClassLoader.getResource(Constants.String.BLANK)?.path.nullToBlank()
                 classesRealPath = File(classesRealPath).absolutePath
                 configurationContext.classesRealPath = classesRealPath
@@ -53,7 +53,7 @@ abstract class AbstractServletContextListener : ServletContextListener {
      * when the server is shut down,close the connection pool
      */
     override fun contextDestroyed(servletContextEvent: ServletContextEvent) {
-        val configurationContext = ConfigurationFactory.singletonConfigurationContext
+        val configurationContext = ConfigurationContainer.rootConfigurationContext
         configurationContext.destroyAll()
     }
 

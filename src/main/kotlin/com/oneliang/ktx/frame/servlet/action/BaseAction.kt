@@ -2,7 +2,7 @@ package com.oneliang.ktx.frame.servlet.action
 
 import com.oneliang.ktx.Constants
 import com.oneliang.ktx.StaticVar
-import com.oneliang.ktx.frame.ConfigurationFactory
+import com.oneliang.ktx.frame.configuration.ConfigurationContainer
 import com.oneliang.ktx.frame.i18n.MessageContext
 import com.oneliang.ktx.frame.servlet.ActionUtil
 import com.oneliang.ktx.util.common.nullToBlank
@@ -20,7 +20,7 @@ import javax.servlet.http.HttpServletResponse
 
 open class BaseAction {
 
-    protected val projectRealPath = ConfigurationFactory.singletonConfigurationContext.projectRealPath
+    protected val projectRealPath = ConfigurationContainer.rootConfigurationContext.projectRealPath
 
     /**
      * base path

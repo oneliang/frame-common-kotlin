@@ -1,7 +1,7 @@
 package com.oneliang.ktx.frame.jdbc
 
 import com.oneliang.ktx.Constants
-import com.oneliang.ktx.frame.ConfigurationFactory
+import com.oneliang.ktx.frame.configuration.ConfigurationContainer
 import com.oneliang.ktx.frame.bean.Page
 import com.oneliang.ktx.util.logging.LoggerManager
 import com.oneliang.ktx.util.resource.ResourcePool
@@ -518,7 +518,7 @@ open class DefaultQueryImpl : BaseQueryImpl(), Query {
             "DISTINCT $countColumn"
         }
         val sql = if (kClass != null) {
-            val mappingBean = ConfigurationFactory.singletonConfigurationContext.findMappingBean(kClass)
+            val mappingBean = ConfigurationContainer.rootConfigurationContext.findMappingBean(kClass)
             SqlUtil.selectSql(arrayOf("COUNT(${innerCountColumn}) AS " + Constants.Database.COLUMN_NAME_TOTAL), table, condition, mappingBean)
         } else {
             SqlUtil.selectSql(arrayOf("COUNT(${innerCountColumn}) AS " + Constants.Database.COLUMN_NAME_TOTAL), table, condition, null)

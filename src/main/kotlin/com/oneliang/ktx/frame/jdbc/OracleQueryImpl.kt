@@ -2,9 +2,8 @@ package com.oneliang.ktx.frame.jdbc
 
 import com.oneliang.ktx.Constants
 import com.oneliang.ktx.exception.MappingNotFoundException
-import com.oneliang.ktx.frame.ConfigurationFactory
+import com.oneliang.ktx.frame.configuration.ConfigurationContainer
 import com.oneliang.ktx.frame.bean.Page
-import java.sql.Connection
 import kotlin.reflect.KClass
 
 class OracleQueryImpl : DefaultQueryImpl() {
@@ -41,7 +40,7 @@ class OracleQueryImpl : DefaultQueryImpl() {
         System.arraycopy(tempSelectColumns, 0, newColumns, 0, tempSelectColumns.size)
         newColumns[tempSelectColumns.size] = "rownum $rowNumAlias"
         if (tempTable.isBlank()) {
-            val mappingBean = ConfigurationFactory.singletonConfigurationContext.findMappingBean(kClass) ?: throw MappingNotFoundException("can not find the mapping bean: $kClass")
+            val mappingBean = ConfigurationContainer.rootConfigurationContext.findMappingBean(kClass) ?: throw MappingNotFoundException("can not find the mapping bean: $kClass")
             tempTable = mappingBean.table
         }
         tempTable = "$tempTable $tableAlias"

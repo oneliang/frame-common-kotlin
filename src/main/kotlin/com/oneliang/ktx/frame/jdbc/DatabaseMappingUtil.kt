@@ -2,7 +2,7 @@ package com.oneliang.ktx.frame.jdbc
 
 import com.oneliang.ktx.Constants
 import com.oneliang.ktx.exception.MappingNotFoundException
-import com.oneliang.ktx.frame.ConfigurationFactory
+import com.oneliang.ktx.frame.configuration.ConfigurationContainer
 import com.oneliang.ktx.util.common.parseRegexGroup
 
 /**
@@ -34,7 +34,7 @@ object DatabaseMappingUtil {
             if (pos > 0) {
                 val className = string.substring(0, pos)
                 val fieldName = string.substring(pos + 1, string.length)
-                val mappingBean = ConfigurationFactory.singletonConfigurationContext.findMappingBean(className)
+                val mappingBean = ConfigurationContainer.rootConfigurationContext.findMappingBean(className)
                 if (mappingBean != null) {
                     val columnName = mappingBean.getColumn(fieldName)
                     if (columnName.isNotBlank()) {
@@ -46,7 +46,7 @@ object DatabaseMappingUtil {
                     throw MappingNotFoundException("can not find the mapping bean: $className")
                 }
             } else {
-                val mappingBean = ConfigurationFactory.singletonConfigurationContext.findMappingBean(string)
+                val mappingBean = ConfigurationContainer.rootConfigurationContext.findMappingBean(string)
                 if (mappingBean != null) {
                     val schema = mappingBean.schema
                     val table = mappingBean.table

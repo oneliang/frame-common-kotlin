@@ -1,6 +1,6 @@
 package com.oneliang.ktx.frame.servlet
 
-import com.oneliang.ktx.frame.ConfigurationFactory
+import com.oneliang.ktx.frame.configuration.ConfigurationContainer
 import com.oneliang.ktx.frame.configuration.ConfigurationContext
 import com.oneliang.ktx.frame.servlet.action.ActionBean
 import com.oneliang.ktx.frame.servlet.action.ActionContext
@@ -58,7 +58,7 @@ fun ConfigurationContext.interceptorInject() {
  * @return String
  */
 fun ConfigurationContext.findGlobalForwardPath(name: String): String {
-    val actionContext = ConfigurationFactory.singletonConfigurationContext.findContext(ActionContext::class)
+    val actionContext = ConfigurationContainer.rootConfigurationContext.findContext(ActionContext::class)
     return actionContext?.findGlobalForwardPath(name).nullToBlank()
 }
 
@@ -70,6 +70,6 @@ fun ConfigurationContext.findGlobalForwardPath(name: String): String {
  * @return List<ActionBean>
 </ActionBean> */
 fun ConfigurationContext.findActionBeanList(uri: String): List<ActionBean>? {
-    val actionContext = ConfigurationFactory.singletonConfigurationContext.findContext(ActionContext::class)
+    val actionContext = ConfigurationContainer.rootConfigurationContext.findContext(ActionContext::class)
     return actionContext?.findActionBeanList(uri)
 }

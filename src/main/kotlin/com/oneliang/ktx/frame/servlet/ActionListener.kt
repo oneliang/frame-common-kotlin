@@ -1,7 +1,7 @@
 package com.oneliang.ktx.frame.servlet
 
 import com.oneliang.ktx.Constants
-import com.oneliang.ktx.frame.ConfigurationFactory
+import com.oneliang.ktx.frame.configuration.ConfigurationContainer
 import com.oneliang.ktx.frame.servlet.action.*
 import com.oneliang.ktx.util.common.*
 import com.oneliang.ktx.util.logging.LoggerManager
@@ -253,7 +253,7 @@ class ActionListener : HttpServlet() {
      */
     private fun doBeforeGlobalInterceptor(uri: String, request: HttpServletRequest, response: HttpServletResponse): Boolean {
         //global interceptor doIntercept
-        val beforeGlobalInterceptorList = ConfigurationFactory.singletonConfigurationContext.beforeGlobalInterceptorList
+        val beforeGlobalInterceptorList = ConfigurationContainer.rootConfigurationContext.beforeGlobalInterceptorList
         val beforeGlobalInterceptorResult = doGlobalInterceptorList(beforeGlobalInterceptorList, request, response)
 
         //through the interceptor
@@ -307,7 +307,7 @@ class ActionListener : HttpServlet() {
      */
     @Throws(ActionExecuteException::class, ServletException::class, IOException::class)
     private fun doAction(uri: String, request: HttpServletRequest, response: HttpServletResponse, httpRequestMethod: ActionInterface.HttpRequestMethod): Boolean {
-        val actionBeanList = ConfigurationFactory.singletonConfigurationContext.findActionBeanList(uri)
+        val actionBeanList = ConfigurationContainer.rootConfigurationContext.findActionBeanList(uri)
         if (actionBeanList.isNullOrEmpty()) {
             logger.info("The request name:$uri. It does not exist, please config the name and entity class")
             response.status = Constants.Http.StatusCode.NOT_FOUND
@@ -339,7 +339,7 @@ class ActionListener : HttpServlet() {
         } catch (e: Throwable) {
             logger.error(Constants.Base.EXCEPTION, e)
             logger.info("The request name:$uri. Action or page does not exist")
-            val exceptionPath = ConfigurationFactory.singletonConfigurationContext.globalExceptionForwardPath.nullToBlank()
+            val exceptionPath = ConfigurationContainer.rootConfigurationContext.globalExceptionForwardPath.nullToBlank()
             if (exceptionPath.isNotBlank()) {
                 logger.info("Forward to exception path:$exceptionPath")
                 request.setAttribute(Constants.Base.EXCEPTION, e)
@@ -399,7 +399,7 @@ class ActionListener : HttpServlet() {
             if (path.isNotBlank()) {
                 logger.info("The forward name in configFile is--:actionPath:" + actionBean.path + "--forward:" + forward + "--path:" + path)
             } else {
-                path = ConfigurationFactory.singletonConfigurationContext.findGlobalForwardPath(forward)
+                path = ConfigurationContainer.rootConfigurationContext.findGlobalForwardPath(forward)
                 logger.info("The forward name in global forward configFile is--:forward:$forward--path:$path")
             }
             this.doForward(normalExecute, needToStaticExecute, actionForwardBean, path, request, response, false)
@@ -538,7 +538,7 @@ class ActionListener : HttpServlet() {
      * @return boolean
      */
     private fun doAfterGlobalInterceptor(uri: String, request: HttpServletRequest, response: HttpServletResponse): Boolean {
-        val afterGlobalInterceptorList = ConfigurationFactory.singletonConfigurationContext.afterGlobalInterceptorList
+        val afterGlobalInterceptorList = ConfigurationContainer.rootConfigurationContext.afterGlobalInterceptorList
         val afterGlobalInterceptorResult = doGlobalInterceptorList(afterGlobalInterceptorList, request, response)
         if (afterGlobalInterceptorResult.type == InterceptorInterface.Result.Type.ERROR) {
             logger.error("The request name:%s. Can not through the after global interceptors", uri)
@@ -602,7 +602,7 @@ class ActionListener : HttpServlet() {
                     requestDispatcher.forward(request, response)
                 } else if (needToStaticExecute) {
                     val staticFilePath = actionForwardBean!!.staticFilePath
-                    val configurationContext = ConfigurationFactory.singletonConfigurationContext
+                    val configurationContext = ConfigurationContainer.rootConfigurationContext
                     if (StaticFilePathUtil.staticize(realPath, configurationContext.projectRealPath + staticFilePath, request, response)) {
                         logger.info("Static executed success,redirect static file:$staticFilePath")
                         val requestDispatcher = request.getRequestDispatcher(staticFilePath)

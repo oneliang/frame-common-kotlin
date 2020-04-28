@@ -1,6 +1,6 @@
 package com.oneliang.ktx.frame.ioc
 
-import com.oneliang.ktx.frame.ConfigurationFactory
+import com.oneliang.ktx.frame.configuration.ConfigurationContainer
 import com.oneliang.ktx.frame.configuration.ConfigurationContext
 import com.oneliang.ktx.frame.servlet.interceptorInject
 
@@ -93,7 +93,7 @@ fun ConfigurationContext.afterInject() {
  */
 @Throws(Exception::class)
 fun <T : Any> T.autoInjectById() {
-    ConfigurationFactory.singletonConfigurationContext.autoInjectObjectById(this::class.java.name, this)
+    ConfigurationContainer.rootConfigurationContext.autoInjectObjectById(this::class.java.name, this)
 }
 
 /**
@@ -101,5 +101,5 @@ fun <T : Any> T.autoInjectById() {
  */
 @Throws(Exception::class)
 fun <T : Any> T.autoInjectByType() {
-    ConfigurationFactory.singletonConfigurationContext.autoInjectObjectByType(this::class.java.name, this)
+    ConfigurationContainer.rootConfigurationContext.autoInjectObjectByType(this::class.java.name, this)
 }
