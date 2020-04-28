@@ -6,7 +6,6 @@ import com.oneliang.ktx.util.concurrent.ThreadTask
 import com.oneliang.ktx.util.logging.LoggerManager
 import java.net.InetSocketAddress
 import java.nio.ByteBuffer
-import java.nio.channels.SelectionKey
 import java.nio.channels.Selector
 import java.nio.channels.SocketChannel
 import java.util.*
@@ -16,7 +15,7 @@ open class SelectorThreadTask(val selector: Selector) : ThreadTask {
         private val logger = LoggerManager.getLogger(SelectorThreadTask::class)
     }
 
-    internal var processor: (byteArray: ByteArray) -> ByteArray = { ByteArray(0) }
+    lateinit var selectorProcessor: SelectorProcessor
 
     override fun runTask() {
         while (true) {
@@ -33,7 +32,7 @@ open class SelectorThreadTask(val selector: Selector) : ThreadTask {
                         logger.debug("connected, time:%s, host:%s, port:%s", Date(), address.hostString, address.port)
                         perform({
                             val byteArray = socketChannel.readByteArray()
-                            val responseByteArray = this.processor(byteArray)
+                            val responseByteArray = this.selectorProcessor.process(byteArray)
                             socketChannel.write(ByteBuffer.wrap(responseByteArray))
                             logger.debug("byte array md5:%s, byte array size:%s", byteArray.MD5String(), byteArray.size)
 //                            this.selector.wakeup()

@@ -15,9 +15,8 @@ class Server(private val host: String, private val port: Int) : LoopThread() {
         private val logger = LoggerManager.getLogger(Server::class)
     }
 
-    var processor: (byteArray: ByteArray) -> ByteArray = { ByteArray(0) }
-    private val threadCount = Runtime.getRuntime().availableProcessors()
-    private val threadPool = ThreadPool()
+    lateinit var selectorProcessor: SelectorProcessor
+    lateinit var threadPool: ThreadPool
     private val acceptSelector: Selector = Selector.open()
     private var selectorThreadTask: Array<SelectorThreadTask> = emptyArray()
     private var serverSocketChannel: ServerSocketChannel? = null
@@ -65,12 +64,10 @@ class Server(private val host: String, private val port: Int) : LoopThread() {
     override fun start() {
         super.start()
         //thread pool
-        this.threadPool.minThreads = 1
-        this.threadPool.maxThreads = this.threadCount
-        this.threadPool.start()
-        this.selectorThreadTask = Array(this.threadCount) {
+//        this.threadPool.start()
+        this.selectorThreadTask = Array(this.threadPool.maxThreads) {
             SelectorThreadTask(Selector.open()).also {
-                it.processor = this.processor
+                it.selectorProcessor = this.selectorProcessor
             }
         }
         this.selectorThreadTask.forEach {
