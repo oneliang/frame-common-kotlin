@@ -5,6 +5,8 @@ import com.oneliang.ktx.exception.FileLoadException
 import com.oneliang.ktx.util.common.nullToBlank
 import com.oneliang.ktx.util.common.replaceAllLines
 import com.oneliang.ktx.util.common.replaceAllSpace
+import com.oneliang.ktx.util.file.FileUtil
+import com.oneliang.ktx.util.file.findMatchFile
 import com.oneliang.ktx.util.jar.JarClassLoader
 import com.oneliang.ktx.util.jar.JarUtil
 import com.oneliang.ktx.util.logging.LoggerManager
@@ -108,26 +110,14 @@ object AnnotationContextUtil {
         val classList = mutableListOf<KClass<*>>()
         val classesRealPathFile = File(classesRealPath)
         val searchClassPathFile = File(searchClassPath)
-        val queue = ConcurrentLinkedQueue<File>()
-        queue.add(searchClassPathFile)
-        while (!queue.isEmpty()) {
-            val file = queue.poll()
-            val filename = file.name
-            if (file.isDirectory) {
-                val fileList = file.listFiles()
-                if (fileList != null) {
-                    for (subFile in fileList) {
-                        queue.add(subFile)
-                    }
-                }
-            } else if (file.isFile) {
-                if (filename.endsWith(Constants.Symbol.DOT + Constants.File.CLASS)) {
-                    val filePath = file.absolutePath
-                    val className = filePath.substring(classesRealPathFile.absolutePath.length + 1, filePath.length - (Constants.Symbol.DOT + Constants.File.CLASS).length).replace(File.separator, Constants.Symbol.DOT)
-                    val clazz = Thread.currentThread().contextClassLoader.loadClass(className)
-                    classList.add(clazz.kotlin)
-                }
-            }
+        searchClassPathFile.findMatchFile(FileUtil.MatchOption().also {
+            it.fileSuffix = Constants.Symbol.DOT + Constants.File.CLASS
+        }) {
+            val filePath = it.absolutePath
+            val className = filePath.substring(classesRealPathFile.absolutePath.length + 1, filePath.length - (Constants.Symbol.DOT + Constants.File.CLASS).length).replace(File.separator, Constants.Symbol.DOT)
+            val clazz = Thread.currentThread().contextClassLoader.loadClass(className)
+            classList.add(clazz.kotlin)
+            filePath
         }
         this.classCacheMap[classCacheKey] = classList
         return classList
