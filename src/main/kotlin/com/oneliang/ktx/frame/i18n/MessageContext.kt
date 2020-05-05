@@ -3,7 +3,7 @@ package com.oneliang.ktx.frame.i18n
 import com.oneliang.ktx.Constants
 import com.oneliang.ktx.exception.InitializeException
 import com.oneliang.ktx.frame.context.AbstractContext
-import com.oneliang.ktx.util.common.matchPattern
+import com.oneliang.ktx.util.common.matchesPattern
 import com.oneliang.ktx.util.file.FileUtil
 import com.oneliang.ktx.util.logging.LoggerManager
 import java.io.File
@@ -38,17 +38,17 @@ class MessageContext : AbstractContext() {
             val parameterArray = fixParameters.split(Constants.Symbol.COMMA)
             var isRecursion = false
             var directoryPath: String = Constants.String.BLANK
-            var matchPatternName: String = Constants.String.BLANK
+            var matchesPatternName: String = Constants.String.BLANK
             for (parameter in parameterArray) {
                 when {
                     parameter == PARAMETER_RECURSION -> isRecursion = true
                     parameter.startsWith(PARAMETER_PATH) -> directoryPath = parameter.replaceFirst(PARAMETER_PATH, Constants.String.BLANK)
-                    parameter.startsWith(PARAMETER_FILE) -> matchPatternName = parameter.replaceFirst(PARAMETER_FILE, Constants.String.BLANK)
+                    parameter.startsWith(PARAMETER_FILE) -> matchesPatternName = parameter.replaceFirst(PARAMETER_FILE, Constants.String.BLANK)
                 }
             }
             val fullDirectoryPath = if (directoryPath.isNotBlank()) classesRealPath + directoryPath else classesRealPath
             val directoryFile = File(fullDirectoryPath)
-            loadPropertiesFile(directoryFile, matchPatternName, isRecursion)
+            loadPropertiesFile(directoryFile, matchesPatternName, isRecursion)
         } catch (e: Throwable) {
             logger.error("parameter:%s", e, fixParameters)
             throw InitializeException(fixParameters, e)
@@ -65,12 +65,12 @@ class MessageContext : AbstractContext() {
     /**
      * loadPropertiesFile,none recursion version
      * @param directoryFile
-     * @param matchPatternName
+     * @param matchesPatternName
      * @param isRecursion
      * @throws IOException
      */
     @Throws(IOException::class)
-    private fun loadPropertiesFile(directoryFile: File, matchPatternName: String, isRecursion: Boolean) {
+    private fun loadPropertiesFile(directoryFile: File, matchesPatternName: String, isRecursion: Boolean) {
         val queue = ConcurrentLinkedQueue<File>()
         queue.add(directoryFile)
         var sign = false
@@ -89,7 +89,7 @@ class MessageContext : AbstractContext() {
                     }
                 }
             } else if (file.isFile) {
-                if (filename.matchPattern(matchPatternName)) {
+                if (filename.matchesPattern(matchesPatternName)) {
                     val properties = FileUtil.getProperties(file)
                     val key = filename.substring(filename.indexOf(Constants.Symbol.UNDERLINE) + 1, filename.lastIndexOf(Constants.Symbol.DOT))
                     if (messagePropertiesMap.containsKey(key)) {
@@ -107,19 +107,19 @@ class MessageContext : AbstractContext() {
      * recursion version
      * @param directoryFile
      * @param directoryPath
-     * @param matchPatternName
+     * @param matchesPatternName
      * @param isRecursion
      * @throws Exception
      */
     @Throws(Exception::class)
-    private fun loadPropertiesFile(directoryFile: File, directoryPath: String, matchPatternName: String, isRecursion: Boolean) {
+    private fun loadPropertiesFile(directoryFile: File, directoryPath: String, matchesPatternName: String, isRecursion: Boolean) {
         if (directoryFile.isDirectory) {
             val fileList = directoryFile.listFiles()
             if (fileList != null) {
                 for (file in fileList) {
                     val filename = file.name
                     if (file.isFile) {
-                        if (filename.matchPattern(matchPatternName)) {
+                        if (filename.matchesPattern(matchesPatternName)) {
                             val properties = FileUtil.getProperties(directoryPath + filename)
                             val key = filename.substring(filename.indexOf(Constants.Symbol.UNDERLINE) + 1, filename.lastIndexOf(Constants.Symbol.DOT))
                             if (messagePropertiesMap.containsKey(key)) {
@@ -131,7 +131,7 @@ class MessageContext : AbstractContext() {
                         }
                     } else {
                         if (isRecursion) {
-                            loadPropertiesFile(file, directoryPath + filename + FILE_PATH, matchPatternName, isRecursion)
+                            loadPropertiesFile(file, directoryPath + filename + FILE_PATH, matchesPatternName, isRecursion)
                         }
                     }
                 }

@@ -1,7 +1,7 @@
 package com.oneliang.ktx.frame.servlet.filter
 
 import com.oneliang.ktx.Constants
-import com.oneliang.ktx.util.common.matchPattern
+import com.oneliang.ktx.util.common.matchesPattern
 import com.oneliang.ktx.util.logging.LoggerManager
 import java.io.IOException
 import javax.servlet.*
@@ -58,7 +58,7 @@ class SourceFilter : Filter {
         if (this.excludePathArray.isNotEmpty()) {
             for (excludePath in this.excludePathArray) {
                 val path = projectPath + excludePath
-                if (requestUri.matchPattern(path)) {
+                if (requestUri.matchesPattern(path)) {
                     excludePathThrough = true
                     break
                 }

@@ -2,7 +2,7 @@ package com.oneliang.ktx.frame.servlet.action
 
 import com.oneliang.ktx.Constants
 import com.oneliang.ktx.util.common.RequestUtil
-import com.oneliang.ktx.util.common.matchPattern
+import com.oneliang.ktx.util.common.matchesPattern
 
 class ActionForwardBean : Cloneable {
     companion object {
@@ -57,7 +57,7 @@ class ActionForwardBean : Cloneable {
                     if (parameterMap.containsKey(settingParameterKey)) {
                         val parameterValues = parameterMap[settingParameterKey]
                         if (parameterValues != null && settingParameterValues.isNotEmpty() && parameterValues.isNotEmpty()) {
-                            if (!parameterValues[0].matchPattern(settingParameterValues[0])) {
+                            if (!parameterValues[0].matchesPattern(settingParameterValues[0])) {
                                 result = false
                             }
                         }
