@@ -1,7 +1,6 @@
 package com.oneliang.ktx.frame.socket
 
 import com.oneliang.ktx.util.common.toByteArray
-import com.oneliang.ktx.util.parallel.processor.EMPTY_MULTI_KEY_VALUE_MATCH_DATA
 import java.io.ByteArrayOutputStream
 
 class TcpPacket constructor(var type: ByteArray = ByteArray(0), var body: ByteArray = ByteArray(0)) : Packet {
